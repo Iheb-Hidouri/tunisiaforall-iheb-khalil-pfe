@@ -1,8 +1,4 @@
 from django.db import models
-from django.contrib.auth.models import User 
-
-# Create your models here.
-from django.db import models
 
 class Adherent(models.Model):
     code_adherent = models.CharField(primary_key=True, max_length=1)
@@ -15,7 +11,6 @@ class Adherent(models.Model):
     type_adherent = models.IntegerField()
     date_naissance_adherent = models.DateField()
     photo_adherent = models.CharField(max_length=100)
-    Date_sai =  models.DateField()
     login_adherent = models.EmailField(max_length=100)
     mdp_adherent = models.EmailField(max_length=20)
     observations_adherent =  models.CharField(max_length=100)
