@@ -1,68 +1,107 @@
 from django.db import models
 
 class Adherent(models.Model):
-    code_adherent = models.CharField(primary_key=True, max_length=1)
-    code_struct_adherent = models.CharField(max_length=5)
-    nom_adherent = models.CharField(max_length=100)
-    prenom_adherent = models.CharField(max_length=100)
-    nation_adherent = models.CharField(max_length=50)
-    tel_adherent = models.CharField(max_length=20)
-    email_adherent = models.EmailField(max_length=100)
-    type_adherent = models.IntegerField()
-    date_naissance_adherent = models.DateField()
-    photo_adherent = models.CharField(max_length=100)
-    login_adherent = models.EmailField(max_length=100)
-    mdp_adherent = models.EmailField(max_length=20)
-    observations_adherent =  models.CharField(max_length=100)
-    cin_adherent= models.CharField(max_length=10)
-    genre_adherent= models.CharField(max_length=10 , choices=[('M', 'Masculin'), ('F', 'Féminin')])
-    lieu_nais_adherent =  models.CharField(max_length=50)
-    profession_adherent =  models.CharField(max_length=50)
-    secteur_adherent = models.CharField(max_length=50)
-    date_adhesion = models.DateTimeField(auto_now_add=True)
-
+    numero_adherent = models.CharField(max_length=8, unique=True)
+    TYPE_ADHERENT_CHOICES = (
+        ('1', 'Membre fondateur'),
+        ('2', 'Membre actif'),
+        ('3', 'Membre actif jeune'),
+        ('4', 'Soutien'),
+        ('5', 'Membre d’honneur'),
+    )
+    type_adherent = models.CharField(max_length=1, choices=TYPE_ADHERENT_CHOICES)
+    GENRE_CHOICES = (
+        ('M', 'M.'),
+        ('F', 'Mme.'),
+    )
+    genre = models.CharField(max_length=1, choices=GENRE_CHOICES)
+    nom = models.CharField(max_length=50)
+    prenom = models.CharField(max_length=50)
+    DOCUMENT_IDENTITE_CHOICES = (
+        ('CI', 'Carte d\'identité'),
+        ('CS', 'Carte de séjour'),
+    )
+    document_identite = models.CharField(max_length=2, choices=DOCUMENT_IDENTITE_CHOICES)
+    numero_document_identite = models.CharField(max_length=8)
+    date_delivrance_ci = models.DateField(null=True, blank=True)
+    date_validite_cs = models.DateField(null=True, blank=True)
+    nationalite = models.CharField(max_length=50)
+    date_naissance = models.DateField()
+    lieu_naissance = models.CharField(max_length=50)
+    profession = models.CharField(max_length=50)
+    rue = models.CharField(max_length=20)
+    
+    ville = models.CharField(max_length=15)
+    code_postal = models.CharField(max_length=4)
+    telephone = models.CharField(max_length=20)
+    email = models.EmailField(max_length=50)
+    COMMISSION_CHOICES = (
+        ('1', 'Enseignement, Sciences et Technologies'),
+        ('2', 'Développement et emploi'),
+        ('3', 'Santé et social'),
+        ('4', 'Culture, tourisme et environnement'),
+        ('5', 'Autre'),
+    )
+    commissions = models.CharField(max_length=5, choices=COMMISSION_CHOICES)
+    derniere_cotisation_payee = models.CharField(max_length=4)
+    date_reglement_cotisation = models.DateField()
+    date_adhesion = models.DateField()
+    date_depart = models.DateField(null=True, blank=True)
+    motif_depart = models.CharField(max_length=50, null=True, blank=True)
+    
     def __str__(self):
-        return f"{self.nom_adherent} {self.prenom_adherent}"
+        return self.numero_adherent
+
     
 
-class HistoriqueAdherent(models.Model):
-    id_historique_client = models.AutoField(primary_key=True)
+from django.db import models
+
+class Structure(models.Model):
+    code = models.CharField(max_length=6)
+    libelle = models.CharField(max_length=20)
+    rue = models.CharField(max_length=20)
+    cite_quartier = models.CharField(max_length=15)
+    ville = models.CharField(max_length=15)
+    code_postal = models.CharField(max_length=4)
+    telephone = models.CharField(max_length=20)
+    email = models.EmailField()
+    date_creation = models.DateField()
+    date_ag = models.DateField()
+    
+    def __str__(self):
+       return self.code
+
+    
+class ResponsableStructure(models.Model):
+    code_structure = models.ForeignKey(Structure, on_delete=models.CASCADE)
     code_adherent = models.ForeignKey(Adherent, on_delete=models.CASCADE)
-    date_modification = models.DateTimeField(auto_now_add=True)
-    modifie_par = models.CharField(max_length=100)
-    type_modif = models.CharField(max_length=100)
+    responsabilite = models.CharField(max_length=255)
+    date_debut = models.DateField()
+    date_fin = models.DateField(null=True, blank=True)
 
     def __str__(self):
-        return f"{self.id_historique_client}: {self.code_adherent.code_adherent}"
-    
-
-class StructureAssociation(models.Model):
-    code_struct = models.CharField(primary_key=True, max_length=10)
-    gouv_structure = models.CharField(max_length=50)
-    delegstruct = models.CharField(max_length=50)
-    date_crea = models.DateField()
-    type_struct = models.CharField(max_length=50)
-    matricule_fiscale = models.CharField(max_length=50)
-    JORT_crea = models.CharField(max_length=50)
-    nro_cpt_ban = models.CharField(max_length=50)
-    code_president = models.CharField(max_length=10)
-    code_vice = models.CharField(max_length=10)
-    code_direxe = models.CharField(max_length=10)
-    code_tresor = models.CharField(max_length=10)
-    code_membre = models.CharField(max_length=10)
-
-    def __str__(self):
-        return self.code_struct
+        return f"{self.code_adherent} - {self.code_structure} ({self.responsabilite})"
 
 
-class HistoriqueStructure(models.Model):
-    id_historique_struct = models.AutoField(primary_key=True)
-    code_struct = models.ForeignKey(StructureAssociation, on_delete=models.CASCADE)
-    date_modif_struct = models.DateTimeField(auto_now_add=True)
-    struct_modifie_par = models.CharField(max_length=50)
-    type_modif_struct = models.CharField(max_length=50)
+class Evenement(models.Model):
+    initiateur = models.ForeignKey(Structure, on_delete=models.CASCADE)
+    numero = models.PositiveIntegerField()
+    libelle = models.CharField(max_length=255)
+    TYPE_CHOICES = (
+        (1, 'Bureau Exécutif'),
+        (2, 'Commission'),
+        (3, 'AG'),
+        (4, 'Conférence'),
+        (5, 'Activité'),
+    )
+    type = models.IntegerField(choices=TYPE_CHOICES)
+    date_debut = models.DateField()
+    heure_debut = models.TimeField()
+    date_fin = models.DateField()
+    heure_fin = models.TimeField()
+    lieu = models.CharField(max_length=255)
+    partenaires = models.ManyToManyField(Structure, related_name='evenements_partenaires', blank=True)
+    membres_invites = models.ManyToManyField(Adherent, related_name='evenements_membres_invites', blank=True)
 
     def __str__(self):
-        return f"{self.id_historique_struct} - {self.code_struct}"
-
-    
+        return f"{self.libelle} ({self.get_type_display()}) - {self.initiateur} ({self.date_debut} {self.heure_debut} - {self.date_fin} {self.heure_fin})"
