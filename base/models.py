@@ -30,7 +30,7 @@ class Adherent(models.Model):
     lieu_naissance = models.CharField(max_length=50)
     profession = models.CharField(max_length=50)
     rue = models.CharField(max_length=20)
-    
+    cite_quartier = models.CharField(max_length=20)
     ville = models.CharField(max_length=15)
     code_postal = models.CharField(max_length=4)
     telephone = models.CharField(max_length=20)
@@ -54,10 +54,8 @@ class Adherent(models.Model):
 
     
 
-from django.db import models
-
 class Structure(models.Model):
-    code = models.CharField(max_length=6)
+    code_stucture = models.CharField(max_length=6)
     libelle = models.CharField(max_length=20)
     rue = models.CharField(max_length=20)
     cite_quartier = models.CharField(max_length=15)
@@ -74,7 +72,7 @@ class Structure(models.Model):
     
 class ResponsableStructure(models.Model):
     code_structure = models.ForeignKey(Structure, on_delete=models.CASCADE)
-    code_adherent = models.ForeignKey(Adherent, on_delete=models.CASCADE)
+    numero_adherent = models.ForeignKey(Adherent, on_delete=models.CASCADE)
     responsabilite = models.CharField(max_length=255)
     date_debut = models.DateField()
     date_fin = models.DateField(null=True, blank=True)
