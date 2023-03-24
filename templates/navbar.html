@@ -1,5 +1,40 @@
-<a href="/">
-    <h1>LOGO</h1>
-</a>
-
-<hr>
+<nav>
+    <ul>
+      <li><a href="#"><img src="logo.png" alt="logo"></a></li>
+      <li><a href="{% url 'gestion_adherent' %}">Gestion des adhérents</a></li>
+      <li><a href="#">Gestion des structures</a></li>
+      <li><a href="#">Gestion financière</a></li>
+      <li><a href="#">Profile</a></li>
+    </ul>
+  </nav>
+  
+  <style>
+    nav {
+      background-color: #f8f8f8;
+      padding: 10px;
+    }
+    
+    ul {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      text-align: center;
+    }
+    
+    li {
+      display: inline-block;
+      margin: 0 10px;
+    }
+    
+    a {
+      color: #333;
+      text-decoration: none;
+      font-weight: bold;
+    }
+    
+    img {
+      height: 40px;
+      vertical-align: middle;
+    }
+  </style>
+  
