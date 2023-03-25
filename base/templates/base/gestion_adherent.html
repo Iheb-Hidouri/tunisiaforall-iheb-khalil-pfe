@@ -1,1 +1,25 @@
-<li><a href="{% url 'create-adherent' %}">Ajouter adherent</a></li>
+<a href="{% url 'create-adherent' %}">Create Adherent</a>
+<table>
+    <thead>
+      <tr>
+        <th>Nom</th>
+        <th>ID</th>
+        <th>Type</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for adherent in adherents %}
+        <tr>
+          <td>{{ adherent.nom }}</td>
+          <td>{{ adherent.id }}</td>
+          <td>{{ adherent.type }}</td>
+          <td>
+            <a href="{% url 'update-adherent' adherent.id %}">Update</a>
+            <a href="{% url 'delete-adherent' adherent.id %}">Delete</a>
+          </td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  

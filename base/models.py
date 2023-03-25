@@ -1,7 +1,7 @@
 from django.db import models
 
 class Adherent(models.Model):
-    numero_adherent = models.CharField(max_length=8, unique=True)
+    id = models.CharField(max_length=8, primary_key=True)
     TYPE_ADHERENT_CHOICES = (
         ('1', 'Membre fondateur'),
         ('2', 'Membre actif'),
@@ -30,7 +30,7 @@ class Adherent(models.Model):
     lieu_naissance = models.CharField(max_length=50)
     profession = models.CharField(max_length=50)
     rue = models.CharField(max_length=20)
-    cite_quartier = models.CharField(max_length=20)
+   
     ville = models.CharField(max_length=15)
     code_postal = models.CharField(max_length=4)
     telephone = models.CharField(max_length=20)
@@ -50,7 +50,7 @@ class Adherent(models.Model):
     motif_depart = models.CharField(max_length=50, null=True, blank=True)
     
     def __str__(self):
-        return self.numero_adherent
+        return self.id
 
     
 
