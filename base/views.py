@@ -33,7 +33,7 @@ def updateAdherent(request , pk) :
         if form.is_valid():
             form.save()
             return redirect('home')
-    context={'form' : form}
+    context={'form' : form , 'adherent':adherent}
     return render(request , 'base/adherent_form.html', context)
 
 
