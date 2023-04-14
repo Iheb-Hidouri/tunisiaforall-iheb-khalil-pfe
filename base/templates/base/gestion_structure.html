@@ -1,0 +1,38 @@
+{% extends 'main.html' %}
+
+
+{% block content %}
+<div>
+
+  <a href="{% url 'create-structure' %}">Create Structure</a>
+  <form method="GET" action="{% url 'gestion_structure' %}">
+    <input type="text" name="q" placeholder="Search by name">
+    <button type="submit">Search</button>
+  </form>
+  <table>
+    <thead>
+      <tr>
+        <th>Code</th>
+        <th>libelle</th>
+        <th>ville</th>
+        <th>email</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for structure in structures %}
+        <tr>
+          <td>{{ structure.code_structure}}</td>
+          <td>{{ structure.libelle }}</td>
+          <td>{{ structure.ville }}</td>
+          <td>{{ structure.email }}</td>
+
+          <td>
+            <a href="{% url 'update-structure' structure.id %}">Update</a>
+            <a href="{% url 'delete-structure' structure.id %}">Delete</a>
+          </td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+<div>  
+{% endblock  %}  

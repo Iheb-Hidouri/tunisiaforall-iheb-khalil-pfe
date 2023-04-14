@@ -1,7 +1,52 @@
 from django.db import models
+from datetime import datetime
+
+
+class Governat(models.Model):
+    name = models.CharField(max_length=50)
+    code = models.CharField(max_length=2)
+
+    def __str__(self):
+        return self.name
+
+
+class Delegation(models.Model):
+    name = models.CharField(max_length=50)
+    code = models.CharField(max_length=2)
+    governat = models.ForeignKey(Governat, on_delete=models.CASCADE , related_name='delegations')
+
+    def __str__(self):
+        return self.name    
+
+class Structure(models.Model):
+    BN = 'BN'
+    BR = 'BR'
+    BL = 'BL'
+    PR = 'PR'
+    TYPE_CHOICES = [
+        (BN, 'Bureau National'),
+        (BR, 'Bureau regional'),
+        (BL, 'Bureau Local'),
+        (PR, 'Projet'),
+    ]
+    code_structure = models.CharField(max_length=6)
+    type = models.CharField(max_length=2, choices=TYPE_CHOICES)
+    libelle = models.CharField(max_length=20)
+    rue = models.CharField(max_length=20)
+    governat = models.ForeignKey(Governat, on_delete=models.CASCADE , related_name='structures')
+    delegation = models.ForeignKey(Delegation, on_delete=models.CASCADE , related_name='structures')
+    code_postal = models.CharField(max_length=4)
+    telephone = models.CharField(max_length=20)
+    email = models.EmailField()
+    date_creation = models.DateField()
+    date_ag = models.DateField()
+    
+    def __str__(self):
+       return self.libelle
 
 class Adherent(models.Model):
-    id = models.CharField(max_length=8, primary_key=True)
+    code = models.CharField(max_length=8)
+    structure = models.ForeignKey(Structure, on_delete=models.CASCADE , related_name='adherents', default = 1)
     TYPE_ADHERENT_CHOICES = (
         ('1', 'Membre fondateur'),
         ('2', 'Membre actif'),
@@ -50,25 +95,7 @@ class Adherent(models.Model):
     motif_depart = models.CharField(max_length=50, null=True, blank=True)
     
     def __str__(self):
-        return self.id
-
-    
-
-class Structure(models.Model):
-    code_stucture = models.CharField(max_length=6)
-    libelle = models.CharField(max_length=20)
-    rue = models.CharField(max_length=20)
-    cite_quartier = models.CharField(max_length=15)
-    ville = models.CharField(max_length=15)
-    code_postal = models.CharField(max_length=4)
-    telephone = models.CharField(max_length=20)
-    email = models.EmailField()
-    date_creation = models.DateField()
-    date_ag = models.DateField()
-    
-    def __str__(self):
-       return self.code
-
+        return self.nom
     
 class ResponsableStructure(models.Model):
     code_structure = models.ForeignKey(Structure, on_delete=models.CASCADE)
@@ -103,3 +130,4 @@ class Evenement(models.Model):
 
     def __str__(self):
         return f"{self.libelle} ({self.get_type_display()}) - {self.initiateur} ({self.date_debut} {self.heure_debut} - {self.date_fin} {self.heure_fin})"
+    
