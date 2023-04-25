@@ -1,0 +1,25 @@
+{% extends 'main.html' %}
+
+
+{% load static %}
+{% block head %}
+    <link rel="stylesheet" type="text/css" href="{% static 'css/style.css' %}">
+{% endblock head %}
+
+
+{% block content %}
+<div>
+    <form method="POST" action=""  class="login-form">
+        {% csrf_token %}
+        <label>Username:</label>
+        <input type="text" name="username" placeholder="Enter Username " class="form-control"/>
+
+        <label>Password:</label>
+        <input type="password" name="password" placeholder="Enter password" class="form-control "/>
+         
+        <input type="submit" value="Login" class="btn btn-primary" />
+
+
+    </form>
+</div>
+{% endblock content %}

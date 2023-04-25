@@ -1,17 +1,48 @@
 from django.shortcuts import render , redirect
 from django.http import HttpResponse
-from .models import Adherent, Structure
+from .models import Adherent, Structure , AdherentHistory
 from .forms import AdherentForm , StructureForm
 from django.db.models import Q
 from .models import  Structure
 from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
 from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
+from auditlog.models import LogEntry
+from django.contrib.auth.views import LoginView
+from django.contrib.auth.models import User 
+from django.contrib.admin.models import LogEntry, ADDITION, CHANGE, DELETION
+from django.contrib.contenttypes.models import ContentType
+from .signals import save_adherent_history, delete_adherent_history
 
+def loginPage(request):
+    if request.method == "POST" : 
+        username =request.POST.get('username')
+        password=request.POST.get('password')
+        try :
+            user = User.objects.get(username=username)
+        except:
+            messages.error(request , 'User does not exist') 
+        user = authenticate(request , username=username , password=password)
 
+        if user is not None :
+            LogEntry.objects.create(
+                user_id=user.id,
+                content_type=ContentType.objects.get_for_model(User),
+                object_id=user.id,
+                object_repr=str(user),
+                action_flag=ADDITION,
+                change_message="User logged in",
+            )
+            login(request , user )    
+            return redirect ('home') 
+    context={}
+    return render(request , 'base/login_register.html', context)
+def logoutUser(request): 
+    logout(request)
+    return redirect  ('home')
 
 def home (request) : 
-   
+    
     return render (request , 'base/home.html')
 
 #VIEWS FOR ADHERENTS
@@ -34,12 +65,24 @@ def gestion_adherent(request):
 def create_adherent(request):
     # Create a new AdherentForm instance
     form = AdherentForm()
+    
     if request.method == 'POST':
         # If the request method is POST, populate the form with the POST data
         form = AdherentForm(request.POST)
         if form.is_valid():
             # If the form is valid, save the new adherent and redirect to the home page
-            form.save()
+            adherent = form.save(commit=False)
+            
+           
+            adherent.user = User.objects.create_user(
+                username=form.cleaned_data['username'],
+                password=form.cleaned_data['password']
+            )
+            adherent.save()
+            history = AdherentHistory.objects.get(adherent=adherent)
+            history.user = request.user
+            history.save()
+           
             return redirect('home')
     # Create a dictionary with the form and pass it to the template
     context = {'form': form}
@@ -57,6 +100,8 @@ def update_adherent(request, pk):
         if form.is_valid():
             # If the form is valid, save the updated adherent and redirect to the home page
             form.save()
+           
+
             return redirect('home')
     # Create a dictionary with the form and the Adherent object and pass it to the template
     context = {'form': form, 'adherent': adherent}
@@ -116,3 +161,15 @@ def delete_structure(request , pk) :
         structure.delete()  # delete the structure object from the database
         return redirect('gestion_structure')  # redirect the user to the structure management page
     return render (request , 'base/delete.html', {'obj': structure})  # render the HTML template for delete confirmation with the context data
+
+
+
+def adherent_history(request):
+    history = AdherentHistory.objects.all().order_by('-timestamp')
+    return render(request, 'base/adherent_history.html', {'history': history})
+
+
+
+
+
+

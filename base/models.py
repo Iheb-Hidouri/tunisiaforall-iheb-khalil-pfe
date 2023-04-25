@@ -1,5 +1,14 @@
 from django.db import models
 from datetime import datetime
+from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
+from django.db import models
+from django.utils import timezone
+from auditlog.models import AuditlogHistoryField
+from simple_history.models import HistoricalRecords
+from django.contrib.auth.models import User
+import os
+import uuid
+
 
 
 class Governat(models.Model):
@@ -40,11 +49,14 @@ class Structure(models.Model):
     email = models.EmailField()
     date_creation = models.DateField()
     date_ag = models.DateField()
+   
     
     def __str__(self):
        return self.libelle
 
+
 class Adherent(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE , default=None)
     code = models.CharField(max_length=8)
     structure = models.ForeignKey(Structure, on_delete=models.CASCADE , related_name='adherents', default = 1)
     TYPE_ADHERENT_CHOICES = (
@@ -66,18 +78,14 @@ class Adherent(models.Model):
         ('CI', 'Carte d\'identité'),
         ('CS', 'Carte de séjour'),
     )
-    document_identite = models.CharField(max_length=2, choices=DOCUMENT_IDENTITE_CHOICES)
+    
     numero_document_identite = models.CharField(max_length=8)
-    date_delivrance_ci = models.DateField(null=True, blank=True)
-    date_validite_cs = models.DateField(null=True, blank=True)
+    
     nationalite = models.CharField(max_length=50)
     date_naissance = models.DateField()
     lieu_naissance = models.CharField(max_length=50)
     profession = models.CharField(max_length=50)
-    rue = models.CharField(max_length=20)
-   
-    ville = models.CharField(max_length=15)
-    code_postal = models.CharField(max_length=4)
+    
     telephone = models.CharField(max_length=20)
     email = models.EmailField(max_length=50)
     COMMISSION_CHOICES = (
@@ -88,15 +96,22 @@ class Adherent(models.Model):
         ('5', 'Autre'),
     )
     commissions = models.CharField(max_length=5, choices=COMMISSION_CHOICES)
-    derniere_cotisation_payee = models.CharField(max_length=4)
-    date_reglement_cotisation = models.DateField()
-    date_adhesion = models.DateField()
+    date_adhesion = models.DateField(blank=True, null=True)
     date_depart = models.DateField(null=True, blank=True)
     motif_depart = models.CharField(max_length=50, null=True, blank=True)
-    
+    history = HistoricalRecords()
     def __str__(self):
         return self.nom
     
+class AdherentHistory(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE , blank=True, null=True)
+    adherent = models.ForeignKey(Adherent, on_delete=models.CASCADE)
+    action = models.CharField(max_length=10)
+    old_data = models.TextField(blank=True, null=True)
+    new_data = models.TextField(blank=True, null=True, default='nothing')
+    timestamp = models.DateTimeField(default=timezone.now)
+
+        
 class ResponsableStructure(models.Model):
     code_structure = models.ForeignKey(Structure, on_delete=models.CASCADE)
     numero_adherent = models.ForeignKey(Adherent, on_delete=models.CASCADE)

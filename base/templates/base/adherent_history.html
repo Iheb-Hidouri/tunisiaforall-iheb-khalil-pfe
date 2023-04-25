@@ -1,0 +1,30 @@
+{% extends 'main.html' %}
+
+{% block content %}
+<h1>Adherent History</h1>
+    <table>
+        <thead>
+            <tr>
+                <th>Adherent</th>
+                <th>Action</th>
+                <th>User</th>
+                <th>Timestamp</th>
+                <th>Old Data</th>
+                <th>New Data</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for entry in history %}
+                <tr>
+                    <td>{{ entry.adherent }}</td>
+                    <td>{{ entry.action }}</td>
+                    <td>{{ entry.user }}</td>
+                    <td>{{ entry.timestamp }}</td>
+                    <td>{{ entry.old_data }}</td>
+                    <td>{{ entry.new_data }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+{% endblock %}

@@ -2,10 +2,13 @@ from django.urls import path
 from . import views
 from django.conf import settings
 from django.conf.urls.static import static
+from .views import adherent_history
 
 
 
 urlpatterns = [
+   path('login/' , views.loginPage , name="login") ,
+   path('logout/' , views.logoutUser, name="logout") ,
    path('', views.home , name="home"),
    path('create-adherent/' , views.create_adherent , name="create-adherent"),
    path('gestion_adherent/' , views.gestion_adherent , name="gestion_adherent"),
@@ -15,5 +18,7 @@ urlpatterns = [
    path('create-structure/' , views.create_structure , name="create-structure"),
    path('update-structure/<str:pk>/', views.update_structure, name="update-structure"),
    path('delete-structure/<str:pk>/', views.delete_structure , name="delete-structure"),
+   path('adherent_history/', views.adherent_history, name='adherent_history'),
+  
   ]
 
