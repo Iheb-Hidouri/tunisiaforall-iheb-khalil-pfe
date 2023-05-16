@@ -1,0 +1,32 @@
+{% extends 'main.html' %}
+
+{% block content %}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Profile</title>
+</head>
+<body>
+    <h1>Profile</h1>
+    <p><strong>Name:</strong> {{ adherent.nom }} {{ adherent.prenom }}</p>
+    <p><strong>Type:</strong> {{ adherent.get_type_adherent_display }}</p>
+    <p><strong>Gender:</strong> {{ adherent.get_genre_display }}</p>
+    <p><strong>Code:</strong> {{ adherent.code }}</p>
+    <p><strong>Structure:</strong> {{ adherent.structure }}</p>
+    <p><strong>Document ID Type:</strong> {{ adherent.get_numero_document_identite_display }}</p>
+    <p><strong>Nationality:</strong> {{ adherent.nationalite }}</p>
+    <p><strong>Date of Birth:</strong> {{ adherent.date_naissance }}</p>
+    <p><strong>Place of Birth:</strong> {{ adherent.lieu_naissance }}</p>
+    <p><strong>Profession:</strong> {{ adherent.profession }}</p>
+    <p><strong>Telephone:</strong> {{ adherent.telephone }}</p>
+    <p><strong>Email:</strong> {{ adherent.email }}</p>
+    <p><strong>Commissions:</strong> {{ adherent.get_commissions_display }}</p>
+    <p><strong>Date of Adhesion:</strong> {{ adherent.date_adhesion }}</p>
+    <p><strong>Date of Departure:</strong> {{ adherent.date_depart }}</p>
+    <p><strong>Motif of Departure:</strong> {{ adherent.motif_depart }}</p>
+    <p><strong>Cotisation Annuelle:</strong> {{ adherent.cotisation_annuelle }}</p>
+</body>
+</html>
+
+{% endblock %}

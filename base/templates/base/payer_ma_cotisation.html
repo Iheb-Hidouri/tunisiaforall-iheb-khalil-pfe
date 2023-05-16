@@ -1,0 +1,12 @@
+<!-- payer_ma_cotisation.html -->
+
+{% extends 'main.html' %}
+
+{% block content %}
+  <h1>Payer Ma Cotisation</h1>
+  <form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Payer</button>
+  </form>
+{% endblock %}

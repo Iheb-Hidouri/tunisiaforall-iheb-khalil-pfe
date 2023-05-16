@@ -1,9 +1,13 @@
 from django import forms
 from django.forms import ModelForm
-from .models import Adherent , Structure , Governat ,User, Delegation
+from .models import Adherent , Structure , Governat ,User, Delegation , Cotisation
 from django.forms.widgets import SelectDateWidget
 from django.utils import timezone
 from PIL import Image
+from .models import BanqueTransactions, CaisseTransactions
+
+
+
 
 class AdherentForm(ModelForm):
     username = forms.CharField(max_length=30)
@@ -12,7 +16,7 @@ class AdherentForm(ModelForm):
     
     class Meta:
         model = Adherent
-        exclude = ['code','user'] # exclude the 'code' field from the form
+        exclude = ['code','user', 'cotisation_annuelle'] # exclude the 'code' field from the form
         widgets = {
             'date_naissance': SelectDateWidget(),
             'date_adhesion': forms.widgets.HiddenInput(),
@@ -28,11 +32,7 @@ class AdherentForm(ModelForm):
         self.fields['profession'].required = True
         self.fields['telephone'].required = True
         self.fields['email'].required = True
-        if self.instance.pk:
-            # This form is being used for updating an existing object
-            del self.fields['username']
-            del self.fields['password']
-            del self.fields['confirm_password']
+        
             
     def clean(self):
         cleaned_data = super().clean()
@@ -57,11 +57,8 @@ class AdherentForm(ModelForm):
         
         instance.code = code # set the 'code' field for the new Adherent object to the generated value
         
-        
-        picture = self.cleaned_data.get('picture')
-        if picture:
-           instance.picture = Image.open(picture)
-           instance.picture.save(picture.name, picture, save=True)
+       
+       
         # Set the 'date_adhesion' field for the new Adherent object to the current time
         instance.date_adhesion = timezone.now()
         
@@ -75,6 +72,30 @@ class AdherentForm(ModelForm):
             instance.user = user
             instance.save() # save the new Adherent object to the database
         return instance
+class UpdateAdherentForm(ModelForm):
+     class Meta:
+        model = Adherent
+        exclude = ['code', 'user','cotisation_annuelle']
+        widgets = {
+            'date_naissance': SelectDateWidget(),
+            'date_adhesion': forms.widgets.HiddenInput(),
+        }
+    
+     def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['structure'].queryset = Structure.objects.all()
+        self.fields['nationalite'].required = True
+        self.fields['profession'].required = True
+        self.fields['telephone'].required = True
+        self.fields['email'].required = True
+    
+     def save(self, commit=True):
+        instance = super().save(commit=False)
+        instance.date_adhesion = timezone.now()
+        if commit:
+            instance.save()
+        return instance
+
 
 
 class StructureForm(ModelForm):
@@ -112,4 +133,29 @@ class StructureForm(ModelForm):
             instance.code_structure = code_structure # set the 'code_structure' field for the new Structure object to the generated value
         if commit:
             instance.save() # save the new Structure object to the database
-        return instance             
+        return instance  
+
+
+
+class BanqueTransactionsForm(forms.ModelForm):
+    class Meta:
+        model = BanqueTransactions
+        fields = '__all__'
+        widgets = {
+            'date': forms.DateInput(attrs={'type': 'date'}),
+        }
+
+class CaisseTransactionsForm(forms.ModelForm):
+    class Meta:
+        model = CaisseTransactions
+        fields = '__all__'
+        widgets = {
+            'date': forms.DateInput(attrs={'type': 'date'}),
+        }     
+class CotisationPaymentForm(forms.ModelForm):
+    class Meta:
+        model = Cotisation
+        fields = ['cotisation_type', 'number', 'date', 'entreprise', 'libelle', 'solde', 'justificatif']                  
+        widgets = {
+            'date': forms.DateInput(attrs={'type': 'date'}),
+        }     

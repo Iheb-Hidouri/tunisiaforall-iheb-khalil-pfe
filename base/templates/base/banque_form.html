@@ -1,0 +1,21 @@
+{% extends 'main.html' %}
+
+
+{% block content %}
+<!-- banque_form.html -->
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Create/Update Banque Transaction</title>
+</head>
+<body>
+    <h1>Create/Update Banque Transaction</h1>
+    <form method="POST">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Save</button>
+    </form>
+</body>
+</html>
+
+{% endblock %}

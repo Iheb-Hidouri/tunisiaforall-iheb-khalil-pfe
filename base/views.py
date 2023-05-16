@@ -1,18 +1,20 @@
-from django.shortcuts import render , redirect
+from django.shortcuts import render , redirect , get_object_or_404
 from django.http import HttpResponse
-from .models import Adherent, Structure , AdherentHistory
-from .forms import AdherentForm , StructureForm
+from .models import Adherent, Structure , AdherentHistory , StructureHistory , Cotisation
+from .forms import AdherentForm , StructureForm , UpdateAdherentForm
 from django.db.models import Q
 from .models import  Structure
 from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
 from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
-from auditlog.models import LogEntry
 from django.contrib.auth.views import LoginView
 from django.contrib.auth.models import User 
 from django.contrib.admin.models import LogEntry, ADDITION, CHANGE, DELETION
 from django.contrib.contenttypes.models import ContentType
-from .signals import save_adherent_history, delete_adherent_history
+from .signals import save_adherent_history, delete_adherent_history, save_structure_history, delete_structure_history, save_caisse_transaction_history,delete_caisse_transaction_history,save_banque_transaction_history,delete_banque_transaction_history
+from django.forms.models import model_to_dict
+from .forms import BanqueTransactionsForm, CaisseTransactionsForm , CotisationPaymentForm
+from .models import BanqueTransactions, CaisseTransactions
 
 def loginPage(request):
     if request.method == "POST" : 
@@ -68,7 +70,7 @@ def create_adherent(request):
     
     if request.method == 'POST':
         # If the request method is POST, populate the form with the POST data
-        form = AdherentForm(request.POST)
+        form = AdherentForm(request.POST, request.FILES)
         if form.is_valid():
             # If the form is valid, save the new adherent and redirect to the home page
             adherent = form.save(commit=False)
@@ -79,9 +81,8 @@ def create_adherent(request):
                 password=form.cleaned_data['password']
             )
             adherent.save()
-            history = AdherentHistory.objects.get(adherent=adherent)
-            history.user = request.user
-            history.save()
+            #SIGNAL
+            save_adherent_history(sender=Adherent, instance=adherent, created=True, request=request)
            
             return redirect('home')
     # Create a dictionary with the form and pass it to the template
@@ -92,15 +93,22 @@ def create_adherent(request):
 def update_adherent(request, pk):
     # Get the Adherent object with the given primary key
     adherent = Adherent.objects.get(id=pk)
+    user = adherent.user
     # Create a new AdherentForm instance and populate it with the Adherent data
-    form = AdherentForm(instance=adherent)
+    form = UpdateAdherentForm(instance=adherent)
+   
     if request.method == 'POST':
         # If the request method is POST, populate the form with the POST data
-        form = AdherentForm(request.POST, instance=adherent)
+        form = UpdateAdherentForm(request.POST, instance=adherent)
+       
         if form.is_valid():
+            adherent = form.save(commit=False)
+            
             # If the form is valid, save the updated adherent and redirect to the home page
             form.save()
-           
+            
+            #SIGNAL
+            save_adherent_history(sender=Adherent, instance=adherent, created=False, request=request)
 
             return redirect('home')
     # Create a dictionary with the form and the Adherent object and pass it to the template
@@ -112,6 +120,8 @@ def delete_adherent(request, pk):
     # Get the Adherent object with the given primary key
     adherent = Adherent.objects.get(id=pk)
     if request.method == 'POST':
+        
+        delete_adherent_history(sender=Adherent, instance=adherent, created=True, request=request)
         # If the request method is POST, delete the adherent and redirect to the list of adherents
         adherent.delete()
         return redirect('gestion_adherent')
@@ -137,7 +147,8 @@ def create_structure(request) :
     if request.method == 'POST' :  # if the user submits the form
         form=StructureForm(request.POST)  # create a form instance with the submitted data
         if form.is_valid() :  # if the form data is valid
-           form.save()  # save the form data to the database
+           structure=form.save()
+           save_structure_history(sender=Adherent, instance=structure, created=True, request=request)  # save the form data to the database
            return redirect('home')  # redirect the user to the home page
     context={'form':form}  # create a dictionary to store the form and pass it to the view
     return render(request , 'base/structure_form.html', context)  # render the HTML template with the context data
@@ -149,7 +160,9 @@ def update_structure(request , pk) :
     if request.method == 'POST' :  # if the user submits the form
         form=StructureForm(request.POST , instance=structure)  # create a form instance with the submitted data and the retrieved structure object as initial data
         if form.is_valid():  # if the form data is valid
-            form.save()  # save the form data to the database
+            structure = form.save()
+            save_structure_history(sender=Structure, instance=structure, created=False, request=request)
+            return redirect('home')  # save the form data to the database
             return redirect('home')  # redirect the user to the home page
     context={'form' : form , 'structure':structure}  # create a dictionary to store the form and structure and pass it to the view
     return render(request , 'base/structure_form.html', context)  # render the HTML template with the context data
@@ -158,7 +171,8 @@ def update_structure(request , pk) :
 def delete_structure(request , pk) :
     structure= Structure.objects.get(id=pk)  # retrieve the structure object with the given primary key
     if request.method =='POST' :  # if the user confirms the delete action
-        structure.delete()  # delete the structure object from the database
+        structure.delete()
+        delete_structure_history(sender=Structure, instance=structure, request=request)  # delete the structure object from the database
         return redirect('gestion_structure')  # redirect the user to the structure management page
     return render (request , 'base/delete.html', {'obj': structure})  # render the HTML template for delete confirmation with the context data
 
@@ -168,8 +182,175 @@ def adherent_history(request):
     history = AdherentHistory.objects.all().order_by('-timestamp')
     return render(request, 'base/adherent_history.html', {'history': history})
 
+def structure_history(request):
+    history = StructureHistory.objects.all().order_by('-timestamp')
+    return render(request, 'base/structure_history.html', {'history': history})
 
 
+def gestion_financiere(request):
+    # Get the search query from the GET request parameters
+   
+        # If no search query is present, display all adherents
+    banque_transactions = BanqueTransactions.objects.all() 
+    caisse_transactions = CaisseTransactions.objects.all()
 
+    # Combine the instances into a single list
+    transactions = list(banque_transactions) + list(caisse_transactions)
 
+    # Pass the transactions to the template
+    context = {'transactions': transactions }
+    # Create a dictionary with the adherents queryset and pass it to the template
+    
+    return render(request, 'base/gestion_financiere.html', context)
+
+def create_banque_transaction(request):
+    if request.method == 'POST':
+        form = BanqueTransactionsForm(request.POST)
+        if form.is_valid():
+            transaction =form.save()
+            save_banque_transaction_history (sender=BanqueTransactions, instance=transaction,created=True, request=request)
+            if transaction.transaction_raison == 'cotisation':
+                Cotisation.objects.create(
+                    adherent=transaction.adherent,
+                    cotisation_type='B',  # Assuming it represents a caisse transaction
+                    number=transaction.cheque_numero,
+                    date=transaction.date,
+                    entreprise=transaction.entreprise,
+                    libelle=transaction.libelle,
+                    solde=transaction.solde,
+                    justificatif=transaction.justificatif_banque
+                )
+                adherent = transaction.adherent
+                adherent.cotisation_annuelle = 'payée'
+                adherent.save()
+            return redirect('home')  # Replace with your desired URL
+    else:
+        form = BanqueTransactionsForm()
+    return render(request, 'base/banque_form.html', {'form': form})
+
+def update_banque_transaction(request, pk):
+    transaction = get_object_or_404(BanqueTransactions, id=pk)
+    if request.method == 'POST':
+        form = BanqueTransactionsForm(request.POST, instance=transaction)
+        if form.is_valid():
+            transaction =form.save()
+            save_banque_transaction_history (sender=BanqueTransactions, instance=transaction,created=False, request=request)
+            return redirect('home')  # Replace with your desired URL
+    else:
+        form = BanqueTransactionsForm(instance=transaction)
+    return render(request, 'base/banque_form.html', {'form': form})
+
+# Similar functions for CaisseTransactions
+def create_caisse_transaction(request):
+    if request.method == 'POST':
+        form = CaisseTransactionsForm(request.POST)
+        if form.is_valid():
+            transaction=form.save()
+            save_caisse_transaction_history (sender=CaisseTransactions, instance=transaction,created=True, request=request)
+            if transaction.transaction_raison == 'cotisation':
+                Cotisation.objects.create(
+                    adherent=transaction.adherent,
+                    cotisation_type='C',  # Assuming it represents a caisse transaction
+                    number=transaction.recu_numero,
+                    date=transaction.date,
+                    entreprise=transaction.entreprise,
+                    libelle=transaction.libelle,
+                    solde=transaction.solde,
+                    justificatif=transaction.justificatif_caisse
+                )
+                adherent = transaction.adherent
+                adherent.cotisation_annuelle = 'payée'
+                adherent.save()
+            return redirect('home')  # Replace with your desired URL
+    else:
+        form = CaisseTransactionsForm()
+    return render(request, 'base/caisse_form.html', {'form': form})
+
+def update_caisse_transaction(request, pk):
+    transaction = get_object_or_404(CaisseTransactions, id=pk)
+    if request.method == 'POST':
+        form = CaisseTransactionsForm(request.POST, instance=transaction)
+        
+        if form.is_valid():
+            form.save()
+            save_caisse_transaction_history (sender=BanqueTransactions, instance=transaction,created=False, request=request)
+            return redirect('home')  # Replace with your desired URL
+    else:
+        form = CaisseTransactionsForm(instance=transaction)
+    return render(request, 'base/caisse_form.html', {'form': form})
+
+def delete_banque_transaction(request, pk):
+    transaction = get_object_or_404(BanqueTransactions, id=pk)
+    
+    if request.method == 'POST':
+        if transaction.transaction_raison == 'cotisation':
+            Cotisation.objects.filter(adherent=transaction.adherent).delete()
+        transaction.delete()
+        delete_banque_transaction_history(sender=BanqueTransactions, instance=transaction, request=request) 
+        # Perform any additional actions after deletion if needed
+        return redirect('home')
+    
+    return render(request, 'base/delete.html', {'transaction': transaction})
+
+def delete_caisse_transaction(request, pk):
+    transaction = get_object_or_404(CaisseTransactions, id=pk)
+    
+    if request.method == 'POST':
+        if transaction.transaction_raison == 'cotisation':
+            Cotisation.objects.filter(adherent=transaction.adherent).delete()
+        transaction.delete()
+        delete_banque_transaction_history(sender=CaisseTransactions, instance=transaction, request=request) 
+        # Perform any additional actions after deletion if needed
+        return redirect('home')
+    
+    return render(request, 'base/delete.html', {'transaction': transaction})
+
+def payer_ma_cotisation(request):
+    adherent = Adherent.objects.get(user=request.user)
+    if request.method == 'POST':
+        form = CotisationPaymentForm(request.POST)
+        if form.is_valid():
+            cotisation = form.save(commit=False)
+            cotisation.adherent = adherent
+            cotisation.save()
+            if cotisation.cotisation_type == 'B':
+                BanqueTransactions.objects.create(
+                    structure=None,  # Add the relevant structure if necessary
+                    evenement=None,  # Add the relevant event if necessary
+                    adherent=cotisation.adherent,
+                    date=cotisation.date,
+                    entreprise=cotisation.entreprise,
+                    libelle=cotisation.libelle,
+                    banque='',  # Add the relevant bank information
+                    cheque_numero=cotisation.number,
+                    solde=cotisation.solde,
+                    justificatif_banque=cotisation.justificatif,
+                    transaction_type='credit',
+                    transaction_raison='cotisation'
+                )
+            elif  cotisation.cotisation_type == 'C':
+                CaisseTransactions.objects.create(
+                    structure=None,  # Add the relevant structure if necessary
+                    evenement=None,  # Add the relevant event if necessary
+                    adherent=cotisation.adherent,
+                    date=cotisation.date,
+                    entreprise=cotisation.entreprise,
+                    libelle=cotisation.libelle,
+                    recu_numero=cotisation.number,
+                    solde=cotisation.solde,
+                    justificatif_caisse=cotisation.justificatif,
+                    transaction_type='credit',
+                    transaction_raison='cotisation'
+                )
+            adherent = cotisation.adherent
+            adherent.cotisation_annuelle = 'payée'
+            adherent.save()    
+            return redirect('home')
+    else:
+        form = CotisationPaymentForm()
+    return render(request, 'base/payer_ma_cotisation.html', {'form': form})
+
+def profile(request):
+    adherent = Adherent.objects.get(user=request.user)
+    return render(request, 'base/profile.html', {'adherent': adherent})    
 

@@ -1,0 +1,79 @@
+<!-- gestion_financiere.html -->
+{% extends 'main.html' %}
+
+{% load transaction_filters %}  <!-- Load custom filters -->
+
+{% block content %}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Gestion Financiere</title>
+    <style>
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        th, td {
+            padding: 8px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        th {
+            background-color: #f2f2f2;
+        }
+        
+        .btn-create {
+            margin-bottom: 10px;
+        }
+        
+        .btn-update {
+            margin-left: 5px;
+        }
+    </style>
+</head>
+<body>
+    <h1>List of Transactions</h1>
+    <a href="{% url 'create-banque-transaction' %}" class="btn-create">Create Banque Transaction</a>
+    <a href="{% url 'create-caisse-transaction' %}" class="btn-create">Create Caisse Transaction</a>
+    <table>
+        <thead>
+            <tr>
+                <th>Date</th>
+                <th>Entreprise</th>
+                <th>Libelle</th>
+                <th>Debit</th>
+                <th>Credit</th>
+                <th>Solde</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for transaction in transactions %}
+            <tr>
+                <td>{{ transaction.date }}</td>
+                <td>{{ transaction.entreprise }}</td>
+                <td>{{ transaction.libelle }}</td>
+                <td>{{ transaction.debit }}</td>
+                <td>{{ transaction.credit }}</td>
+                <td>{{ transaction.solde }}</td>
+                <td>
+                    {% if transaction|is_banque_transaction %}
+                        <a href="{% url 'update-banque-transaction' transaction.id %}" class="btn-update">Update Banque Transaction</a>
+                    {% else %}
+                        <a href="{% url 'update-caisse-transaction' transaction.id %}" class="btn-update">Update Caisse Transaction</a>
+                    {% endif %}
+                    {% if transaction|is_banque_transaction %}
+                    <a href="{% url 'delete-banque-transaction' transaction.id %}">Delete</a>
+                    {% else %}
+                    <a href="{% url 'delete-caisse-transaction' transaction.id %}">Delete</a>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>
+{% endblock %}

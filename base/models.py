@@ -3,8 +3,6 @@ from datetime import datetime
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
 from django.db import models
 from django.utils import timezone
-from auditlog.models import AuditlogHistoryField
-from simple_history.models import HistoricalRecords
 from django.contrib.auth.models import User
 import os
 import uuid
@@ -58,13 +56,17 @@ class Structure(models.Model):
 class Adherent(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE , default=None)
     code = models.CharField(max_length=8)
+    image= models.ImageField(null=True, blank=True)
     structure = models.ForeignKey(Structure, on_delete=models.CASCADE , related_name='adherents', default = 1)
     TYPE_ADHERENT_CHOICES = (
         ('1', 'Membre fondateur'),
         ('2', 'Membre actif'),
         ('3', 'Membre actif jeune'),
         ('4', 'Soutien'),
-        ('5', 'Membre d’honneur'),
+        ('5', 'Président'),
+        ('6', 'Directeur Executif'),
+        ('7', 'Tresorier'),
+        ('8', 'Simple membre'),
     )
     type_adherent = models.CharField(max_length=1, choices=TYPE_ADHERENT_CHOICES)
     GENRE_CHOICES = (
@@ -80,6 +82,7 @@ class Adherent(models.Model):
     )
     
     numero_document_identite = models.CharField(max_length=8)
+    
     
     nationalite = models.CharField(max_length=50)
     date_naissance = models.DateField()
@@ -99,17 +102,29 @@ class Adherent(models.Model):
     date_adhesion = models.DateField(blank=True, null=True)
     date_depart = models.DateField(null=True, blank=True)
     motif_depart = models.CharField(max_length=50, null=True, blank=True)
-    history = HistoricalRecords()
+    cotisation_annuelle = models.CharField(max_length=50, default='non payée')
+    
     def __str__(self):
         return self.nom
     
+    
 class AdherentHistory(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE , blank=True, null=True)
-    adherent = models.ForeignKey(Adherent, on_delete=models.CASCADE)
+    user = models.CharField(max_length=20,blank=True, null=True)
+    adherent = models.CharField(max_length=20,blank=True, null=True)
     action = models.CharField(max_length=10)
     old_data = models.TextField(blank=True, null=True)
     new_data = models.TextField(blank=True, null=True, default='nothing')
     timestamp = models.DateTimeField(default=timezone.now)
+
+class StructureHistory(models.Model):
+    user = models.CharField(max_length=20,blank=True, null=True)
+    structure = models.CharField(max_length=20,blank=True, null=True)
+    action = models.CharField(max_length=10)
+    old_data = models.TextField(blank=True, null=True)
+    new_data = models.TextField(blank=True, null=True, default='nothing')
+    timestamp = models.DateTimeField(default=timezone.now)    
+
+
 
         
 class ResponsableStructure(models.Model):
@@ -146,3 +161,86 @@ class Evenement(models.Model):
     def __str__(self):
         return f"{self.libelle} ({self.get_type_display()}) - {self.initiateur} ({self.date_debut} {self.heure_debut} - {self.date_fin} {self.heure_fin})"
     
+class BanqueTransactions(models.Model):
+    structure = models.ForeignKey(Structure, on_delete=models.CASCADE ,null=True, blank=True)
+    evenement = models.ForeignKey(Evenement, on_delete=models.CASCADE ,null=True, blank=True)
+    adherent = models.ForeignKey(Adherent, on_delete=models.CASCADE ,null=True, blank=True)
+    date = models.DateField(null=True, blank=True)
+    entreprise = models.CharField(max_length=50)
+    libelle = models.CharField(max_length=50)
+    banque = models.CharField(max_length=50)
+    cheque_numero = models.CharField(max_length=20)
+    TRANSACTION_CHOICES = (
+        ('credit', 'Credit'),
+        ('debit', 'Debit'),
+    )
+    
+    transaction_type = models.CharField(max_length=6, choices=TRANSACTION_CHOICES)
+    solde = models.DecimalField(max_digits=10, decimal_places=2)
+    justificatif_banque = models.ImageField( null=True, blank=True)
+    REASON_CHOICES = (
+        ('don', 'Don'),
+        ('cotisation', 'Cotisation'),
+        ('frais', 'Frais'),
+        ('profits', 'profits'),
+        
+    )
+    transaction_raison = models.CharField(max_length=20, choices=REASON_CHOICES, default='don')
+     
+        
+class CaisseTransactions(models.Model):
+    structure = models.ForeignKey(Structure, on_delete=models.CASCADE ,null=True, blank=True)
+    evenement = models.ForeignKey(Evenement, on_delete=models.CASCADE ,null=True, blank=True)
+    adherent = models.ForeignKey(Adherent, on_delete=models.CASCADE ,null=True, blank=True)
+    date = models.DateField(null=True, blank=True)
+    entreprise = models.CharField(max_length=50)
+    libelle = models.CharField(max_length=50)
+    recu_numero = models.CharField(max_length=20)
+    TRANSACTION_CHOICES = (
+        ('credit', 'Credit'),
+        ('debit', 'Debit'),
+    )
+    
+    transaction_type = models.CharField(max_length=6, choices=TRANSACTION_CHOICES)
+    solde = models.DecimalField(max_digits=10, decimal_places=2)
+    justificatif_caisse = models.ImageField( null=True, blank=True) 
+    REASON_CHOICES = (
+        ('don', 'Don'),
+        ('cotisation', 'Cotisation'),
+        ('frais', 'Frais'),
+        ('profits', 'profits'),
+        
+    )
+    transaction_raison = models.CharField(max_length=20,choices= REASON_CHOICES, default='don')
+
+
+class CaisseTransactionHistory(models.Model):
+    user = models.CharField(max_length=20,blank=True, null=True)
+    caisse_transaction = models.CharField(max_length=20,blank=True, null=True)
+    action = models.CharField(max_length=10)
+    old_data = models.TextField(blank=True, null=True)
+    new_data = models.TextField(blank=True, null=True, default='nothing')
+    timestamp = models.DateTimeField(default=timezone.now)    
+
+
+class BanqueTransactionHistory(models.Model):
+    user = models.CharField(max_length=20,blank=True, null=True)
+    banque_transaction = models.CharField(max_length=20,blank=True, null=True)
+    action = models.CharField(max_length=10)
+    old_data = models.TextField(blank=True, null=True)
+    new_data = models.TextField(blank=True, null=True, default='nothing')
+    timestamp = models.DateTimeField(default=timezone.now)     
+
+class Cotisation(models.Model):
+    ADHERENT_CHOICES = (
+        ('B', 'Bank'),
+        ('C', 'Caisse'),
+    )
+    adherent = models.ForeignKey(Adherent, on_delete=models.CASCADE)
+    cotisation_type = models.CharField(max_length=1, choices=ADHERENT_CHOICES)
+    number = models.CharField(max_length=20)
+    date = models.DateField(null=True, blank=True)
+    entreprise = models.CharField(max_length=50)
+    libelle = models.CharField(max_length=50)
+    solde = models.DecimalField(max_digits=10, decimal_places=2)
+    justificatif = models.ImageField(null=True, blank=True)    

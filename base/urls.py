@@ -19,6 +19,16 @@ urlpatterns = [
    path('update-structure/<str:pk>/', views.update_structure, name="update-structure"),
    path('delete-structure/<str:pk>/', views.delete_structure , name="delete-structure"),
    path('adherent_history/', views.adherent_history, name='adherent_history'),
+   path('structure_history/', views.structure_history, name='structure_history'),
+   path('gestion_financiere/' , views.gestion_financiere , name="gestion_financiere"),
+   path('create-banque-transaction/' , views.create_banque_transaction , name="create-banque-transaction"),
+   path('update-banque-transaction/<str:pk>/ ' , views.update_banque_transaction , name="update-banque-transaction"),
+   path('create-caisse-transaction/' , views.create_caisse_transaction , name="create-caisse-transaction"),
+   path('update-caisse-transaction/<str:pk>/ ' , views.update_caisse_transaction , name="update-caisse-transaction"),
+   path('delete-banque-transaction/<int:pk>/', views.delete_banque_transaction, name='delete-banque-transaction'),
+   path('delete-caisse-transaction/<int:pk>/', views.delete_caisse_transaction, name='delete-caisse-transaction'),
+   path('payer_ma_cotisation/', views.payer_ma_cotisation, name='payer_ma_cotisation'),
+   path('profile/', views.profile, name='profile'),
   
   ]
 

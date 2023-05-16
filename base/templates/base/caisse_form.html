@@ -1,0 +1,21 @@
+{% extends 'main.html' %}
+
+
+{% block content %}
+<!-- caisse_form.html -->
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Create/Update Caisse Transaction</title>
+</head>
+<body>
+    <h1>Create/Update Caisse Transaction</h1>
+    <form method="POST">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Save</button>
+    </form>
+</body>
+</html>
+
+{% endblock %}

@@ -2,38 +2,60 @@
 
 
 {% block content %}
-<a href="{% url 'adherent_history' %}">Adherent History</a>
 <div>
-   
-  <a href="{% url 'create-adherent' %}">Create Adherent</a>
-  <form method="GET" action="{% url 'gestion_adherent' %}">
-    <input type="text" name="q" placeholder="Search by name">
-    <button type="submit">Search</button>
-  </form>
-  <table>
-    <thead>
-      <tr>
-        <th>Nom</th>
-        <th>Code</th>
-        <th>Type</th>
-        <th>Actions</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for adherent in adherents %}
-        <tr>
-          <td>{{ adherent.nom }}</td>
-          <td>{{ adherent.code }}</td>
-          <td>{{ adherent.type }}</td>
-          <td>{{ adherent.document_identite  }}</td>
+  <h2>Gestion des adhérents</h2>
+  <hr>
+</div>
 
-          <td>
-            <a href="{% url 'update-adherent' adherent.id %}">Update</a>
-            <a href="{% url 'delete-adherent' adherent.id %}">Delete</a>
-          </td>
-        </tr>
-      {% endfor %}
-    </tbody>
-  </table>
-<div>  
+<div class = "features">
+  <button><a class="adherent-button" href="{% url 'create-adherent'  %}">Ajouter Adhérent</a></button>
+  <button><a class="adherent-button" href="{% url 'adherent_history' %}">Historique</a></button>
+</div>
+
+<div class = page-content>
+  <div class = "search-container" method="GET" action="{% url 'gestion_adherent' %}">
+      <input  type="text" class= "textbox" name ="q" placeholder="Chercher...">
+      <button type="submit"><i class="search-button"> <img src="search.png"> </i></button>
+</div>
+
+  <div class = "print">
+      <img src="print.png" height="40px" width="40px" href="#">
+  </div>
+
+  <div class="adherent-table">
+      <table>
+          <thead>
+              <tr>
+                <th>Code</th>
+                <th>Nom</th>
+                <th>Prénom</th>
+                <th>Genre</th>
+                <th>Email</th>
+                <th>Téléphone</th>
+                <th>Document d'identité</th>
+                <th>Type</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for adherent in adherents %}
+                <tr>
+                  <td>{{ adherent.code }}</td>
+                  <td>{{ adherent.nom }}</td>
+                  <td>{{ adherent.prenom}}</td>
+                  <td>{{ adherent.genre}}</td>
+                  <td>{{ adherent.email}}</td>
+                  <td>{{ adherent.telephone}}</td>
+                  <td>{{ adherent.document_identite}}</td>
+                  <td>{{ adherent.type }}</td>
+                  <td>
+                  <button><a href="{% url 'update-adherent' adherent.id %}">Update</a></button>
+                  <button><a href="{% url 'delete-adherent' adherent.id %}">Delete</a></button>
+                  </td>
+                </tr>
+              {% endfor %}
+            </tbody>
+      </table>
+  </div>
+</div>
 {% endblock %}
