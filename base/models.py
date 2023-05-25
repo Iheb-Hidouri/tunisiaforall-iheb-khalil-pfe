@@ -54,21 +54,23 @@ class Structure(models.Model):
 
 
 class Adherent(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE , default=None)
+    user = models.OneToOneField(User, on_delete=models.CASCADE , related_name='adherent')
     code = models.CharField(max_length=8)
     image= models.ImageField(null=True, blank=True)
     structure = models.ForeignKey(Structure, on_delete=models.CASCADE , related_name='adherents', default = 1)
+   
     TYPE_ADHERENT_CHOICES = (
-        ('1', 'Membre fondateur'),
-        ('2', 'Membre actif'),
-        ('3', 'Membre actif jeune'),
-        ('4', 'Soutien'),
-        ('5', 'Président'),
-        ('6', 'Directeur Executif'),
-        ('7', 'Tresorier'),
-        ('8', 'Simple membre'),
+    ('Membre fondateur', 'Membre fondateur'),
+    ('Membre actif', 'Membre actif'),
+    ('Membre actif jeune', 'Membre actif jeune'),
+    ('Soutien', 'Soutien'),
+    ('Président', 'Président'),
+    ('Directeur Executif', 'Directeur Executif'),
+    ('Trésorier', 'Trésorier'),
+    ('Simple membre', 'Simple membre'),
     )
-    type_adherent = models.CharField(max_length=1, choices=TYPE_ADHERENT_CHOICES)
+    
+    type_adherent = models.CharField(max_length=20, choices=TYPE_ADHERENT_CHOICES)
     GENRE_CHOICES = (
         ('M', 'M.'),
         ('F', 'Mme.'),
@@ -80,7 +82,8 @@ class Adherent(models.Model):
         ('CI', 'Carte d\'identité'),
         ('CS', 'Carte de séjour'),
     )
-    
+    type_document_identite = models.CharField(max_length=2, choices=DOCUMENT_IDENTITE_CHOICES,null=True)
+
     numero_document_identite = models.CharField(max_length=8)
     
     
@@ -98,7 +101,7 @@ class Adherent(models.Model):
         ('4', 'Culture, tourisme et environnement'),
         ('5', 'Autre'),
     )
-    commissions = models.CharField(max_length=5, choices=COMMISSION_CHOICES)
+    commissions = models.CharField(max_length=5, choices=COMMISSION_CHOICES,null=True,blank=True)
     date_adhesion = models.DateField(blank=True, null=True)
     date_depart = models.DateField(null=True, blank=True)
     motif_depart = models.CharField(max_length=50, null=True, blank=True)
@@ -244,3 +247,4 @@ class Cotisation(models.Model):
     libelle = models.CharField(max_length=50)
     solde = models.DecimalField(max_digits=10, decimal_places=2)
     justificatif = models.ImageField(null=True, blank=True)    
+

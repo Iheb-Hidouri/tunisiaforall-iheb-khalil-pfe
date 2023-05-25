@@ -1,6 +1,6 @@
 from django.shortcuts import render , redirect , get_object_or_404
 from django.http import HttpResponse
-from .models import Adherent, Structure , AdherentHistory , StructureHistory , Cotisation
+from .models import Adherent, Structure , AdherentHistory , StructureHistory , Cotisation , Delegation
 from .forms import AdherentForm , StructureForm , UpdateAdherentForm
 from django.db.models import Q
 from .models import  Structure
@@ -39,6 +39,7 @@ def loginPage(request):
             return redirect ('home') 
     context={}
     return render(request , 'base/login_register.html', context)
+
 def logoutUser(request): 
     logout(request)
     return redirect  ('home')
@@ -354,3 +355,9 @@ def profile(request):
     adherent = Adherent.objects.get(user=request.user)
     return render(request, 'base/profile.html', {'adherent': adherent})    
 
+from django.http import JsonResponse
+
+def fetch_delegations(request):
+    governat_id = request.GET.get('governat_id')
+    delegations = Delegation.objects.filter(governat_id=governat_id).values('id', 'name')
+    return JsonResponse(list(delegations), safe=False)

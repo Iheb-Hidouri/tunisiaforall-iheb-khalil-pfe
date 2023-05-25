@@ -1,5 +1,6 @@
 <!-- gestion_financiere.html -->
 {% extends 'main.html' %}
+{% load static %}
 
 {% load transaction_filters %}  <!-- Load custom filters -->
 
@@ -8,72 +9,71 @@
 <html>
 <head>
     <title>Gestion Financiere</title>
-    <style>
-        table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-        
-        th, td {
-            padding: 8px;
-            text-align: left;
-            border-bottom: 1px solid #ddd;
-        }
-        
-        th {
-            background-color: #f2f2f2;
-        }
-        
-        .btn-create {
-            margin-bottom: 10px;
-        }
-        
-        .btn-update {
-            margin-left: 5px;
-        }
-    </style>
 </head>
 <body>
-    <h1>List of Transactions</h1>
-    <a href="{% url 'create-banque-transaction' %}" class="btn-create">Create Banque Transaction</a>
-    <a href="{% url 'create-caisse-transaction' %}" class="btn-create">Create Caisse Transaction</a>
-    <table>
-        <thead>
-            <tr>
-                <th>Date</th>
-                <th>Entreprise</th>
-                <th>Libelle</th>
-                <th>Debit</th>
-                <th>Credit</th>
-                <th>Solde</th>
-                <th>Actions</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for transaction in transactions %}
-            <tr>
-                <td>{{ transaction.date }}</td>
-                <td>{{ transaction.entreprise }}</td>
-                <td>{{ transaction.libelle }}</td>
-                <td>{{ transaction.debit }}</td>
-                <td>{{ transaction.credit }}</td>
-                <td>{{ transaction.solde }}</td>
-                <td>
-                    {% if transaction|is_banque_transaction %}
-                        <a href="{% url 'update-banque-transaction' transaction.id %}" class="btn-update">Update Banque Transaction</a>
-                    {% else %}
-                        <a href="{% url 'update-caisse-transaction' transaction.id %}" class="btn-update">Update Caisse Transaction</a>
-                    {% endif %}
-                    {% if transaction|is_banque_transaction %}
-                    <a href="{% url 'delete-banque-transaction' transaction.id %}">Delete</a>
-                    {% else %}
-                    <a href="{% url 'delete-caisse-transaction' transaction.id %}">Delete</a>
-                    {% endif %}
-                </td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+    <h2>Liste des transactions</h2> 
+    <hr>
+
+    <div class = "features">
+        <button><a class="finance-button" href="{% url 'create-banque-transaction' %}">Ajouter Transaction Banque</a></button>
+        <button><a class="finance-button" href="{% url 'create-caisse-transaction' %}">Ajouter Transaction Caisse</a></button>
+    </div>
+
+    <div class = page-content>
+        <div class = "search-container" method="GET" action="{% url 'gestion_adherent' %}">
+            <input  type="text" class= "textbox" name="q" placeholder="Chercher...">
+            <button type="submit"><i class="search-button"> <img src="{% static 'img/search.png' %}"> </i></button>
+    </div>
+    
+        <div class = "print">
+            <img src="{% static 'img/print.png' %}" height="40px" width="40px" href="#">
+        </div>
+
+    <div class = "finance-table">
+    
+        <table>
+            <thead>
+                <tr>
+                    <th>Adherent</th>
+                    <th>Structure</th>
+                    <th>Evenement</th>
+                    <th>Date</th>
+                    <th>Cheque/recu numéro</th>
+                    <th>Type de transaction</th>
+                    <th>Raison de transaction</th>
+                    <th>Solde</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for transaction in transactions %}
+                <tr>
+                    <td>{{ transaction.adherent }}</td>
+                    <td>{{ transaction.structure }}</td>
+                    <td>{{ transaction.evenement }}</td>
+                    <td>{{ transaction.date }}</td>
+                    <td>{{ transaction.number }}</td>
+                    <td>{{ transaction.transaction_type}}</td>
+                    <td>{{ transaction.transaction_raison }}</td>
+                    <td>{{ transaction.solde }}</td>
+                    <td>
+                        {% if transaction|is_banque_transaction %}
+                            <button><a href="{% url 'update-banque-transaction' transaction.id %}" class="btn-update">Update Banque Transaction</a></button>
+                        {% else %}
+                            <button><a href="{% url 'update-caisse-transaction' transaction.id %}" class="btn-update">Update Caisse Transaction</a></button>
+                        {% endif %}
+                        {% if transaction|is_banque_transaction %}
+                            <button><a href="{% url 'delete-banque-transaction' transaction.id %}">Delete</a></button>
+                        {% else %}
+                            <button><a href="{% url 'delete-caisse-transaction' transaction.id %}">Delete</a></button>
+                        {% endif %}
+                        <button><a href="">Consult</a></button>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
 </body>
 </html>
 {% endblock %}

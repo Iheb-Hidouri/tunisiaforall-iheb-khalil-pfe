@@ -6,10 +6,12 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Create/Update Caisse Transaction</title>
+    <title>Création/Ajout de transaction de banque</title>
 </head>
 <body>
-    <h1>Create/Update Caisse Transaction</h1>
+    <h2>Création/Ajout de transaction de banque</h2>
+    <hr>
+
     <form method="POST">
         {% csrf_token %}
         {{ form.as_p }}

@@ -29,6 +29,8 @@ urlpatterns = [
    path('delete-caisse-transaction/<int:pk>/', views.delete_caisse_transaction, name='delete-caisse-transaction'),
    path('payer_ma_cotisation/', views.payer_ma_cotisation, name='payer_ma_cotisation'),
    path('profile/', views.profile, name='profile'),
+   path('fetch-delegations/', views.fetch_delegations, name='fetch_delegations'),
+   
   
   ]
 

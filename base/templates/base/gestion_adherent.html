@@ -1,4 +1,5 @@
 {% extends 'main.html' %}
+{% load static %}
 
 
 {% block content %}
@@ -15,11 +16,11 @@
 <div class = page-content>
   <div class = "search-container" method="GET" action="{% url 'gestion_adherent' %}">
       <input  type="text" class= "textbox" name ="q" placeholder="Chercher...">
-      <button type="submit"><i class="search-button"> <img src="search.png"> </i></button>
-</div>
+      <button type="submit"><i class="search-button"> <img src="{% static 'img/search.png' %}"> </i></button>
+  </div>
 
   <div class = "print">
-      <img src="print.png" height="40px" width="40px" href="#">
+      <img src="{% static 'img/print.png' %}" height="40px" width="40px" href="#">
   </div>
 
   <div class="adherent-table">
@@ -40,17 +41,18 @@
             <tbody>
               {% for adherent in adherents %}
                 <tr>
-                  <td>{{ adherent.code }}</td>
+                  <td><strong>{{ adherent.code }}</strong></td>
                   <td>{{ adherent.nom }}</td>
                   <td>{{ adherent.prenom}}</td>
                   <td>{{ adherent.genre}}</td>
                   <td>{{ adherent.email}}</td>
                   <td>{{ adherent.telephone}}</td>
-                  <td>{{ adherent.document_identite}}</td>
-                  <td>{{ adherent.type }}</td>
+                  <td>{{ adherent.type_document_identite }} : {{ adherent.numero_document_identite }} </td>
+                  <td>{{ adherent.type_adherent }}</td>
                   <td>
                   <button><a href="{% url 'update-adherent' adherent.id %}">Update</a></button>
                   <button><a href="{% url 'delete-adherent' adherent.id %}">Delete</a></button>
+                  <button><a href="">Consult</a></button>
                   </td>
                 </tr>
               {% endfor %}

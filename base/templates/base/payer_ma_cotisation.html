@@ -3,7 +3,8 @@
 {% extends 'main.html' %}
 
 {% block content %}
-  <h1>Payer Ma Cotisation</h1>
+  <h2>Payer Ma Cotisation</h2>
+  <hr>
   <form method="post" enctype="multipart/form-data">
     {% csrf_token %}
     {{ form.as_p }}

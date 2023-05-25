@@ -7,12 +7,11 @@
         {% csrf_token %}
         {{form.as_p}}
         <input type="hidden" name="id" value="{{ adherent.id }}"> 
-        <input type="Submit" value="Submit">
+        <button type="Submit" name="id" value="Submit"> Submit </button>
 
 
     </form> 
 </div>
-
 
 
 {% endblock content%}

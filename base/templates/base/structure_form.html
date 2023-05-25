@@ -3,15 +3,38 @@
 {% block content %}
 
 <div>
-    <form method="POST" action="" >
+    <form method="POST" action="">
         {% csrf_token %}
-        {{form.as_p}}
-        <input type="hidden" name="id" value="{{ adherent.id }}"> 
-        <input type="Submit" value="Submit">
+        {{ form.as_p }}
+        
+        <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const governatDropdown = document.getElementById('id_governat');
+            const delegationDropdown = document.getElementById('id_delegation');
+            const delegationUrl = "{% url 'fetch_delegations' %}";
 
+            governatDropdown.addEventListener('change', () => {
+                const governatId = governatDropdown.value;
 
-    </form> 
+                fetch(`${delegationUrl}?governat_id=${governatId}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        delegationDropdown.innerHTML = ''; // Clear previous options
+                        
+                        // Add new options based on fetched data
+                        data.forEach(option => {
+                            const optionElement = document.createElement('option');
+                            optionElement.value = option.id;
+                            optionElement.text = option.name;
+                            delegationDropdown.appendChild(optionElement);
+                        });
+                    });
+            });
+        });
+        </script>
+
+        <button type="submit">Submit</button>
+    </form>
 </div>
 
-
-{% endblock content%}
+{% endblock content %}

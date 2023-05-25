@@ -16,9 +16,9 @@ class AdherentForm(ModelForm):
     
     class Meta:
         model = Adherent
-        exclude = ['code','user', 'cotisation_annuelle'] # exclude the 'code' field from the form
+        exclude = ['code','user', 'cotisation_annuelle','date_depart','motif_depart'] # exclude the 'code' field from the form
         widgets = {
-            'date_naissance': SelectDateWidget(),
+            'date_naissance': forms.DateInput(attrs={'type': 'date'}),
             'date_adhesion': forms.widgets.HiddenInput(),
             
         }
@@ -72,10 +72,12 @@ class AdherentForm(ModelForm):
             instance.user = user
             instance.save() # save the new Adherent object to the database
         return instance
+    
+    
 class UpdateAdherentForm(ModelForm):
      class Meta:
         model = Adherent
-        exclude = ['code', 'user','cotisation_annuelle']
+        exclude = ['code', 'user','cotisation_annuelle','date_depart','motif_depart']
         widgets = {
             'date_naissance': SelectDateWidget(),
             'date_adhesion': forms.widgets.HiddenInput(),
@@ -100,7 +102,7 @@ class UpdateAdherentForm(ModelForm):
 
 class StructureForm(ModelForm):
     governat = forms.ModelChoiceField(queryset=Governat.objects.all(), empty_label=None) # create a ModelChoiceField for the 'governat' field with all available Governat objects
-    delegation = forms.ModelChoiceField(queryset=Delegation.objects.all(), empty_label=None) # create a ModelChoiceField for the 'delegation' field with all available Delegation objects
+    delegation = forms.ModelChoiceField(queryset=Delegation.objects.none(), empty_label=None) # create a ModelChoiceField for the 'delegation' field with all available Delegation objects
     class Meta:
         model= Structure
         fields= [
