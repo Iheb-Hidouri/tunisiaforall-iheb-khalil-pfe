@@ -12,10 +12,10 @@
     <h2>Création/Ajout de transaction de banque</h2>
     <hr>
 
-    <form method="POST">
+    <form class ="finance-form" method="POST">
         {% csrf_token %}
         {{ form.as_p }}
-        <button type="submit">Save</button>
+        <button class= "finance-button" type="submit">Soumettre</button>
     </form>
 </body>
 </html>

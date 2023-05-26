@@ -5,6 +5,8 @@ from django.forms.widgets import SelectDateWidget
 from django.utils import timezone
 from PIL import Image
 from .models import BanqueTransactions, CaisseTransactions
+from django.forms import ClearableFileInput
+from django.forms.widgets import SelectDateWidget
 
 
 
@@ -81,6 +83,7 @@ class UpdateAdherentForm(ModelForm):
         widgets = {
             'date_naissance': SelectDateWidget(),
             'date_adhesion': forms.widgets.HiddenInput(),
+            'image': ClearableFileInput(attrs={'accept': 'image/*'})
         }
     
      def __init__(self, *args, **kwargs):

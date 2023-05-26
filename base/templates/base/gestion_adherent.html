@@ -5,18 +5,18 @@
 {% block content %}
 <div>
   <h2>Gestion des adhérents</h2>
-  <hr>
+  <hr class="hradherent">
 </div>
 
 <div class = "features">
-  <button><a class="adherent-button" href="{% url 'create-adherent'  %}">Ajouter Adhérent</a></button>
-  <button><a class="adherent-button" href="{% url 'adherent_history' %}">Historique</a></button>
+  <button class="adherent-button" ><a  href="{% url 'create-adherent'  %}">Ajouter Adhérent</a></button>
+  <button class="adherent-button"><a  href="{% url 'adherent_history' %}">Historique</a></button>
 </div>
 
 <div class = page-content>
   <div class = "search-container" method="GET" action="{% url 'gestion_adherent' %}">
       <input  type="text" class= "textbox" name ="q" placeholder="Chercher...">
-      <button type="submit"><i class="search-button"> <img src="{% static 'img/search.png' %}"> </i></button>
+      <button type="submit" class="adherent-button"><i> <img src="{% static 'img/search.png' %}"> </i></button>
   </div>
 
   <div class = "print">
@@ -50,9 +50,9 @@
                   <td>{{ adherent.type_document_identite }} : {{ adherent.numero_document_identite }} </td>
                   <td>{{ adherent.type_adherent }}</td>
                   <td>
-                  <button><a href="{% url 'update-adherent' adherent.id %}">Update</a></button>
-                  <button><a href="{% url 'delete-adherent' adherent.id %}">Delete</a></button>
-                  <button><a href="">Consult</a></button>
+                  <button class = "adherent-button"><a href="{% url 'update-adherent' adherent.id %}">Mettre à jour</a></button>
+                  <button class = "adherent-button"><a href="{% url 'delete-adherent' adherent.id %}">Supprimer</a></button>
+                  <button class = "adherent-button"><a href="">Consulter</a></button>
                   </td>
                 </tr>
               {% endfor %}

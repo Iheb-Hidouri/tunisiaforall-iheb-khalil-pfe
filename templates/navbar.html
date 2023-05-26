@@ -14,22 +14,26 @@
             <img class="logo" src="{% static 'img/navbar_logo.png' %}" alt="logo">
             <nav>
                 <ul class ="liens">
-                    <li><a href="{% url 'home' %}">Accueil</a></li>
-                    <li><a href="{% url 'gestion_adherent' %}">Gestion des adhérents</a></li>
-                    <li><a href="{% url 'gestion_structure' %}">Gestion des structures</a></li>
-                    <li><a href="{% url 'gestion_financiere' %}">Gestion financière</a></li>
+                    <li><a href="{% url 'home' %}" class="lneutral">Accueil</a></li>
+                    <li><a href="{% url 'gestion_adherent' %}" class="ladherent">Gestion des adhérents</a></li>
+                    <li><a href="{% url 'gestion_structure' %}" class="lstructure" >Gestion des structures</a></li>
+                    <li><a href="{% url 'gestion_financiere' %}" class="lfinance" >Gestion financière</a></li>
                     {% if request.user.is_authenticated %}
-                      <li><a href="{% url 'logout' %}">Logout</a></li>
+                      
                       {% if request.user.adherent.cotisation_annuelle == 'non payée' %}
-                          <li><a href="{% url 'payer_ma_cotisation' %}">Payer ma cotisation</a></li>
+                          <li><a href="{% url 'payer_ma_cotisation' %}" class="lfinance" >Payer ma cotisation</a></li>
                       {% endif %}
-                     
-                    {% else %}
-                    <li><a href="{% url 'login' %}">Login</a></li>
+                      <li><a href="{% url 'profile' %}" class="ladherent"> Profile</a></li>
+                    
                     {% endif %}
                 </ul>
             </nav>
-            <li><a class="profile" href="{% url 'profile' %}"><button>Profile</button></a></li>
+            {% if request.user.is_authenticated %}
+              <li><a class="profile" href="{% url 'logout' %}" ><button>Se déconnecter</button></a></li>
+            {% else %}
+              <li><a class="profile" href="{% url 'login' %}" ><button>Se connecter</button></a></li>
+            {% endif %}
+            
         </header>
         <script src="" async defer></script>
     </body>

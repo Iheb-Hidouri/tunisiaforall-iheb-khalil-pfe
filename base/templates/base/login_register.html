@@ -11,13 +11,13 @@
 <div class = "login">
     <form method="POST" action=""  class="login-form">
         {% csrf_token %}
-        <label>Username:</label>
-        <input type="text" name="username" placeholder="Enter Username " class="form-control"/>
+        <label>Pseudo</label>
+        <input type="text" name="username" placeholder="Saisir le pseudo" class="form-control"/> 
 
-        <label>Password:</label>
-        <input type="password" name="password" placeholder="Enter password" class="form-control "/>
+        <label>Mot de passe</label>
+        <input type="password" name="password" placeholder="Saisir le mot de passe" class="form-control "/>
          
-        <input type="submit" value="Login" class="btn btn-primary" />
+        <button class = "adherent-button" type="submit" class="btn btn-primary"> Connexion </button>
 
 
     </form>

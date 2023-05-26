@@ -1,18 +1,18 @@
 {% extends 'main.html' %}
 
 {% block content %}
-<h2>Adherent History</h2>
-<hr>
+<h2>Historique des adhérents</h2>
+<hr class="hradherent">
 <div class="adherent-history">
     <table>
         <thead>
             <tr>
-                <th>Adherent</th>
+                <th>Adhérent</th>
                 <th>Action</th>
-                <th>User</th>
-                <th>Timestamp</th>
-                <th>Old Data</th>
-                <th>New Data</th>
+                <th>Pseudo</th>
+                <th>Date</th>
+                <th>changements</th>
+                
             </tr>
         </thead>
         <tbody>
@@ -23,7 +23,7 @@
                     <td>{{ entry.user }}</td>
                     <td>{{ entry.timestamp }}</td>
                     <td>{{ entry.old_data }}</td>
-                    <td>{{ entry.new_data }}</td>
+                    <td>{{ entry.changes }}</td>
                 </tr>
             {% endfor %}
         </tbody>

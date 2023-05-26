@@ -3,7 +3,7 @@
 {% block content %}
 
 <div>
-    <form method="POST" action="">
+    <form class ="structure-form" method="POST" action="">
         {% csrf_token %}
         {{ form.as_p }}
         
@@ -33,7 +33,7 @@
         });
         </script>
 
-        <button type="submit">Submit</button>
+        <button class= "structure-button" type="submit">Soumettre</button>
     </form>
 </div>
 

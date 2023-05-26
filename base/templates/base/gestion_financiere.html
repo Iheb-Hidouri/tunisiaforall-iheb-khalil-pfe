@@ -12,17 +12,17 @@
 </head>
 <body>
     <h2>Liste des transactions</h2> 
-    <hr>
+    <hr class="hrfinance">
 
     <div class = "features">
-        <button><a class="finance-button" href="{% url 'create-banque-transaction' %}">Ajouter Transaction Banque</a></button>
-        <button><a class="finance-button" href="{% url 'create-caisse-transaction' %}">Ajouter Transaction Caisse</a></button>
+        <button class="finance-button"><a  href="{% url 'create-banque-transaction' %}">Ajouter Transaction Banque</a></button>
+        <button class="finance-button"><a href="{% url 'create-caisse-transaction' %}">Ajouter Transaction Caisse</a></button>
     </div>
 
     <div class = page-content>
         <div class = "search-container" method="GET" action="{% url 'gestion_adherent' %}">
             <input  type="text" class= "textbox" name="q" placeholder="Chercher...">
-            <button type="submit"><i class="search-button"> <img src="{% static 'img/search.png' %}"> </i></button>
+            <button type="submit" class="finance-button" ><i> <img src="{% static 'img/search.png' %}"> </i></button>
     </div>
     
         <div class = "print">
@@ -38,9 +38,9 @@
                     <th>Structure</th>
                     <th>Evenement</th>
                     <th>Date</th>
-                    <th>Cheque/recu numéro</th>
-                    <th>Type de transaction</th>
-                    <th>Raison de transaction</th>
+                    <th>Num Chèque/reçu</th>
+                    <th>Type transaction</th>
+                    <th>Raison transaction</th>
                     <th>Solde</th>
                     <th>Actions</th>
                 </tr>
@@ -58,16 +58,16 @@
                     <td>{{ transaction.solde }}</td>
                     <td>
                         {% if transaction|is_banque_transaction %}
-                            <button><a href="{% url 'update-banque-transaction' transaction.id %}" class="btn-update">Update Banque Transaction</a></button>
+                            <button class="finance-button" ><a href="{% url 'update-banque-transaction' transaction.id %}" class="btn-update">Mettre à jour</a></button>
                         {% else %}
-                            <button><a href="{% url 'update-caisse-transaction' transaction.id %}" class="btn-update">Update Caisse Transaction</a></button>
+                            <button class="finance-button" ><a href="{% url 'update-caisse-transaction' transaction.id %}" class="btn-update">Mettre à jour</a></button>
                         {% endif %}
                         {% if transaction|is_banque_transaction %}
-                            <button><a href="{% url 'delete-banque-transaction' transaction.id %}">Delete</a></button>
+                            <button class="finance-button" ><a href="{% url 'delete-banque-transaction' transaction.id %}">Supprimer</a></button>
                         {% else %}
-                            <button><a href="{% url 'delete-caisse-transaction' transaction.id %}">Delete</a></button>
+                            <button class="finance-button" ><a href="{% url 'delete-caisse-transaction' transaction.id %}">Supprimer</a></button>
                         {% endif %}
-                        <button><a href="">Consult</a></button>
+                        <button class="finance-button" ><a href="">Consulter</a></button>
                     </td>
                 </tr>
                 {% endfor %}

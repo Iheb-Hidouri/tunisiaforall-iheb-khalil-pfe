@@ -2,16 +2,17 @@
 
 {% block content %}
 <h2>Historique des structures</h2>
+<hr class="hrstructure">
 <div class="structure-history">
     <table>
         <thead>
             <tr>
                 <th>Structure</th>
                 <th>Action</th>
-                <th>User</th>
-                <th>Timestamp</th>
-                <th>Old Data</th>
-                <th>New Data</th>
+                <th>Pseudo</th>
+                <th>Date</th>
+                <th>changements</th>
+                
             </tr>
         </thead>
         <tbody>
@@ -21,8 +22,8 @@
                     <td>{{ entry.action }}</td>
                     <td>{{ entry.user }}</td>
                     <td>{{ entry.timestamp }}</td>
-                    <td>{{ entry.old_data }}</td>
-                    <td>{{ entry.new_data }}</td>
+                    <td>{{ entry.changes}}</td>
+                    
                 </tr>
             {% endfor %}
         </tbody>

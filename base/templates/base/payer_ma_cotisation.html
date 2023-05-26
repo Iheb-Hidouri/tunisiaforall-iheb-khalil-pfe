@@ -3,11 +3,11 @@
 {% extends 'main.html' %}
 
 {% block content %}
-  <h2>Payer Ma Cotisation</h2>
-  <hr>
-  <form method="post" enctype="multipart/form-data">
+  <h2>Payer ma cotisation</h2>
+  <hr class="hrfinance">
+  <form class ="finance-form" method="post" enctype="multipart/form-data">
     {% csrf_token %}
     {{ form.as_p }}
-    <button type="submit">Payer</button>
+    <button class="finance-button" type="submit">Payer</button>
   </form>
 {% endblock %}

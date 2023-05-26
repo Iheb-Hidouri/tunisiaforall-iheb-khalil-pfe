@@ -11,7 +11,7 @@ from django.contrib.auth.views import LoginView
 from django.contrib.auth.models import User 
 from django.contrib.admin.models import LogEntry, ADDITION, CHANGE, DELETION
 from django.contrib.contenttypes.models import ContentType
-from .signals import save_adherent_history, delete_adherent_history, save_structure_history, delete_structure_history, save_caisse_transaction_history,delete_caisse_transaction_history,save_banque_transaction_history,delete_banque_transaction_history
+from .signals import  post_delete_adherent,post_save_adherent , post_save_structure, post_delete_structure, save_caisse_transaction_history,delete_caisse_transaction_history,save_banque_transaction_history,delete_banque_transaction_history
 from django.forms.models import model_to_dict
 from .forms import BanqueTransactionsForm, CaisseTransactionsForm , CotisationPaymentForm
 from .models import BanqueTransactions, CaisseTransactions
@@ -83,8 +83,8 @@ def create_adherent(request):
             )
             adherent.save()
             #SIGNAL
-            save_adherent_history(sender=Adherent, instance=adherent, created=True, request=request)
-           
+            
+            post_save_adherent(sender=Adherent, instance=adherent, created=True, request=request)
             return redirect('home')
     # Create a dictionary with the form and pass it to the template
     context = {'form': form}
@@ -109,8 +109,8 @@ def update_adherent(request, pk):
             form.save()
             
             #SIGNAL
-            save_adherent_history(sender=Adherent, instance=adherent, created=False, request=request)
-
+            
+            post_save_adherent(sender=Adherent, instance=adherent, created=False, request=request)
             return redirect('home')
     # Create a dictionary with the form and the Adherent object and pass it to the template
     context = {'form': form, 'adherent': adherent}
@@ -122,9 +122,10 @@ def delete_adherent(request, pk):
     adherent = Adherent.objects.get(id=pk)
     if request.method == 'POST':
         
-        delete_adherent_history(sender=Adherent, instance=adherent, created=True, request=request)
+        
         # If the request method is POST, delete the adherent and redirect to the list of adherents
         adherent.delete()
+        post_delete_adherent(sender=Adherent, instance=adherent, request=request)
         return redirect('gestion_adherent')
     # Create a dictionary with the Adherent object and pass it to the template
     return render(request, 'base/delete.html', {'obj': adherent})
@@ -149,7 +150,7 @@ def create_structure(request) :
         form=StructureForm(request.POST)  # create a form instance with the submitted data
         if form.is_valid() :  # if the form data is valid
            structure=form.save()
-           save_structure_history(sender=Adherent, instance=structure, created=True, request=request)  # save the form data to the database
+           post_save_structure(sender=Adherent, instance=structure, created=True, request=request)
            return redirect('home')  # redirect the user to the home page
     context={'form':form}  # create a dictionary to store the form and pass it to the view
     return render(request , 'base/structure_form.html', context)  # render the HTML template with the context data
@@ -162,7 +163,7 @@ def update_structure(request , pk) :
         form=StructureForm(request.POST , instance=structure)  # create a form instance with the submitted data and the retrieved structure object as initial data
         if form.is_valid():  # if the form data is valid
             structure = form.save()
-            save_structure_history(sender=Structure, instance=structure, created=False, request=request)
+            post_save_structure(sender=Adherent, instance=structure, created=False, request=request)
             return redirect('home')  # save the form data to the database
             return redirect('home')  # redirect the user to the home page
     context={'form' : form , 'structure':structure}  # create a dictionary to store the form and structure and pass it to the view
@@ -173,7 +174,7 @@ def delete_structure(request , pk) :
     structure= Structure.objects.get(id=pk)  # retrieve the structure object with the given primary key
     if request.method =='POST' :  # if the user confirms the delete action
         structure.delete()
-        delete_structure_history(sender=Structure, instance=structure, request=request)  # delete the structure object from the database
+        post_delete_structure(sender=Adherent, instance=structure, request=request)  # delete the structure object from the database
         return redirect('gestion_structure')  # redirect the user to the structure management page
     return render (request , 'base/delete.html', {'obj': structure})  # render the HTML template for delete confirmation with the context data
 

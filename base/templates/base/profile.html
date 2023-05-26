@@ -1,25 +1,35 @@
 {% extends 'main.html' %}
+{% load static %}
+
 
 {% block content %}
 
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Profile</title>
+    <title>Profil</title>
 </head>
 <body>
-    <h2>Profile</h2>
-    <hr>
+    <br>
     <div class="container">
+        <div class="profile-picture">
+            <img src="{{ adherent.image.url }}">
+        </div>
         <div class="row">
             <div class="info-box">
-                <p><strong>Name:</strong> {{ adherent.nom }} {{ adherent.prenom }}</p>
+                <p><strong>Nom:</strong> {{ adherent.nom }} {{ adherent.prenom }}</p>
             </div>
             <div class="info-box">
                 <p><strong>Type:</strong> {{ adherent.get_type_adherent_display }}</p>
             </div>
             <div class="info-box">
-                <p><strong>Gender:</strong> {{ adherent.get_genre_display }}</p>
+                <p><strong>Telephone:</strong> {{ adherent.telephone }}</p>
+            </div>
+            <div class="info-box">
+                <p><strong>Email:</strong> {{ adherent.email }}</p>
+            </div>
+            <div class="info-box">
+                <p><strong>Profession:</strong> {{ adherent.profession }}</p>
             </div>
         </div>
         <div class="row">
@@ -30,20 +40,38 @@
                 <p><strong>Structure:</strong> {{ adherent.structure }}</p>
             </div>
             <div class="info-box">
-                <p><strong>Document ID Type:</strong> {{ adherent.get_numero_document_identite_display }}</p>
+                <p><strong>Commission:</strong> {{ adherent.commissions }}</p>
+            </div>
+            <div class="info-box">
+                <p><strong>Type de document d'identité:</strong> {{ adherent.get_type_document_identite_display }}</p>
+            </div>
+            <div class="info-box">
+                <p><strong>Numero de document d'identité:</strong> {{ adherent.numero_document_identite }}</p>
+            </div>
+            <div class="info-box">
+                <p><strong>Date d'adhésion</strong> {{ adherent.date_adhesion }}</p>
             </div>
         </div>
         <div class="row">
             <div class="info-box">
-                <p><strong>Nationality:</strong> {{ adherent.nationalite }}</p>
+                <p><strong>Genre:</strong> {{ adherent.get_genre_display }}</p>
             </div>
             <div class="info-box">
-                <p><strong>Date of Birth:</strong> {{ adherent.date_naissance }}</p>
+                <p><strong>Nationalité:</strong> {{ adherent.nationalite }}</p>
             </div>
             <div class="info-box">
-                <p><strong>Place of Birth:</strong> {{ adherent.lieu_naissance }}</p>
+                <p><strong>Date de naissance:</strong> {{ adherent.date_naissance }}</p>
+            </div>
+            <div class="info-box">
+                <p><strong>Lieu de naissance:</strong> {{ adherent.lieu_naissance }}</p>
+            </div>
+            <div class="info-box">
+                <p><strong>Cotisation annuelle</strong> {{ adherent.cotisation_annuelle }}</p>
             </div>
         </div>
+        <div class="row">
+            
+        </div>  
     </div>
 </body>
 </html>

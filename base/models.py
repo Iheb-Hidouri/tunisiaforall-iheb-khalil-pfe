@@ -6,6 +6,8 @@ from django.utils import timezone
 from django.contrib.auth.models import User
 import os
 import uuid
+from django.db.models.signals import pre_save
+from django.dispatch import receiver
 
 
 
@@ -47,16 +49,35 @@ class Structure(models.Model):
     email = models.EmailField()
     date_creation = models.DateField()
     date_ag = models.DateField()
-   
+    exclude_fields = ['date_creation', 'date_ag']
+
+    @receiver(pre_save, sender='base.Structure')
+    def pre_save_structure(sender, instance, **kwargs):
+        if instance.pk:
+            original_instance = Structure.objects.get(pk=instance.pk)
+            instance._changes = original_instance.get_changes(instance)
+            
+    def get_changes(self, new_instance):
+        changes = []
+        
+        for field in self._meta.fields:
+          if field.name not in self.exclude_fields:  
+            old_value = getattr(self, field.name)
+            new_value = getattr(new_instance, field.name)
+            if old_value != new_value:
+                change = f"{field.name}: {old_value} ----> {new_value}"
+                changes.append(change)
+        return changes
+    
     
     def __str__(self):
-       return self.libelle
+       return self.code_structure
 
 
 class Adherent(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE , related_name='adherent')
     code = models.CharField(max_length=8)
-    image= models.ImageField(null=True, blank=True)
+    image= models.ImageField(upload_to='img/',null=True, blank=True)
     structure = models.ForeignKey(Structure, on_delete=models.CASCADE , related_name='adherents', default = 1)
    
     TYPE_ADHERENT_CHOICES = (
@@ -95,36 +116,55 @@ class Adherent(models.Model):
     telephone = models.CharField(max_length=20)
     email = models.EmailField(max_length=50)
     COMMISSION_CHOICES = (
-        ('1', 'Enseignement, Sciences et Technologies'),
-        ('2', 'Développement et emploi'),
-        ('3', 'Santé et social'),
-        ('4', 'Culture, tourisme et environnement'),
-        ('5', 'Autre'),
+        ('Enseignement, Sciences et Technologies', 'Enseignement, Sciences et Technologies'),
+        ('Développement et emploi', 'Développement et emploi'),
+        ('Santé et social', 'Santé et social'),
+        ('Culture, tourisme et environnement', 'Culture, tourisme et environnement'),
+        ('Autre', 'Autre'),
     )
-    commissions = models.CharField(max_length=5, choices=COMMISSION_CHOICES,null=True,blank=True)
+    commissions = models.CharField(max_length=(50), choices=COMMISSION_CHOICES,null=True,blank=True)
     date_adhesion = models.DateField(blank=True, null=True)
     date_depart = models.DateField(null=True, blank=True)
     motif_depart = models.CharField(max_length=50, null=True, blank=True)
     cotisation_annuelle = models.CharField(max_length=50, default='non payée')
-    
+    exclude_fields = ['date_adhesion', 'date_naissance']
+
+    @receiver(pre_save, sender='base.Adherent')
+    def pre_save_adherent(sender, instance, **kwargs):
+        if instance.pk:
+            original_instance = Adherent.objects.get(pk=instance.pk)
+            instance._changes = original_instance.get_changes(instance)
+            
+    def get_changes(self, new_instance):
+        changes = []
+        
+        for field in self._meta.fields:
+          if field.name not in self.exclude_fields:  
+            old_value = getattr(self, field.name)
+            new_value = getattr(new_instance, field.name)
+            if old_value != new_value:
+                change = f"{field.name}: {old_value} ----> {new_value}"
+                changes.append(change)
+        return changes
     def __str__(self):
-        return self.nom
+        return self.code
     
     
 class AdherentHistory(models.Model):
     user = models.CharField(max_length=20,blank=True, null=True)
     adherent = models.CharField(max_length=20,blank=True, null=True)
     action = models.CharField(max_length=10)
-    old_data = models.TextField(blank=True, null=True)
-    new_data = models.TextField(blank=True, null=True, default='nothing')
+    changes = models.TextField(blank=True, null=True)
     timestamp = models.DateTimeField(default=timezone.now)
+
+    def __str__(self):
+        return f"Adherent: {self.adherent}, Action: {self.action}"
 
 class StructureHistory(models.Model):
     user = models.CharField(max_length=20,blank=True, null=True)
     structure = models.CharField(max_length=20,blank=True, null=True)
     action = models.CharField(max_length=10)
-    old_data = models.TextField(blank=True, null=True)
-    new_data = models.TextField(blank=True, null=True, default='nothing')
+    changes = models.TextField(blank=True, null=True)
     timestamp = models.DateTimeField(default=timezone.now)    
 
 

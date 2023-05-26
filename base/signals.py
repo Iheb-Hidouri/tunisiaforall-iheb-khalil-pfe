@@ -1,76 +1,46 @@
-from django.db.models.signals import post_save, pre_delete
+from django.db.models.signals import post_save, pre_delete , post_delete
 from django.dispatch import receiver
 from django.utils import timezone
 from .models import Adherent , AdherentHistory , Structure , StructureHistory , BanqueTransactions , BanqueTransactionHistory , CaisseTransactionHistory, CaisseTransactions
 from django.contrib.auth.models import User 
 from django.contrib.auth import get_user_model
+from django.contrib.auth import get_user
 
 
+
+@receiver(post_delete, sender=Adherent)
+def post_delete_adherent(sender, instance,request=None , **kwargs,):
+    if request is None:
+        return
+    history = AdherentHistory(user=instance.user.username, adherent=str(instance), action='deleted')
+    history.save()
 
 
 @receiver(post_save, sender=Adherent)
-def save_adherent_history(sender, instance, created,request=None , **kwargs):
+def post_save_adherent(sender, instance, created,request=None , **kwargs ):
     if request is None:
         return
-    adherent = instance
-    if created:
-        action = 'Created'
-        old_data = ''
-        new_data = f'{instance}'
-    else:
-        action = 'Updated'
-        old_data = f'{instance}'
-        new_data = f'{instance}'
+    action = 'created' if created else 'updated'
+    changes = instance._changes if not created else None
+    history = AdherentHistory(user=request.user.username, adherent=str(instance), action=action, changes=changes)
+    history.save()
 
-      
-        
-    AdherentHistory.objects.create(adherent=adherent.nom, action=action, old_data=old_data, new_data=new_data, user=request.user.username)
-
-@receiver(pre_delete, sender=Adherent)
-def delete_adherent_history(sender, instance,request=None, **kwargs):
-    print("delete_adherent_history signal triggered!")
-    
+@receiver(post_delete, sender=Structure)
+def post_delete_structure(sender, instance,request=None , **kwargs,):
     if request is None:
-        print("No request object found!")
         return
-    adherent = instance
-    action = 'Deleted'
-    old_data = f'{instance}'
-    new_data = ''
-    
-    AdherentHistory.objects.create( adherent=adherent.nom, action=action, old_data=old_data, new_data=new_data , user=request.user.username)
+    history = StructureHistory(user=instance.user.username, structure=str(instance), action='deleted')
+    history.save()
+
 
 @receiver(post_save, sender=Structure)
-def save_structure_history(sender, instance, created,request=None , **kwargs):
+def post_save_structure(sender, instance, created,request=None , **kwargs ):
     if request is None:
         return
-    structure = instance
-    if created:
-        action = 'Created'
-        old_data = ''
-        new_data = f'{instance}'
-    else:
-        action = 'Updated'
-        old_data = f'{instance}'
-        new_data = f'{instance}'
-
-      
-        
-    StructureHistory.objects.create(structure=structure.libelle, action=action, old_data=old_data, new_data=new_data, user=request.user.username)
-
-@receiver(pre_delete, sender=Structure)
-def delete_structure_history(sender, instance,request=None, **kwargs):
-    print("delete_adherent_history signal triggered!")
-    
-    if request is None:
-        print("No request object found!")
-        return
-    structure = instance
-    action = 'Deleted'
-    old_data = f'{instance}'
-    new_data = ''
-    
-    StructureHistory.objects.create( structure=structure.libelle, action=action, old_data=old_data, new_data=new_data , user=request.user.username)    
+    action = 'created' if created else 'updated'
+    changes = instance._changes if not created else None
+    history = StructureHistory(user=request.user.username, structure=str(instance), action=action, changes=changes)
+    history.save()
 
 @receiver(post_save, sender=CaisseTransactions)
 def save_caisse_transaction_history(sender, instance, created,request=None , **kwargs):

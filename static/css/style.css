@@ -15,8 +15,27 @@ h2 {
 
 hr {
 border: none;
-border-top: 3px solid #ff4c4c;
 margin-bottom: 50px;
+}
+
+.hradherent
+{
+  border-top: 3px solid #73B43D;
+}
+
+.hrstructure
+{
+  border-top: 3px solid #FAC112;
+}
+
+.hrfinance
+{
+  border-top: 3px solid #D61820;
+}
+
+.hrneutral
+{
+  border-top: 3px solid #b3b3b3;
 }
 
 
@@ -61,7 +80,7 @@ header {
 }
 
 .logo {
-  height: 50px;
+  height: 70px;
 }
 
 nav {
@@ -76,20 +95,35 @@ li {
 .liens a {
     text-decoration: none;
     color: #000;
-    font-size: 18px;
+    font-size: 16px;
     margin-left: 10px;
     padding: 10px 15px;
     border-radius: 50px;
     transition: background-color 0.2s ease;
 }
 
-.liens a:hover {
-  background-color: #ff4c4c;
+.ladherent:hover {
+  background-color: #73B43D; /* #54A642*/
+  color: #fff;
+}
+
+.lstructure:hover {
+  background-color: #FAC112; /* #F9BA13*/
+  color: #fff;
+}
+
+.lfinance:hover {
+  background-color: #D61820; /* #AD161B*/
+  color: #fff;
+}
+
+.lneutral:hover {
+  background-color: #b3b3b3;
   color: #fff;
 }
 
 .profile button {
-  background-color: #ff4c4c;
+  background-color: #73B43D;
   color: #fff;
   border: none;
   border-radius: 50px;
@@ -101,10 +135,9 @@ li {
 }
 
 .profile button:hover {
-  background-color: #d82c2c;
+  background-color: #54A642;
 }
   
-
 nav ul li
 {   
   list-style-type:none;
@@ -126,7 +159,7 @@ margin-bottom: 30px;
 }
 
 .features button {
-background-color: #ff4c4c;
+
 color: #fff;
 border: none;
 border-radius: 50px;
@@ -138,9 +171,31 @@ letter-spacing: 1px;
 margin-right: 20px;
 }
 
-.features button:hover {
-background-color: #d82c2c;
+.adherent-button {
+  background-color: #73B43D;
 }
+
+
+.adherent-button:hover {
+  background-color: #54A642;
+}
+
+.structure-button {
+  background-color: #FAC112;
+}
+
+.structure-button:hover {
+  background-color: #eaad05
+}
+
+.finance-button {
+  background-color: #D61820;
+}
+
+.finance-button:hover {
+  background-color: #AD161B;
+}
+
 
 .textbox {
   width: 45%;
@@ -161,12 +216,7 @@ width: 20px;
 margin: auto;
 }
 
-.features button[type="submit"]:hover, .search-container button[type="submit"]:hover {
-background-color: #ff2e2e;
-}
-
-.features button[type="submit"], .search-container button[type="submit"] {
-background-color: #ff4c4c;
+.search-container button[type="submit"] {
 color: #fff;
 border: none;
 border-radius: 5px;
@@ -179,12 +229,8 @@ bottom:0;
 cursor: pointer;
 transition: background-color 0.2s ease;
 letter-spacing: 1px;
-
 }
 
-.features button[type="submit"]:hover, .search-container button[type="submit"]:hover {
-background-color: #d82c2c;
-}
 
 .print img
 {
@@ -202,18 +248,14 @@ margin-top:auto;
 margin-right:auto;
 margin-left:auto;
 margin-right:auto;
-width: 90%;
+width: 95%;
 }
 
 .features a, .structure-table a, .adherent-table a, .finance-table a {
   color:#ddd;
 }
-.structure-table button:hover, .adherent-table button:hover, .finance-table button:hover{
-  background-color: #d82c2c;
-}
 
 .structure-table button, .adherent-table button, .finance-table button{
-  background-color: #ff4c4c;
   color: #fff;
   border: none;
   border-radius: 50px;
@@ -252,9 +294,19 @@ text-align: center;
 padding: 8px;
 }
 
-.structure-table th,.adherent-table th, .finance-table th,
-.structure-history th, .adherent-history th {
-background-color: #ff4c4c;
+.adherent-table th, .adherent-history th {
+  background-color: #73B43D;
+  color: #fff;
+}
+
+.structure-table th,
+.structure-history th {
+  background-color: #FAC112;
+  color: #fff;
+}
+
+.finance-table th {
+background-color: #D61820;
 color: #fff;
 }
 
@@ -268,18 +320,19 @@ background-color: #f2f2f2;
 background-color: #ddd;
 }
 
-form {
+.adherent-form,
+.structure-form,
+.finance-form {
   background-color: #f5f5f5;
   color: #444;
   padding: 50px;
-
   border-radius: 10px;
   font-family: 'Montserrat', sans-serif;
   max-width: 600px;
-  margin-left: 400px;
-  margin-top: 30px;
-  box-shadow: 0px 0px 20px rgba(0,0,0,0.2);
+  margin: 30px auto;
+  box-shadow: 0px 0px 20px rgba(0, 0, 0, 0.2);
 }
+
 
 form h2 {
   text-align: center;
@@ -326,12 +379,25 @@ form input[type="file"]{
   margin-bottom: 20px;
   border-radius: 5px;
   font-size: 16px;
-  color: #be1212;
+
 }
 
-form input[type="file"]:hover {
-  background-color: #ffa3a3fd;
+.adherent-form input[type="file"] {
+  color:#73B43D;
 
+}
+
+.finance-form input[type="file"] {
+  color:#D61820;
+}
+
+.adherent-form input[type="file"]:hover {
+  background-color: #c6ffa3fd;
+
+}
+
+.finance-form input[type="file"]:hover {
+  background-color: #ffa3a3fd;
 }
 
 form input[type="radio"],
@@ -343,8 +409,9 @@ form label[for="femme"] {
 }
 
 
-form button[type="submit"] {
-  background-color: #ff4c4c;
+.adherent-form button[type="submit"],
+.structure-form button[type="submit"], 
+.finance-form button[type="submit"] {
   color: #fff;
   border: none;
   border-radius: 50px;
@@ -360,9 +427,6 @@ form button[type="submit"] {
   box-shadow: 0px 5px 10px rgba(0,0,0,0.2);
 }
 
-form button[type="submit"]:hover {
-  background-color: #c62424;
-}
 
 /* Login */
 
@@ -371,18 +435,42 @@ form button[type="submit"]:hover {
   padding-bottom:40px;
   padding: 20px;
 }
+.login form {
+  background-color: #fcfcfc;
+  color: #444;
+  padding: 50px;
+  border-radius: 15px;
+  max-width: 600px;
+  margin: 30px auto;
+  margin-top: 30px;
+  box-shadow: 0px 0px 20px rgba(0, 0, 0, 0.2);
+}
+
+.login form button[type="submit"] {
+  color: #fff;
+  border: none;
+  border-radius: 50px;
+  padding: 10px 30px;
+  font-size: 18px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  letter-spacing: 1px;
+  display: block;
+  margin: 0 auto;
+  font-family: 'Montserrat', sans-serif;
+  box-shadow: 0px 5px 10px rgba(0,0,0,0.2);
+}
 
 .login form input[type="text"],
 .login form input[type="password"] {
   width: 100%;
   padding: 10px;
-  margin-bottom: 15px;
+  margin-bottom: 20px;
   border: 1px solid #ccc;
   border-radius: 10px;
 }
 
 .login form input[type="submit"] {
-  background-color: #ff4c4c;
   color: #fff;
   border: none;
   border-radius: 50px;
@@ -398,12 +486,21 @@ form button[type="submit"]:hover {
   box-shadow: 0px 5px 10px rgba(0,0,0,0.2);
 }
 
-.login form input[type="submit"]:hover {
-  background-color: #d82c2c;
+
+.button-container {
+  text-align: center;
 }
 
-.return  {
-  background-color: #ff4c4c;
+.buttons {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 20px;
+}
+
+.buttons .return,
+.buttons .confirm {
+  background-color: #b3b3b3;
   color: #fff;
   border: none;
   border-radius: 50px;
@@ -412,32 +509,36 @@ form button[type="submit"]:hover {
   cursor: pointer;
   transition: background-color 0.2s ease;
   letter-spacing: 1px;
-  margin-top: 20px;
-  position:absolute;
-  left:600px;
-  margin-left:120px;
-  margin: 0 auto;
+  margin: 0 10px;
   font-family: 'Montserrat', sans-serif;
-  box-shadow: 0px 5px 10px rgba(0,0,0,0.2);
+  box-shadow: 0px 5px 10px rgba(0, 0, 0, 0.2);
+  flex: initial;
 }
 
-.confirm {
-  position:absolute;
-  right:600px;
-  margin-bottom: 15px;
+
+
+.return a {
+  display: block; 
+  color: #fff;
+  text-decoration: none; /* Remove underline from anchor */
 }
+
 
 .delete-form {
-  text-align:center;
-  padding-bottom: 110px;
-}
-
-.delete-form button a {
-  color: #fff;
+  background-color: #fcfcfc;
+  color: #444;
+  padding: 30px;
+  border-radius: 10px;
+  font-family: 'Montserrat', sans-serif;
+  max-width: 600px;
+  margin: 30px auto;
+  margin-top: 130px;
+  box-shadow: 0px 0px 20px rgba(0, 0, 0, 0.2);
 }
 
 
 .container {
+  position: relative;
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
@@ -454,6 +555,7 @@ form button[type="submit"]:hover {
   width: 350px;
   margin-right: 20px;
   transition: box-shadow 0.3s ease;
+  z-index: 1;
 }
 
 .info-box p {
@@ -466,4 +568,25 @@ form button[type="submit"]:hover {
 
 .info-box:hover {
   box-shadow: 0 8px 16px rgba(0, 0, 0, 0.4);
+  background-color: #f6ffed;
 }
+
+.profile-picture {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 20px;
+  width: 100%; /* Added */
+  text-align: center; /* Added */
+}
+
+.profile-picture img {
+  width: 150px;
+  height: 150px;
+  border-radius: 50%;
+  object-fit: cover;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+

@@ -2,12 +2,16 @@
 
 {% block content %}
 
-<div class = "login">
+<div>
 <form class = "delete-form" method="POST" action="">
     {% csrf_token %}
+    <div class="button-container">
     <p>Are you sure you want to delete "{{ obj }}"?</p>
-    <button class ="return"><a href="{{ request.META.HTTP_REFERER }}">GO BACK</a></button>
-    <button class ="confirm" type="submit" name="submit"> Confirm </button>
+        <div class="buttons">
+        <button class ="return"><a href="{{ request.META.HTTP_REFERER }}" >Retour</a></button>
+        <button class ="confirm" type="submit" name="submit"> Soumettre </button>
+        </div>
+    </div>
 </form>
 </div>
 {% endblock %}
