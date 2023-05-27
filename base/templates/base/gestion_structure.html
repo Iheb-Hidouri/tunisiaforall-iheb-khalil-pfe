@@ -15,14 +15,11 @@
 </div>
 
 <div class = page-content>
-    <div class = "search-container" method="GET" action="{% url 'gestion_adherent' %}">
+    <div class = "search-container" method="GET" action="{% url 'gestion_structure' %}">
         <input  type="text" class= "textbox" name="q" placeholder="Chercher...">
         <button type="submit" class="structure-button" ><i> <img src="{% static 'img/search.png' %}"> </i></button>
+        <img class = "print" src="{% static 'img/print.png' %}" height="40px" width="40px" href="#">
 </div>
-
-    <div class = "print">
-        <img src="{% static 'img/print.png' %}" height="40px" width="40px" href="#">
-    </div>
 
     <div class="structure-table">
         <table>
@@ -42,15 +39,15 @@
                 <tr>
                 <td><strong>{{ structure.code_structure }}</strong></td>
                 <td>{{ structure.type }}</td>
-                <td>{{ structure.libelle }}</td>
-                <td>{{ structure.telephone }}</td>
-                <td>{{ structure.email }}</td>
-                <td>{{ structure.date_creation }}</td>
+                <td>{{ structure.libellé }}</td>
+                <td>{{ structure.numéro_de_téléphone }}</td>
+                <td>{{ structure.adresse_email }}</td>
+                <td>{{ structure.date_de_création }}</td>
                 <td>{{ structure.date_ag }}</td>
                 <td>
                     <button class="structure-button" ><a href="{% url 'update-structure' structure.id %}">Mettre à jour</a></button>
                     <button class="structure-button" ><a href="{% url 'delete-structure' structure.id %}">Supprimer</a></button>
-                    <button class="structure-button" ><a href="">Consult</a></button>
+                    <button class="structure-button" ><a href="">Consulter</a></button>
                 </td>
                 </tr>
             {% endfor %}

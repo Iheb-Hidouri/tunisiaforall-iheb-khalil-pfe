@@ -12,7 +12,7 @@ from django.contrib.auth import get_user
 def post_delete_adherent(sender, instance,request=None , **kwargs,):
     if request is None:
         return
-    history = AdherentHistory(user=instance.user.username, adherent=str(instance), action='deleted')
+    history = AdherentHistory(user=instance.user.username, adherent=str(instance), action='supprimé')
     history.save()
 
 
@@ -20,7 +20,7 @@ def post_delete_adherent(sender, instance,request=None , **kwargs,):
 def post_save_adherent(sender, instance, created,request=None , **kwargs ):
     if request is None:
         return
-    action = 'created' if created else 'updated'
+    action = 'crée' if created else 'mis à jour'
     changes = instance._changes if not created else None
     history = AdherentHistory(user=request.user.username, adherent=str(instance), action=action, changes=changes)
     history.save()
@@ -29,7 +29,7 @@ def post_save_adherent(sender, instance, created,request=None , **kwargs ):
 def post_delete_structure(sender, instance,request=None , **kwargs,):
     if request is None:
         return
-    history = StructureHistory(user=instance.user.username, structure=str(instance), action='deleted')
+    history = StructureHistory(user=instance.user.username, structure=str(instance), action='supprimé')
     history.save()
 
 
@@ -37,7 +37,7 @@ def post_delete_structure(sender, instance,request=None , **kwargs,):
 def post_save_structure(sender, instance, created,request=None , **kwargs ):
     if request is None:
         return
-    action = 'created' if created else 'updated'
+    action = 'crée' if created else 'mis à jour '
     changes = instance._changes if not created else None
     history = StructureHistory(user=request.user.username, structure=str(instance), action=action, changes=changes)
     history.save()

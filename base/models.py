@@ -40,14 +40,14 @@ class Structure(models.Model):
     ]
     code_structure = models.CharField(max_length=6)
     type = models.CharField(max_length=2, choices=TYPE_CHOICES)
-    libelle = models.CharField(max_length=20)
+    libellé = models.CharField(max_length=20)
     rue = models.CharField(max_length=20)
-    governat = models.ForeignKey(Governat, on_delete=models.CASCADE , related_name='structures')
-    delegation = models.ForeignKey(Delegation, on_delete=models.CASCADE , related_name='structures')
+    gouvernorat = models.ForeignKey(Governat, on_delete=models.CASCADE , related_name='structures')
+    délégation = models.ForeignKey(Delegation, on_delete=models.CASCADE , related_name='structures')
     code_postal = models.CharField(max_length=4)
-    telephone = models.CharField(max_length=20)
-    email = models.EmailField()
-    date_creation = models.DateField()
+    numéro_de_téléphone = models.CharField(max_length=20)
+    adresse_email = models.EmailField()
+    date_de_création = models.DateField()
     date_ag = models.DateField()
     exclude_fields = ['date_creation', 'date_ag']
 
@@ -77,7 +77,7 @@ class Structure(models.Model):
 class Adherent(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE , related_name='adherent')
     code = models.CharField(max_length=8)
-    image= models.ImageField(upload_to='img/',null=True, blank=True)
+    photo_de_profile= models.ImageField(upload_to='img/',null=True, blank=True)
     structure = models.ForeignKey(Structure, on_delete=models.CASCADE , related_name='adherents', default = 1)
    
     TYPE_ADHERENT_CHOICES = (
@@ -91,30 +91,30 @@ class Adherent(models.Model):
     ('Simple membre', 'Simple membre'),
     )
     
-    type_adherent = models.CharField(max_length=20, choices=TYPE_ADHERENT_CHOICES)
+    type_adhérent = models.CharField(max_length=20, choices=TYPE_ADHERENT_CHOICES)
     GENRE_CHOICES = (
         ('M', 'M.'),
         ('F', 'Mme.'),
     )
     genre = models.CharField(max_length=1, choices=GENRE_CHOICES)
     nom = models.CharField(max_length=50)
-    prenom = models.CharField(max_length=50)
+    prénom = models.CharField(max_length=50)
     DOCUMENT_IDENTITE_CHOICES = (
         ('CI', 'Carte d\'identité'),
         ('CS', 'Carte de séjour'),
     )
-    type_document_identite = models.CharField(max_length=2, choices=DOCUMENT_IDENTITE_CHOICES,null=True)
+    type_document_identité = models.CharField(max_length=2, choices=DOCUMENT_IDENTITE_CHOICES,null=True)
 
-    numero_document_identite = models.CharField(max_length=8)
+    numero_document_identité = models.CharField(max_length=8)
     
     
-    nationalite = models.CharField(max_length=50)
-    date_naissance = models.DateField()
-    lieu_naissance = models.CharField(max_length=50)
+    nationalité = models.CharField(max_length=50)
+    date_de_naissance = models.DateField()
+    lieu_de_naissance = models.CharField(max_length=50)
     profession = models.CharField(max_length=50)
     
-    telephone = models.CharField(max_length=20)
-    email = models.EmailField(max_length=50)
+    numéro_de_téléphone = models.CharField(max_length=20)
+    adresse_email = models.EmailField(max_length=50)
     COMMISSION_CHOICES = (
         ('Enseignement, Sciences et Technologies', 'Enseignement, Sciences et Technologies'),
         ('Développement et emploi', 'Développement et emploi'),
@@ -123,7 +123,7 @@ class Adherent(models.Model):
         ('Autre', 'Autre'),
     )
     commissions = models.CharField(max_length=(50), choices=COMMISSION_CHOICES,null=True,blank=True)
-    date_adhesion = models.DateField(blank=True, null=True)
+    date_adhésion = models.DateField(blank=True, null=True)
     date_depart = models.DateField(null=True, blank=True)
     motif_depart = models.CharField(max_length=50, null=True, blank=True)
     cotisation_annuelle = models.CharField(max_length=50, default='non payée')
@@ -206,55 +206,55 @@ class Evenement(models.Model):
     
 class BanqueTransactions(models.Model):
     structure = models.ForeignKey(Structure, on_delete=models.CASCADE ,null=True, blank=True)
-    evenement = models.ForeignKey(Evenement, on_delete=models.CASCADE ,null=True, blank=True)
-    adherent = models.ForeignKey(Adherent, on_delete=models.CASCADE ,null=True, blank=True)
+    évènement = models.ForeignKey(Evenement, on_delete=models.CASCADE ,null=True, blank=True)
+    adhérent = models.ForeignKey(Adherent, on_delete=models.CASCADE ,null=True, blank=True)
     date = models.DateField(null=True, blank=True)
     entreprise = models.CharField(max_length=50)
-    libelle = models.CharField(max_length=50)
+    libellé = models.CharField(max_length=50)
     banque = models.CharField(max_length=50)
-    cheque_numero = models.CharField(max_length=20)
+    numéro_du_chèque = models.CharField(max_length=20)
     TRANSACTION_CHOICES = (
-        ('credit', 'Credit'),
-        ('debit', 'Debit'),
+        ('Crédit', 'Credit'),
+        ('Débit', 'Debit'),
     )
     
-    transaction_type = models.CharField(max_length=6, choices=TRANSACTION_CHOICES)
+    type_de_transaction = models.CharField(max_length=6, choices=TRANSACTION_CHOICES)
     solde = models.DecimalField(max_digits=10, decimal_places=2)
-    justificatif_banque = models.ImageField( null=True, blank=True)
+    justificatif_bancaire = models.ImageField(upload_to='img/', null=True, blank=True)
     REASON_CHOICES = (
-        ('don', 'Don'),
-        ('cotisation', 'Cotisation'),
-        ('frais', 'Frais'),
-        ('profits', 'profits'),
+        ('Don', 'Don'),
+        ('Cotisation', 'Cotisation'),
+        ('Frais', 'Frais'),
+        ('Profits', 'profits'),
         
     )
-    transaction_raison = models.CharField(max_length=20, choices=REASON_CHOICES, default='don')
+    raison_de_transaction = models.CharField(max_length=20, choices=REASON_CHOICES, default='don')
      
         
 class CaisseTransactions(models.Model):
     structure = models.ForeignKey(Structure, on_delete=models.CASCADE ,null=True, blank=True)
-    evenement = models.ForeignKey(Evenement, on_delete=models.CASCADE ,null=True, blank=True)
-    adherent = models.ForeignKey(Adherent, on_delete=models.CASCADE ,null=True, blank=True)
+    évènement = models.ForeignKey(Evenement, on_delete=models.CASCADE ,null=True, blank=True)
+    adhérent = models.ForeignKey(Adherent, on_delete=models.CASCADE ,null=True, blank=True)
     date = models.DateField(null=True, blank=True)
     entreprise = models.CharField(max_length=50)
-    libelle = models.CharField(max_length=50)
-    recu_numero = models.CharField(max_length=20)
+    libellé = models.CharField(max_length=50)
+    recu_numéro = models.CharField(max_length=20)
     TRANSACTION_CHOICES = (
-        ('credit', 'Credit'),
-        ('debit', 'Debit'),
+        ('Crédit', 'Credit'),
+        ('Débit', 'Debit'),
     )
     
-    transaction_type = models.CharField(max_length=6, choices=TRANSACTION_CHOICES)
+    type_de_transaction = models.CharField(max_length=6, choices=TRANSACTION_CHOICES)
     solde = models.DecimalField(max_digits=10, decimal_places=2)
-    justificatif_caisse = models.ImageField( null=True, blank=True) 
+    justificatif_caisse = models.ImageField( upload_to='img/',null=True, blank=True) 
     REASON_CHOICES = (
-        ('don', 'Don'),
-        ('cotisation', 'Cotisation'),
-        ('frais', 'Frais'),
-        ('profits', 'profits'),
+        ('Don', 'Don'),
+        ('Cotisation', 'Cotisation'),
+        ('Frais', 'Frais'),
+        ('Profits', 'profits'),
         
     )
-    transaction_raison = models.CharField(max_length=20,choices= REASON_CHOICES, default='don')
+    raison_de_transaction = models.CharField(max_length=20,choices= REASON_CHOICES, default='don')
 
 
 class CaisseTransactionHistory(models.Model):
@@ -279,12 +279,12 @@ class Cotisation(models.Model):
         ('B', 'Bank'),
         ('C', 'Caisse'),
     )
-    adherent = models.ForeignKey(Adherent, on_delete=models.CASCADE)
-    cotisation_type = models.CharField(max_length=1, choices=ADHERENT_CHOICES)
-    number = models.CharField(max_length=20)
+    adhérent = models.ForeignKey(Adherent, on_delete=models.CASCADE)
+    type_de_cotisation = models.CharField(max_length=1, choices=ADHERENT_CHOICES)
+    numéro_chèque_ou_recu = models.CharField(max_length=20)
     date = models.DateField(null=True, blank=True)
     entreprise = models.CharField(max_length=50)
-    libelle = models.CharField(max_length=50)
+    libellé = models.CharField(max_length=50)
     solde = models.DecimalField(max_digits=10, decimal_places=2)
     justificatif = models.ImageField(null=True, blank=True)    
 

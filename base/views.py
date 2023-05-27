@@ -100,7 +100,7 @@ def update_adherent(request, pk):
    
     if request.method == 'POST':
         # If the request method is POST, populate the form with the POST data
-        form = UpdateAdherentForm(request.POST, instance=adherent)
+        form = UpdateAdherentForm(request.POST, request.FILES ,instance=adherent)
        
         if form.is_valid():
             adherent = form.save(commit=False)
@@ -198,6 +198,11 @@ def gestion_financiere(request):
 
     # Combine the instances into a single list
     transactions = list(banque_transactions) + list(caisse_transactions)
+    for transaction in transactions:
+     if isinstance(transaction, BanqueTransactions):
+        transaction.type_transaction = "Bancaire"
+     elif isinstance(transaction, CaisseTransactions):
+        transaction.type_transaction = "Transaction en liquide"
 
     # Pass the transactions to the template
     context = {'transactions': transactions }
@@ -207,7 +212,7 @@ def gestion_financiere(request):
 
 def create_banque_transaction(request):
     if request.method == 'POST':
-        form = BanqueTransactionsForm(request.POST)
+        form = BanqueTransactionsForm(request.POST, request.FILES)
         if form.is_valid():
             transaction =form.save()
             save_banque_transaction_history (sender=BanqueTransactions, instance=transaction,created=True, request=request)
@@ -233,7 +238,7 @@ def create_banque_transaction(request):
 def update_banque_transaction(request, pk):
     transaction = get_object_or_404(BanqueTransactions, id=pk)
     if request.method == 'POST':
-        form = BanqueTransactionsForm(request.POST, instance=transaction)
+        form = BanqueTransactionsForm(request.POST,request.FILES, instance=transaction)
         if form.is_valid():
             transaction =form.save()
             save_banque_transaction_history (sender=BanqueTransactions, instance=transaction,created=False, request=request)
@@ -245,7 +250,7 @@ def update_banque_transaction(request, pk):
 # Similar functions for CaisseTransactions
 def create_caisse_transaction(request):
     if request.method == 'POST':
-        form = CaisseTransactionsForm(request.POST)
+        form = CaisseTransactionsForm(request.POST, request.FILES)
         if form.is_valid():
             transaction=form.save()
             save_caisse_transaction_history (sender=CaisseTransactions, instance=transaction,created=True, request=request)
@@ -271,7 +276,7 @@ def create_caisse_transaction(request):
 def update_caisse_transaction(request, pk):
     transaction = get_object_or_404(CaisseTransactions, id=pk)
     if request.method == 'POST':
-        form = CaisseTransactionsForm(request.POST, instance=transaction)
+        form = CaisseTransactionsForm(request.POST, request.FILES ,instance=transaction)
         
         if form.is_valid():
             form.save()

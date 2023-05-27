@@ -15,12 +15,9 @@
 
 <div class = page-content>
   <div class = "search-container" method="GET" action="{% url 'gestion_adherent' %}">
-      <input  type="text" class= "textbox" name ="q" placeholder="Chercher...">
+      <input  type="text" class= "textbox" placeholder="Chercher...">
       <button type="submit" class="adherent-button"><i> <img src="{% static 'img/search.png' %}"> </i></button>
-  </div>
-
-  <div class = "print">
-      <img src="{% static 'img/print.png' %}" height="40px" width="40px" href="#">
+      <img class = "print" src="{% static 'img/print.png' %}" height="40px" width="40px" href="#">
   </div>
 
   <div class="adherent-table">
@@ -43,12 +40,12 @@
                 <tr>
                   <td><strong>{{ adherent.code }}</strong></td>
                   <td>{{ adherent.nom }}</td>
-                  <td>{{ adherent.prenom}}</td>
+                  <td>{{ adherent.prénom}}</td>
                   <td>{{ adherent.genre}}</td>
-                  <td>{{ adherent.email}}</td>
-                  <td>{{ adherent.telephone}}</td>
-                  <td>{{ adherent.type_document_identite }} : {{ adherent.numero_document_identite }} </td>
-                  <td>{{ adherent.type_adherent }}</td>
+                  <td>{{ adherent.adresse_email}}</td>
+                  <td>{{ adherent.numéro_de_téléphone}}</td>
+                  <td>{{ adherent.type_document_identité }} : {{ adherent.numero_document_identité }} </td>
+                  <td>{{ adherent.type_adhérent }}</td>
                   <td>
                   <button class = "adherent-button"><a href="{% url 'update-adherent' adherent.id %}">Mettre à jour</a></button>
                   <button class = "adherent-button"><a href="{% url 'delete-adherent' adherent.id %}">Supprimer</a></button>

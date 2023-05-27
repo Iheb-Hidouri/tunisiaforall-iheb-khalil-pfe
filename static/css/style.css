@@ -12,6 +12,9 @@ h2 {
   margin-top: 50px;
 }
 
+button a {
+  text-decoration: none; 
+}
 
 hr {
 border: none;
@@ -81,6 +84,7 @@ header {
 
 .logo {
   height: 70px;
+  margin-left:30px;
 }
 
 nav {
@@ -95,8 +99,7 @@ li {
 .liens a {
     text-decoration: none;
     color: #000;
-    font-size: 16px;
-    margin-left: 10px;
+    font-size: 15.5px;
     padding: 10px 15px;
     border-radius: 50px;
     transition: background-color 0.2s ease;
@@ -145,13 +148,6 @@ nav ul li
   padding: 10px;
 }
 
-.search-container {
-display: flex;
-align-items: center;
-margin-bottom: 20px;
-position: relative;
-}
-
 .features {
 display: flex;
 justify-content: center;
@@ -196,9 +192,16 @@ margin-right: 20px;
   background-color: #AD161B;
 }
 
+.search-container {
+  display: flex;
+  justify-content: center;
+  width: 60%;
+  margin: 0 auto;
+  margin-top: 20px;
+}
 
 .textbox {
-  width: 45%;
+  flex: 1;
   padding: 10px;
   border: none;
   border-radius: 5px;
@@ -206,40 +209,35 @@ margin-right: 20px;
   background-color: #fff;
   color: #444;
   box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.1);
-  margin-left:auto;
-  margin-right:auto;
+  margin-bottom: 20px;
 }
 
+
 .features button[type="submit"] img, .search-container button[type="submit"] img {
-height: 20px;
-width: 20px;
-margin: auto;
+height: 21px;
+width: 21px;
+
 }
 
 .search-container button[type="submit"] {
 color: #fff;
 border: none;
+height: 40px;
 border-radius: 5px;
 padding: 10px 20px;
 font-size: 18px;
-position: absolute;
-right: 340px;
-top:0;
-bottom:0;
 cursor: pointer;
 transition: background-color 0.2s ease;
 letter-spacing: 1px;
+margin-right:10px;
 }
 
 
-.print img
-{
-position:absolute;
+.print {
+margin-left:10px;
 cursor:pointer;
-top: 366px;
-right: 300px;
-height:35px;
-width: 35px;
+height: 40px;
+width: 40px;
 }
 
 .structure-table table, .adherent-table table, .structure-history table, .adherent-history table, .finance-table table {
@@ -520,7 +518,7 @@ form label[for="femme"] {
 .return a {
   display: block; 
   color: #fff;
-  text-decoration: none; /* Remove underline from anchor */
+  text-decoration: none; 
 }
 
 
@@ -552,7 +550,7 @@ form label[for="femme"] {
   border-radius: 15px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
   margin-bottom: 20px;
-  width: 350px;
+  width: 380px;
   margin-right: 20px;
   transition: box-shadow 0.3s ease;
   z-index: 1;
@@ -569,6 +567,7 @@ form label[for="femme"] {
 .info-box:hover {
   box-shadow: 0 8px 16px rgba(0, 0, 0, 0.4);
   background-color: #f6ffed;
+  cursor:pointer;
 }
 
 .profile-picture {

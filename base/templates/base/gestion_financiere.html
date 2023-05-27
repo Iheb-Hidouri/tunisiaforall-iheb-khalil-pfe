@@ -11,7 +11,7 @@
     <title>Gestion Financiere</title>
 </head>
 <body>
-    <h2>Liste des transactions</h2> 
+    <h2>Gestion Financière</h2> 
     <hr class="hrfinance">
 
     <div class = "features">
@@ -20,14 +20,11 @@
     </div>
 
     <div class = page-content>
-        <div class = "search-container" method="GET" action="{% url 'gestion_adherent' %}">
+        <div class = "search-container" method="GET" action="{% url 'gestion_financiere' %}">
             <input  type="text" class= "textbox" name="q" placeholder="Chercher...">
             <button type="submit" class="finance-button" ><i> <img src="{% static 'img/search.png' %}"> </i></button>
+            <img class = "print" src="{% static 'img/print.png' %}" height="40px" width="40px" href="#">
     </div>
-    
-        <div class = "print">
-            <img src="{% static 'img/print.png' %}" height="40px" width="40px" href="#">
-        </div>
 
     <div class = "finance-table">
     
@@ -38,8 +35,8 @@
                     <th>Structure</th>
                     <th>Evenement</th>
                     <th>Date</th>
-                    <th>Num Chèque/reçu</th>
-                    <th>Type transaction</th>
+                    <th>Source du transaction</th>
+                    <th>Type du transaction</th>
                     <th>Raison transaction</th>
                     <th>Solde</th>
                     <th>Actions</th>
@@ -48,13 +45,13 @@
             <tbody>
                 {% for transaction in transactions %}
                 <tr>
-                    <td>{{ transaction.adherent }}</td>
+                    <td>{{ transaction.adhérent }}</td>
                     <td>{{ transaction.structure }}</td>
-                    <td>{{ transaction.evenement }}</td>
+                    <td>{{ transaction.évènement }}</td>
                     <td>{{ transaction.date }}</td>
-                    <td>{{ transaction.number }}</td>
-                    <td>{{ transaction.transaction_type}}</td>
-                    <td>{{ transaction.transaction_raison }}</td>
+                    <td>{{ transaction.type_transaction }}</td> 
+                    <td>{{ transaction.type_de_transaction}}</td>
+                    <td>{{ transaction.raison_de_transaction }}</td>
                     <td>{{ transaction.solde }}</td>
                     <td>
                         {% if transaction|is_banque_transaction %}

@@ -12,36 +12,36 @@ from django.forms.widgets import SelectDateWidget
 
 
 class AdherentForm(ModelForm):
-    username = forms.CharField(max_length=30)
-    password = forms.CharField(max_length=30, widget=forms.PasswordInput)
-    confirm_password = forms.CharField(max_length=30, widget=forms.PasswordInput)
+    pseudo = forms.CharField(max_length=30)
+    mot_de_passe = forms.CharField(max_length=30, widget=forms.PasswordInput)
+    confirmer_le_mot_de_passe = forms.CharField(max_length=30, widget=forms.PasswordInput)
     
     class Meta:
         model = Adherent
         exclude = ['code','user', 'cotisation_annuelle','date_depart','motif_depart'] # exclude the 'code' field from the form
         widgets = {
-            'date_naissance': forms.DateInput(attrs={'type': 'date'}),
-            'date_adhesion': forms.widgets.HiddenInput(),
+            'date_de_naissance': forms.DateInput(attrs={'type': 'date'}),
+            'date_adhésion': forms.widgets.HiddenInput(),
             
         }
         
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['structure'].queryset = Structure.objects.all() # set the queryset for the 'structure' field to all Structure objects
-        self.fields['password'].required = True
-        self.fields['confirm_password'].required = True
-        self.fields['nationalite'].required = True
+        self.fields['mot_de_passe'].required = True
+        self.fields['confirmer_le_mot_de_passe'].required = True
+        self.fields['nationalité'].required = True
         self.fields['profession'].required = True
-        self.fields['telephone'].required = True
-        self.fields['email'].required = True
+        self.fields['numéro_de_téléphone'].required = True
+        self.fields['adresse_email'].required = True
         
             
     def clean(self):
         cleaned_data = super().clean()
        
 
-        password = cleaned_data.get('password')
-        confirm_password = cleaned_data.get('confirm_password')
+        password = cleaned_data.get('mote_de_passe')
+        confirm_password = cleaned_data.get('confirmer_le_mot_de_passe')
 
         if password != confirm_password:
             raise forms.ValidationError("The two password fields do not match.")
@@ -68,8 +68,8 @@ class AdherentForm(ModelForm):
         if commit:
             # Create the user for the new Adherent object
             user = User.objects.create_user(
-            username=self.cleaned_data['username'], 
-            password=self.cleaned_data['password']
+            username=self.cleaned_data['pseudo'], 
+            password=self.cleaned_data['mot_de_passe']
         )
             instance.user = user
             instance.save() # save the new Adherent object to the database
@@ -81,18 +81,18 @@ class UpdateAdherentForm(ModelForm):
         model = Adherent
         exclude = ['code', 'user','cotisation_annuelle','date_depart','motif_depart']
         widgets = {
-            'date_naissance': SelectDateWidget(),
-            'date_adhesion': forms.widgets.HiddenInput(),
-            'image': ClearableFileInput(attrs={'accept': 'image/*'})
+            'date_de_naissance': forms.DateInput(attrs={'type': 'date'}),
+            'date_adhésion': forms.widgets.HiddenInput(),
+            
         }
     
      def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['structure'].queryset = Structure.objects.all()
-        self.fields['nationalite'].required = True
+        self.fields['nationalité'].required = True
         self.fields['profession'].required = True
-        self.fields['telephone'].required = True
-        self.fields['email'].required = True
+        self.fields['numéro_de_téléphone'].required = True
+        self.fields['adresse_email'].required = True
     
      def save(self, commit=True):
         instance = super().save(commit=False)
@@ -104,30 +104,28 @@ class UpdateAdherentForm(ModelForm):
 
 
 class StructureForm(ModelForm):
-    governat = forms.ModelChoiceField(queryset=Governat.objects.all(), empty_label=None) # create a ModelChoiceField for the 'governat' field with all available Governat objects
-    delegation = forms.ModelChoiceField(queryset=Delegation.objects.none(), empty_label=None) # create a ModelChoiceField for the 'delegation' field with all available Delegation objects
+    
     class Meta:
         model= Structure
         fields= [
             'type',
-            'libelle',
+            'libellé',
             'rue',
-            'governat',
-            'delegation',
+            'gouvernorat',
+            'délégation',
             'code_postal',
-            'telephone',
-            'email',
-            'date_creation',
+            'numéro_de_téléphone',
+            'adresse_email',
+            'date_de_création',
             'date_ag'
-        ]   # include these fields in the form for the Structure model
+        ] 
+        widgets = {
+            'date_de_création': forms.DateInput(attrs={'type': 'date'}),
+            'date_ag': forms.DateInput(attrs={'type': 'date'}),
+        }  # include these fields in the form for the Structure model
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        if self.instance.pk:
-            self.fields['delegation'].queryset = Delegation.objects.filter(governat=self.instance.governat) 
-        else :
-            governat_id = self.initial.get('governat', None)
-            if governat_id:
-             self.fields['delegation'].queryset = Delegation.objects.filter(governat_id=governat_id) # set the queryset for the 'delegation' field based on the selected 'governat' value, if one exists
+        
             
     def save(self, commit=True):
        
@@ -160,7 +158,7 @@ class CaisseTransactionsForm(forms.ModelForm):
 class CotisationPaymentForm(forms.ModelForm):
     class Meta:
         model = Cotisation
-        fields = ['cotisation_type', 'number', 'date', 'entreprise', 'libelle', 'solde', 'justificatif']                  
+        fields = ['type_de_cotisation', 'numéro_chèque_ou_recu', 'date', 'entreprise', 'libellé', 'solde', 'justificatif']                  
         widgets = {
             'date': forms.DateInput(attrs={'type': 'date'}),
         }     
