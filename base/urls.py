@@ -30,6 +30,8 @@ urlpatterns = [
    path('payer_ma_cotisation/', views.payer_ma_cotisation, name='payer_ma_cotisation'),
    path('profile/', views.profile, name='profile'),
    path('fetch-delegations/', views.fetch_delegations, name='fetch_delegations'),
+   path('consult_adherent/<str:pk>/', views.consult_adherent, name='consult_adherent'),
+   path('consult_structure/<str:pk>/', views.consult_structure, name='consult_structure'),
    
   
   ]

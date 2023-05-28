@@ -78,8 +78,8 @@ def create_adherent(request):
             
            
             adherent.user = User.objects.create_user(
-                username=form.cleaned_data['username'],
-                password=form.cleaned_data['password']
+                username=form.cleaned_data['pseudo'],
+                password=form.cleaned_data['mot_de_passe']
             )
             adherent.save()
             #SIGNAL
@@ -130,6 +130,13 @@ def delete_adherent(request, pk):
     # Create a dictionary with the Adherent object and pass it to the template
     return render(request, 'base/delete.html', {'obj': adherent})
 
+def consult_adherent(request, pk):
+    # Get the Adherent object with the given primary key
+    adherent = Adherent.objects.get(id=pk)
+    
+    # Create a dictionary with the Adherent object and pass it to the template
+    return render(request, 'base/consult_adherent.html', {'adherent': adherent})
+
 #VIEWS FOR STRUCTURES 
 # This view displays a list of adherents and allows searching for specific adherents.
 def gestion_structure (request) :
@@ -177,7 +184,12 @@ def delete_structure(request , pk) :
         post_delete_structure(sender=Adherent, instance=structure, request=request)  # delete the structure object from the database
         return redirect('gestion_structure')  # redirect the user to the structure management page
     return render (request , 'base/delete.html', {'obj': structure})  # render the HTML template for delete confirmation with the context data
-
+def consult_structure(request, pk):
+    # Get the Adherent object with the given primary key
+    structure = Structure.objects.get(id=pk)
+    
+    # Create a dictionary with the Adherent object and pass it to the template
+    return render(request, 'base/consult_structure.html', {'structure': structure})
 
 
 def adherent_history(request):

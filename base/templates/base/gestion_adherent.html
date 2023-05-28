@@ -1,60 +1,115 @@
 {% extends 'main.html' %}
 {% load static %}
 
-
 {% block content %}
+
 <div>
   <h2>Gestion des adhérents</h2>
   <hr class="hradherent">
 </div>
 
-<div class = "features">
-  <button class="adherent-button" ><a  href="{% url 'create-adherent'  %}">Ajouter Adhérent</a></button>
-  <button class="adherent-button"><a  href="{% url 'adherent_history' %}">Historique</a></button>
+<div class="features">
+  <button class="adherent-button"><a href="{% url 'create-adherent'  %}">Ajouter Adhérent</a></button>
+  <button class="adherent-button"><a href="{% url 'adherent_history' %}">Historique</a></button>
 </div>
 
-<div class = page-content>
-  <div class = "search-container" method="GET" action="{% url 'gestion_adherent' %}">
-      <input  type="text" class= "textbox" placeholder="Chercher...">
-      <button type="submit" class="adherent-button"><i> <img src="{% static 'img/search.png' %}"> </i></button>
-      <img class = "print" src="{% static 'img/print.png' %}" height="40px" width="40px" href="#">
-  </div>
+<div class="page-content">
+  <form id="search-form" class="search-container" action="{% url 'gestion_adherent' %}">
+    <input type="text" class="textbox" id="search-input" name="search" placeholder="Chercher...">
+    <button type="submit" class="adherent-button"><i><img src="{% static 'img/search.png' %}"></i></button>
+    <img class="print" src="{% static 'img/print.png' %}" height="40px" width="40px" onclick="printTable()">
+  </form>
 
   <div class="adherent-table">
-      <table>
-          <thead>
-              <tr>
-                <th>Code</th>
-                <th>Nom</th>
-                <th>Prénom</th>
-                <th>Genre</th>
-                <th>Email</th>
-                <th>Téléphone</th>
-                <th>Document d'identité</th>
-                <th>Type</th>
-                <th>Action</th>
-              </tr>
-            </thead>
-            <tbody>
-              {% for adherent in adherents %}
-                <tr>
-                  <td><strong>{{ adherent.code }}</strong></td>
-                  <td>{{ adherent.nom }}</td>
-                  <td>{{ adherent.prénom}}</td>
-                  <td>{{ adherent.genre}}</td>
-                  <td>{{ adherent.adresse_email}}</td>
-                  <td>{{ adherent.numéro_de_téléphone}}</td>
-                  <td>{{ adherent.type_document_identité }} : {{ adherent.numero_document_identité }} </td>
-                  <td>{{ adherent.type_adhérent }}</td>
-                  <td>
-                  <button class = "adherent-button"><a href="{% url 'update-adherent' adherent.id %}">Mettre à jour</a></button>
-                  <button class = "adherent-button"><a href="{% url 'delete-adherent' adherent.id %}">Supprimer</a></button>
-                  <button class = "adherent-button"><a href="">Consulter</a></button>
-                  </td>
-                </tr>
-              {% endfor %}
-            </tbody>
-      </table>
+    <table>
+      <thead>
+        <tr>
+          <th>Code</th>
+          <th>Nom</th>
+          <th>Prénom</th>
+          <th>Genre</th>
+          <th>Email</th>
+          <th>Téléphone</th>
+          <th>Document d'identité</th>
+          <th>Type</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for adherent in adherents %}
+        <tr>
+          <td><strong>{{ adherent.code }}</strong></td>
+          <td>{{ adherent.nom }}</td>
+          <td>{{ adherent.prénom }}</td>
+          <td>{{ adherent.genre }}</td>
+          <td>{{ adherent.adresse_email }}</td>
+          <td>{{ adherent.numéro_de_téléphone }}</td>
+          <td>{{ adherent.type_document_identité }}: {{ adherent.numero_document_identité }}</td>
+          <td>{{ adherent.type_adhérent }}</td>
+          <td>
+            <button class="adherent-button"><a href="{% url 'update-adherent' adherent.id %}">Mettre à jour</a></button>
+            <button class="adherent-button"><a href="{% url 'delete-adherent' adherent.id %}">Supprimer</a></button>
+            <button class="adherent-button"><a href="{% url 'consult_adherent' adherent.id %}">Consulter</a></button>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
   </div>
 </div>
+
+<script>
+    function printTable() {
+    // Hide the search form and print button before printing
+    const searchForm = document.getElementById('search-form');
+    const printButton = document.getElementsByClassName('print')[0];
+    searchForm.style.display = 'none';
+    printButton.style.display = 'none';
+
+    // Hide the navbar, Ajouter Adhérent button, and Historique button for printing
+    const navbar = document.getElementsByTagName('nav')[0];
+    const ajouterButton = document.querySelector('.features .adherent-button:first-child');
+    const historiqueButton = document.querySelector('.features .adherent-button:last-child');
+    navbar.style.display = 'none';
+    ajouterButton.style.display = 'none';
+    historiqueButton.style.display = 'none';
+
+    // Hide the Action column
+    const actionColumn = document.querySelectorAll('.adherent-table tbody td:last-child');
+    for (let i = 0; i < actionColumn.length; i++) {
+      actionColumn[i].style.display = 'none';
+    }
+
+    // Print the table content
+    window.print();
+
+    // Restore the visibility of the search form, print button, navbar, Ajouter Adhérent button, Historique button, and Action column after printing
+    searchForm.style.display = 'block';
+    printButton.style.display = 'inline-block';
+    navbar.style.display = '';
+    ajouterButton.style.display = '';
+    historiqueButton.style.display = '';
+
+    for (let i = 0; i < actionColumn.length; i++) {
+      actionColumn[i].style.display = '';
+    }
+  }
+  
+  document.getElementById('search-form').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const searchInput = document.getElementById('search-input').value;
+    const tableRows = document.querySelectorAll('.adherent-table tbody tr');
+
+    for (let i = 0; i < tableRows.length; i++) {
+      const row = tableRows[i];
+      const rowData = row.textContent.toLowerCase();
+
+      if (rowData.includes(searchInput.toLowerCase())) {
+        row.style.display = '';
+      } else {
+        row.style.display = 'none';
+      }
+    }
+  });
+</script>
 {% endblock %}

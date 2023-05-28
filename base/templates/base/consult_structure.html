@@ -1,0 +1,49 @@
+{% extends 'main.html' %}
+{% load static %}
+
+{% block content %}
+    <div class="container">
+        <div class="profile-picture">
+            <img src="{% static 'img/navbar_logo.png' %}">
+            <!-- Add profile picture if applicable -->
+        </div>
+        <div class="row">
+            <div class="info-box">
+                <p><strong>Code:</strong> {{ structure.code_structure }}</p>
+            </div>
+            <div class="info-box">
+                <p><strong>Type:</strong> {{ structure.get_type_display }}</p>
+            </div>
+            <div class="info-box">
+                <p><strong>Libellé:</strong> {{ structure.libellé }}</p>
+            </div>
+            <div class="info-box">
+                <p><strong>Rue:</strong> {{ structure.rue }}</p>
+            </div>
+            <div class="info-box">
+                <p><strong>Gouvernorat:</strong> {{ structure.gouvernorat }}</p>
+            </div>
+        </div>
+        <div class="row">
+            <div class="info-box">
+                <p><strong>Date de création:</strong> {{ structure.date_de_création }}</p>
+            </div>
+            <div class="info-box">
+                <p><strong>Code Postal:</strong> {{ structure.code_postal }}</p>
+            </div>
+            <div class="info-box">
+                <p><strong>Téléphone:</strong> {{ structure.numéro_de_téléphone }}</p>
+            </div>
+            <div class="info-box">
+                <p><strong>Email:</strong> {{ structure.adresse_email }}</p>
+            </div>
+            <div class="info-box">
+                <p><strong>Délégation:</strong> {{ structure.délégation }}</p>
+                
+            </div>
+            <div class="info-box">
+                <p><strong>Date AG:</strong> {{ structure.date_ag }}</p>
+            </div>
+        </div>
+    </div>
+{% endblock %}

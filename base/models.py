@@ -136,16 +136,17 @@ class Adherent(models.Model):
             instance._changes = original_instance.get_changes(instance)
             
     def get_changes(self, new_instance):
-        changes = []
-        
-        for field in self._meta.fields:
-          if field.name not in self.exclude_fields:  
+     changes = []
+    
+     for field in self._meta.fields:
+        if field.name not in self.exclude_fields:  
             old_value = getattr(self, field.name)
             new_value = getattr(new_instance, field.name)
             if old_value != new_value:
-                change = f"{field.name}: {old_value} ----> {new_value}"
+                change = f"{field.name}: {old_value} ---> {new_value}"
                 changes.append(change)
-        return changes
+    
+     return ",".join(changes)
     def __str__(self):
         return self.code
     

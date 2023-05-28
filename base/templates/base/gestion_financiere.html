@@ -1,4 +1,3 @@
-<!-- gestion_financiere.html -->
 {% extends 'main.html' %}
 {% load static %}
 
@@ -15,62 +14,113 @@
     <hr class="hrfinance">
 
     <div class = "features">
-        <button class="finance-button"><a  href="{% url 'create-banque-transaction' %}">Ajouter Transaction Banque</a></button>
+        <button class="finance-button"><a href="{% url 'create-banque-transaction' %}">Ajouter Transaction Banque</a></button>
         <button class="finance-button"><a href="{% url 'create-caisse-transaction' %}">Ajouter Transaction Caisse</a></button>
     </div>
 
-    <div class = page-content>
-        <div class = "search-container" method="GET" action="{% url 'gestion_financiere' %}">
-            <input  type="text" class= "textbox" name="q" placeholder="Chercher...">
-            <button type="submit" class="finance-button" ><i> <img src="{% static 'img/search.png' %}"> </i></button>
-            <img class = "print" src="{% static 'img/print.png' %}" height="40px" width="40px" href="#">
+    <div class="page-content">
+        <form id="search-form" class="search-container" action="{% url 'gestion_financiere' %}">
+            <input type="text" class="textbox" id="search-input" name="q" placeholder="Chercher...">
+            <button type="submit" class="finance-button"><i><img src="{% static 'img/search.png' %}"></i></button>
+            <img class="print" src="{% static 'img/print.png' %}" height="40px" width="40px" onclick="printTable()">
+        </form>
+
+        <div class="finance-table">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Adherent</th>
+                        <th>Structure</th>
+                        <th>Evenement</th>
+                        <th>Date</th>
+                        <th>Source du transaction</th>
+                        <th>Type du transaction</th>
+                        <th>Raison transaction</th>
+                        <th>Solde</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for transaction in transactions %}
+                    <tr>
+                        <td>{{ transaction.adhérent }}</td>
+                        <td>{{ transaction.structure }}</td>
+                        <td>{{ transaction.évènement }}</td>
+                        <td>{{ transaction.date }}</td>
+                        <td>{{ transaction.type_transaction }}</td> 
+                        <td>{{ transaction.type_de_transaction }}</td>
+                        <td>{{ transaction.raison_de_transaction }}</td>
+                        <td>{{ transaction.solde }}</td>
+                        <td>
+                            {% if transaction|is_banque_transaction %}
+                                <button class="finance-button"><a href="{% url 'update-banque-transaction' transaction.id %}" class="btn-update">Mettre à jour</a></button>
+                            {% else %}
+                                <button class="finance-button"><a href="{% url 'update-caisse-transaction' transaction.id %}" class="btn-update">Mettre à jour</a></button>
+                            {% endif %}
+                            {% if transaction|is_banque_transaction %}
+                                <button class="finance-button"><a href="{% url 'delete-banque-transaction' transaction.id %}">Supprimer</a></button>
+                            {% else %}
+                                <button class="finance-button"><a href="{% url 'delete-caisse-transaction' transaction.id %}">Supprimer</a></button>
+                            {% endif %}
+                            <button class="finance-button"><a href="">Consulter</a></button>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
     </div>
 
-    <div class = "finance-table">
-    
-        <table>
-            <thead>
-                <tr>
-                    <th>Adherent</th>
-                    <th>Structure</th>
-                    <th>Evenement</th>
-                    <th>Date</th>
-                    <th>Source du transaction</th>
-                    <th>Type du transaction</th>
-                    <th>Raison transaction</th>
-                    <th>Solde</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for transaction in transactions %}
-                <tr>
-                    <td>{{ transaction.adhérent }}</td>
-                    <td>{{ transaction.structure }}</td>
-                    <td>{{ transaction.évènement }}</td>
-                    <td>{{ transaction.date }}</td>
-                    <td>{{ transaction.type_transaction }}</td> 
-                    <td>{{ transaction.type_de_transaction}}</td>
-                    <td>{{ transaction.raison_de_transaction }}</td>
-                    <td>{{ transaction.solde }}</td>
-                    <td>
-                        {% if transaction|is_banque_transaction %}
-                            <button class="finance-button" ><a href="{% url 'update-banque-transaction' transaction.id %}" class="btn-update">Mettre à jour</a></button>
-                        {% else %}
-                            <button class="finance-button" ><a href="{% url 'update-caisse-transaction' transaction.id %}" class="btn-update">Mettre à jour</a></button>
-                        {% endif %}
-                        {% if transaction|is_banque_transaction %}
-                            <button class="finance-button" ><a href="{% url 'delete-banque-transaction' transaction.id %}">Supprimer</a></button>
-                        {% else %}
-                            <button class="finance-button" ><a href="{% url 'delete-caisse-transaction' transaction.id %}">Supprimer</a></button>
-                        {% endif %}
-                        <button class="finance-button" ><a href="">Consulter</a></button>
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    </div>
+    <script>
+         function printTable() {
+  // Hide unnecessary elements before printing
+  const searchForm = document.getElementById('search-form');
+  const printButton = document.getElementsByClassName('print')[0];
+
+  // Save the original display styles of elements
+  const originalStyles = {
+    searchFormDisplay: searchForm.style.display,
+    printButtonDisplay: printButton.style.display
+  };
+
+  // Hide elements before printing
+  searchForm.style.display = 'none';
+  printButton.style.display = 'none';
+
+  // Hide the Actions column
+  const actionColumn = document.querySelectorAll('.finance-table tbody td:last-child');
+  for (let i = 0; i < actionColumn.length; i++) {
+    actionColumn[i].style.display = 'none';
+  }
+
+  // Print the table content
+  window.print();
+
+  // Restore the original display styles and show the Actions column after printing
+  searchForm.style.display = originalStyles.searchFormDisplay;
+  printButton.style.display = originalStyles.printButtonDisplay;
+
+  for (let i = 0; i < actionColumn.length; i++) {
+    actionColumn[i].style.display = '';
+  }
+}  
+      document.getElementById('search-form').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const searchInput = document.getElementById('search-input').value.toLowerCase();
+        const tableRows = document.querySelectorAll('.finance-table tbody tr');
+
+        for (let i = 0; i < tableRows.length; i++) {
+          const row = tableRows[i];
+          const rowData = row.textContent.toLowerCase();
+
+          if (rowData.includes(searchInput)) {
+            row.style.display = '';
+          } else {
+            row.style.display = 'none';
+          }
+        }
+      });
+    </script>
 </body>
 </html>
 {% endblock %}
