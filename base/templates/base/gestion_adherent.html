@@ -59,43 +59,43 @@
 </div>
 
 <script>
-    function printTable() {
-    // Hide the search form and print button before printing
+  function printTable() {
+    const navbar = document.querySelector('header');
+    navbar.style.display = 'none'; // Hide the navigation bar
+
     const searchForm = document.getElementById('search-form');
-    const printButton = document.getElementsByClassName('print')[0];
-    searchForm.style.display = 'none';
-    printButton.style.display = 'none';
+    searchForm.style.display = 'none'; // Hide the search form
 
-    // Hide the navbar, Ajouter Adhérent button, and Historique button for printing
-    const navbar = document.getElementsByTagName('nav')[0];
-    const ajouterButton = document.querySelector('.features .adherent-button:first-child');
-    const historiqueButton = document.querySelector('.features .adherent-button:last-child');
-    navbar.style.display = 'none';
-    ajouterButton.style.display = 'none';
-    historiqueButton.style.display = 'none';
+    const printButton = document.querySelector('.print');
+    printButton.style.display = 'none'; // Hide the print button
 
-    // Hide the Action column
-    const actionColumn = document.querySelectorAll('.adherent-table tbody td:last-child');
-    for (let i = 0; i < actionColumn.length; i++) {
-      actionColumn[i].style.display = 'none';
-    }
+    const buttons = document.querySelectorAll('.adherent-button');
+    buttons.forEach(function(button) {
+      button.style.display = 'none'; // Hide all the buttons
+    });
 
-    // Print the table content
-    window.print();
+    const table = document.querySelector('.adherent-table');
+    const actionColumnHeader = table.querySelector('thead th:last-child'); // Select the last th element in the table header
+    actionColumnHeader.style.display = 'none'; // Hide the "Action" column header
 
-    // Restore the visibility of the search form, print button, navbar, Ajouter Adhérent button, Historique button, and Action column after printing
-    searchForm.style.display = 'block';
-    printButton.style.display = 'inline-block';
-    navbar.style.display = '';
-    ajouterButton.style.display = '';
-    historiqueButton.style.display = '';
+ 
+    window.print(); // Print the page
 
-    for (let i = 0; i < actionColumn.length; i++) {
-      actionColumn[i].style.display = '';
-    }
+    navbar.style.display = ''; // Restore the navigation bar's display
+    searchForm.style.display = ''; // Restore the search form's display
+    printButton.style.display = ''; // Restore the print button's display
+
+    buttons.forEach(function(button) {
+      button.style.display = ''; // Restore the display of the buttons
+    });
+
+    actionColumnHeader.style.display = ''; // Restore the display of the "Action" column header
+
+    actionColumnCells.forEach(function(cell) {
+      cell.style.display = ''; // Restore the display of the action cells
+    });
   }
-  
-  document.getElementById('search-form').addEventListener('submit', function(e) {
+document.getElementById('search-form').addEventListener('submit', function(e) {
     e.preventDefault();
     const searchInput = document.getElementById('search-input').value;
     const tableRows = document.querySelectorAll('.adherent-table tbody tr');

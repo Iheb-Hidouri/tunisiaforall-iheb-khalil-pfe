@@ -65,9 +65,9 @@ class Structure(models.Model):
             old_value = getattr(self, field.name)
             new_value = getattr(new_instance, field.name)
             if old_value != new_value:
-                change = f"{field.name}: {old_value} ----> {new_value}"
+                change = f"{field.name}: ==> {new_value}"
                 changes.append(change)
-        return changes
+        return '  /  '.join(changes)
     
     
     def __str__(self):
@@ -143,10 +143,10 @@ class Adherent(models.Model):
             old_value = getattr(self, field.name)
             new_value = getattr(new_instance, field.name)
             if old_value != new_value:
-                change = f"{field.name}: {old_value} ---> {new_value}"
+                change = f"{field.name}: ==> {new_value}"
                 changes.append(change)
-    
-     return ",".join(changes)
+     
+     return '  /  '.join(changes)
     def __str__(self):
         return self.code
     
@@ -247,7 +247,7 @@ class CaisseTransactions(models.Model):
     
     type_de_transaction = models.CharField(max_length=6, choices=TRANSACTION_CHOICES)
     solde = models.DecimalField(max_digits=10, decimal_places=2)
-    justificatif_caisse = models.ImageField( upload_to='img/',null=True, blank=True) 
+    justificatif_caisse = models.ImageField(upload_to='img/',null=True, blank=True) 
     REASON_CHOICES = (
         ('Don', 'Don'),
         ('Cotisation', 'Cotisation'),
@@ -287,5 +287,5 @@ class Cotisation(models.Model):
     entreprise = models.CharField(max_length=50)
     libellé = models.CharField(max_length=50)
     solde = models.DecimalField(max_digits=10, decimal_places=2)
-    justificatif = models.ImageField(null=True, blank=True)    
+    justificatif = models.ImageField(upload_to='img/',null=True, blank=True)    
 

@@ -132,7 +132,7 @@ class StructureForm(ModelForm):
         instance = super().save(commit=False)
         
         if not instance.code_structure:
-            code_structure = f"{instance.type}-{instance.governat.code}{instance.delegation.code}" # construct a new 'code_structure' value based on the 'type', 'governat', and 'delegation' fields
+            code_structure = f"{instance.type}-{instance.gouvernorat.code}{instance.délégation.code}" # construct a new 'code_structure' value based on the 'type', 'governat', and 'delegation' fields
             instance.code_structure = code_structure # set the 'code_structure' field for the new Structure object to the generated value
         if commit:
             instance.save() # save the new Structure object to the database

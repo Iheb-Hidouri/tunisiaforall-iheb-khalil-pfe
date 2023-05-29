@@ -1,0 +1,66 @@
+{% extends 'main.html' %}
+{% load static %}
+
+
+{% block content %}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Profil</title>
+</head>
+<body>
+    <br>
+    <div class="container">
+        <div class="profile-picture">
+            <img src="{{ transaction.justificatif_caisse.url }}">
+        </div>
+        <div class="row">
+            <div class="info-box">
+                <p><strong>Structure:</strong> {{ transaction.structure}} </p>
+            </div>
+            <div class="info-box">
+                <p><strong>Evenement:</strong> {{ transaction.évènement }}</p>
+            </div>
+            <div class="info-box">
+                <p><strong>Adhérent:</strong> {{ transaction.adhérent }}</p>
+            </div>
+            <div class="info-box">
+                <p><strong>Date:</strong> {{ transaction.date }}</p>
+            </div>
+            <div class="info-box">
+                <p><strong>Entreprise:</strong> {{ transaction.entreprise }}</p>
+            </div>
+        </div>
+        <div class="row">
+            <div class="info-box">
+                <p><strong>Libellé:</strong> {{ transaction.libellé }}</p>
+            </div>
+            <div class="info-box">
+                <p><strong>Banque:</strong> {{ transaction.banque }}</p>
+            </div>
+            <div class="info-box">
+                <p><strong>Numéro du recu:</strong> {{ transaction.recu_numéro}}</p>
+            </div>
+            <div class="info-box">
+                <p><strong>Type de transaction:</strong> {{ transaction.type_de_transaction}}</p>
+            </div>
+            <div class="info-box">
+                <p><strong>Solde:</strong> {{ transaction.solde }}</p>
+            </div>
+            <div class="info-box">
+                <p><strong>Raison de transaction</strong> {{ transaction.raison_de_transaction }}</p>
+            </div>
+        </div>
+        
+        <div class="row">
+            
+        </div>  
+    </div>
+</body>
+</html>
+
+
+
+
+{% endblock %}

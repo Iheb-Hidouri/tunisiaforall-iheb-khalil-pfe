@@ -59,38 +59,37 @@
 
   <script>
     function printTable() {
-  // Hide unnecessary elements before printing
-  const searchForm = document.getElementById('search-form');
-  const printButton = document.getElementsByClassName('print')[0];
+    const navbar = document.querySelector('header');
+    navbar.style.display = 'none'; // Hide the navigation bar
 
-  // Save the original display styles of elements
-  const originalStyles = {
-    searchFormDisplay: searchForm.style.display,
-    printButtonDisplay: printButton.style.display
-  };
+    const searchForm = document.getElementById('search-form');
+    searchForm.style.display = 'none'; // Hide the search form
 
-  // Hide elements before printing
-  searchForm.style.display = 'none';
-  printButton.style.display = 'none';
+    const printButton = document.querySelector('.print');
+    printButton.style.display = 'none'; // Hide the print button
 
-  // Hide the Actions column
-  const actionColumn = document.querySelectorAll('.structure-table tbody td:last-child');
-  for (let i = 0; i < actionColumn.length; i++) {
-    actionColumn[i].style.display = 'none';
+    const buttons = document.querySelectorAll('.structure-button');
+    buttons.forEach(function(button) {
+      button.style.display = 'none'; // Hide all the buttons
+    });
+
+    const table = document.querySelector('.structure-table');
+    const actionHeader = table.querySelector('th:nth-child(8)');
+    actionHeader.style.display = 'none'; // Hide the "Action" table header
+
+    window.print(); // Print the page
+
+    navbar.style.display = ''; // Restore the navigation bar's display
+    searchForm.style.display = ''; // Restore the search form's display
+    printButton.style.display = ''; // Restore the print button's display
+
+    buttons.forEach(function(button) {
+      button.style.display = ''; // Restore the display of the buttons
+    });
+
+    actionHeader.style.display = ''; // Restore the "Action" table header's display
   }
-
-  // Print the table content
-  window.print();
-
-  // Restore the original display styles and show the Actions column after printing
-  searchForm.style.display = originalStyles.searchFormDisplay;
-  printButton.style.display = originalStyles.printButtonDisplay;
-
-  for (let i = 0; i < actionColumn.length; i++) {
-    actionColumn[i].style.display = '';
-  }
-}
-    document.getElementById('search-form').addEventListener('submit', function(e) {
+document.getElementById('search-form').addEventListener('submit', function(e) {
       e.preventDefault();
       const searchInput = document.getElementById('search-input').value.toLowerCase();
       const tableRows = document.querySelectorAll('.structure-table tbody tr');

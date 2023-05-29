@@ -32,6 +32,8 @@ urlpatterns = [
    path('fetch-delegations/', views.fetch_delegations, name='fetch_delegations'),
    path('consult_adherent/<str:pk>/', views.consult_adherent, name='consult_adherent'),
    path('consult_structure/<str:pk>/', views.consult_structure, name='consult_structure'),
+   path('consult_banque_transaction/<str:pk>/', views.consult_banque_transaction, name='consult_banque_transaction'),
+   path('consult_caisse_transaction/<str:pk>/', views.consult_caisse_transaction, name='consult_caisse_transaction'),
    
   
   ]

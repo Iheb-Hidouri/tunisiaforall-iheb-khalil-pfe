@@ -29,7 +29,7 @@ def post_save_adherent(sender, instance, created,request=None , **kwargs ):
 def post_delete_structure(sender, instance,request=None , **kwargs,):
     if request is None:
         return
-    history = StructureHistory(user=instance.user.username, structure=str(instance), action='supprimé')
+    history = StructureHistory(user=request.user.username, structure=str(instance), action='supprimé')
     history.save()
 
 
@@ -58,7 +58,7 @@ def save_caisse_transaction_history(sender, instance, created,request=None , **k
 
       
         
-    CaisseTransactionHistory.objects.create(caisse_transaction=caisse_transaction.libelle, action=action, old_data=old_data, new_data=new_data, user=request.user.username)
+    CaisseTransactionHistory.objects.create(caisse_transaction=caisse_transaction.libellé, action=action, old_data=old_data, new_data=new_data, user=request.user.username)
 
 @receiver(pre_delete, sender=CaisseTransactions)
 def delete_caisse_transaction_history(sender, instance,request=None, **kwargs):
@@ -72,7 +72,7 @@ def delete_caisse_transaction_history(sender, instance,request=None, **kwargs):
     old_data = f'{instance}'
     new_data = ''
     
-    CaisseTransactionHistory.objects.create( caisse_transaction=caisse_transaction.libelle, action=action, old_data=old_data, new_data=new_data , user=request.user.username) 
+    CaisseTransactionHistory.objects.create( caisse_transaction=caisse_transaction.libellé, action=action, old_data=old_data, new_data=new_data , user=request.user.username) 
 @receiver(post_save, sender=BanqueTransactions)
 def save_banque_transaction_history(sender, instance, created,request=None , **kwargs):
     if request is None:
@@ -89,7 +89,7 @@ def save_banque_transaction_history(sender, instance, created,request=None , **k
 
       
         
-    BanqueTransactionHistory.objects.create(banque_transaction=banque_transaction.libelle, action=action, old_data=old_data, new_data=new_data, user=request.user.username)
+    BanqueTransactionHistory.objects.create(banque_transaction=banque_transaction.libellé, action=action, old_data=old_data, new_data=new_data, user=request.user.username)
 
 @receiver(pre_delete, sender=BanqueTransactions)
 def delete_banque_transaction_history(sender, instance,request=None, **kwargs):
@@ -103,4 +103,4 @@ def delete_banque_transaction_history(sender, instance,request=None, **kwargs):
     old_data = f'{instance}'
     new_data = ''
     
-    BanqueTransactionHistory.objects.create( banque_transaction=banque_transaction.libelle, action=action, old_data=old_data, new_data=new_data , user=request.user.username)
+    BanqueTransactionHistory.objects.create( banque_transaction=banque_transaction.libellé, action=action, old_data=old_data, new_data=new_data , user=request.user.username)

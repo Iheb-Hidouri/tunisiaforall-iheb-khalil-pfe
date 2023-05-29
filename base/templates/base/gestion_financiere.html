@@ -43,9 +43,9 @@
                 <tbody>
                     {% for transaction in transactions %}
                     <tr>
-                        <td>{{ transaction.adhérent }}</td>
-                        <td>{{ transaction.structure }}</td>
-                        <td>{{ transaction.évènement }}</td>
+                        <td>{{ transaction.adhérent|default:'---' }}</td>
+                        <td>{{ transaction.structure|default:'---' }}</td>
+                        <td>{{ transaction.évènement|default:'---' }}</td>
                         <td>{{ transaction.date }}</td>
                         <td>{{ transaction.type_transaction }}</td> 
                         <td>{{ transaction.type_de_transaction }}</td>
@@ -62,7 +62,12 @@
                             {% else %}
                                 <button class="finance-button"><a href="{% url 'delete-caisse-transaction' transaction.id %}">Supprimer</a></button>
                             {% endif %}
-                            <button class="finance-button"><a href="">Consulter</a></button>
+                            {% if transaction|is_banque_transaction %}
+                                <button class="finance-button"><a href="{% url 'consult_banque_transaction' transaction.id %}">Consulter</a></button>
+                            {% else %}
+                                <button class="finance-button"><a href="{% url 'consult_caisse_transaction' transaction.id %}">Consulter</a></button>
+                            {% endif %}
+                            
                         </td>
                     </tr>
                     {% endfor %}
@@ -72,39 +77,50 @@
     </div>
 
     <script>
+         
          function printTable() {
-  // Hide unnecessary elements before printing
-  const searchForm = document.getElementById('search-form');
-  const printButton = document.getElementsByClassName('print')[0];
+    const navbar = document.querySelector('header');
+    navbar.style.display = 'none'; // Hide the navigation bar
 
-  // Save the original display styles of elements
-  const originalStyles = {
-    searchFormDisplay: searchForm.style.display,
-    printButtonDisplay: printButton.style.display
-  };
+    const searchForm = document.getElementById('search-form');
+    searchForm.style.display = 'none'; // Hide the search form
 
-  // Hide elements before printing
-  searchForm.style.display = 'none';
-  printButton.style.display = 'none';
+    const printButton = document.querySelector('.print');
+    printButton.style.display = 'none'; // Hide the print button
 
-  // Hide the Actions column
-  const actionColumn = document.querySelectorAll('.finance-table tbody td:last-child');
-  for (let i = 0; i < actionColumn.length; i++) {
-    actionColumn[i].style.display = 'none';
+    const buttons = document.querySelectorAll('.finance-button');
+    buttons.forEach(function(button) {
+      button.style.display = 'none'; // Hide all the buttons
+    });
+
+    const actionColumn = document.querySelectorAll('.finance-table th')[8]; // Index 8 corresponds to the "Actions" column
+    const tableRows = document.querySelectorAll('.finance-table tbody tr');
+
+    actionColumn.style.display = 'none'; // Hide the "Actions" column
+
+    tableRows.forEach(function(row) {
+      const actionCell = row.querySelector('td:last-child'); // Select the last cell in each row
+      actionCell.style.display = 'none'; // Hide the action cell
+    });
+
+    window.print(); // Print the page
+
+    navbar.style.display = ''; // Restore the navigation bar's display
+    searchForm.style.display = ''; // Restore the search form's display
+    printButton.style.display = ''; // Restore the print button's display
+
+    buttons.forEach(function(button) {
+      button.style.display = ''; // Restore the display of the buttons
+    });
+
+    actionColumn.style.display = ''; // Restore the display of the "Actions" column
+
+    tableRows.forEach(function(row) {
+      const actionCell = row.querySelector('td:last-child'); // Select the last cell in each row
+      actionCell.style.display = ''; // Restore the display of the action cell
+    });
   }
-
-  // Print the table content
-  window.print();
-
-  // Restore the original display styles and show the Actions column after printing
-  searchForm.style.display = originalStyles.searchFormDisplay;
-  printButton.style.display = originalStyles.printButtonDisplay;
-
-  for (let i = 0; i < actionColumn.length; i++) {
-    actionColumn[i].style.display = '';
-  }
-}  
-      document.getElementById('search-form').addEventListener('submit', function(e) {
+  document.getElementById('search-form').addEventListener('submit', function(e) {
         e.preventDefault();
         const searchInput = document.getElementById('search-input').value.toLowerCase();
         const tableRows = document.querySelectorAll('.finance-table tbody tr');
@@ -119,6 +135,7 @@
             row.style.display = 'none';
           }
         }
+
       });
     </script>
 </body>
