@@ -17,28 +17,18 @@ from .forms import BanqueTransactionsForm, CaisseTransactionsForm , CotisationPa
 from .models import BanqueTransactions, CaisseTransactions
 
 def loginPage(request):
-    if request.method == "POST" : 
-        username =request.POST.get('username')
-        password=request.POST.get('password')
-        try :
-            user = User.objects.get(username=username)
-        except:
-            messages.error(request , 'User does not exist') 
-        user = authenticate(request , username=username , password=password)
+    if request.method == "POST":
+        username = request.POST.get('username')
+        password = request.POST.get('password')
+        user = authenticate(request, username=username, password=password)
 
-        if user is not None :
-            LogEntry.objects.create(
-                user_id=user.id,
-                content_type=ContentType.objects.get_for_model(User),
-                object_id=user.id,
-                object_repr=str(user),
-                action_flag=ADDITION,
-                change_message="User logged in",
-            )
-            login(request , user )    
-            return redirect ('home') 
-    context={}
-    return render(request , 'base/login_register.html', context)
+        if user is not None:
+            login(request, user)
+            return redirect('home')
+        else:
+            messages.error(request, 'Pseudo ou mot de passe invalide')
+
+    return render(request, 'base/login_register.html')
 
 def logoutUser(request): 
     logout(request)
@@ -85,7 +75,7 @@ def create_adherent(request):
             #SIGNAL
             
             post_save_adherent(sender=Adherent, instance=adherent, created=True, request=request)
-            return redirect('home')
+            return redirect('gestion_adherent')
     # Create a dictionary with the form and pass it to the template
     context = {'form': form}
     return render(request, 'base/adherent_form.html', context)
@@ -111,7 +101,7 @@ def update_adherent(request, pk):
             #SIGNAL
             
             post_save_adherent(sender=Adherent, instance=adherent, created=False, request=request)
-            return redirect('home')
+            return redirect('gestion_adherent')
     # Create a dictionary with the form and the Adherent object and pass it to the template
     context = {'form': form, 'adherent': adherent}
     return render(request, 'base/adherent_form.html', context)
@@ -124,6 +114,7 @@ def delete_adherent(request, pk):
         
         
         # If the request method is POST, delete the adherent and redirect to the list of adherents
+        adherent.user.delete()
         adherent.delete()
         post_delete_adherent(sender=Adherent, instance=adherent, request=request)
         return redirect('gestion_adherent')
@@ -158,7 +149,7 @@ def create_structure(request) :
         if form.is_valid() :  # if the form data is valid
            structure=form.save()
            post_save_structure(sender=Structure, instance=structure, created=True, request=request)
-           return redirect('home')  # redirect the user to the home page
+           return redirect('gestion_structure')  # redirect the user to the home page
     context={'form':form}  # create a dictionary to store the form and pass it to the view
     return render(request , 'base/structure_form.html', context)  # render the HTML template with the context data
 
@@ -171,8 +162,8 @@ def update_structure(request , pk) :
         if form.is_valid():  # if the form data is valid
             structure = form.save()
             post_save_structure(sender=Structure, instance=structure, created=False, request=request)
-            return redirect('home')  # save the form data to the database
-            return redirect('home')  # redirect the user to the home page
+            return redirect('gestion_structure')  # save the form data to the database
+             # redirect the user to the home page
     context={'form' : form , 'structure':structure}  # create a dictionary to store the form and structure and pass it to the view
     return render(request , 'base/structure_form.html', context)  # render the HTML template with the context data
 
@@ -209,11 +200,7 @@ def gestion_financiere(request):
 
     # Combine the instances into a single list
     transactions = list(banque_transactions) + list(caisse_transactions)
-    for transaction in transactions:
-     if isinstance(transaction, BanqueTransactions):
-        transaction.type_transaction = "Bancaire"
-     elif isinstance(transaction, CaisseTransactions):
-        transaction.type_transaction = "Transaction en liquide"
+  
 
     # Pass the transactions to the template
     context = {'transactions': transactions }
@@ -241,7 +228,7 @@ def create_banque_transaction(request):
                 adherent = transaction.adhérent
                 adherent.cotisation_annuelle = 'payée'
                 adherent.save()
-            return redirect('home')  # Replace with your desired URL
+            return redirect('gestion_financiere')  # Replace with your desired URL
     else:
         form = BanqueTransactionsForm()
     return render(request, 'base/banque_form.html', {'form': form})
@@ -253,7 +240,7 @@ def update_banque_transaction(request, pk):
         if form.is_valid():
             transaction =form.save()
             save_banque_transaction_history (sender=BanqueTransactions, instance=transaction,created=False, request=request)
-            return redirect('home')  # Replace with your desired URL
+            return redirect('gestion_financiere')  # Replace with your desired URL
     else:
         form = BanqueTransactionsForm(instance=transaction)
     return render(request, 'base/banque_form.html', {'form': form})
@@ -289,7 +276,7 @@ def create_caisse_transaction(request):
                 adherent = transaction.adhérent
                 adherent.cotisation_annuelle = 'payée'
                 adherent.save()
-            return redirect('home')  # Replace with your desired URL
+            return redirect('gestion_financiere')  # Replace with your desired URL
     else:
         form = CaisseTransactionsForm()
     return render(request, 'base/caisse_form.html', {'form': form})
@@ -302,7 +289,7 @@ def update_caisse_transaction(request, pk):
         if form.is_valid():
             form.save()
             save_caisse_transaction_history (sender=BanqueTransactions, instance=transaction,created=False, request=request)
-            return redirect('home')  # Replace with your desired URL
+            return redirect('gestion_financiere')  # Replace with your desired URL
     else:
         form = CaisseTransactionsForm(instance=transaction)
     return render(request, 'base/caisse_form.html', {'form': form})
@@ -312,14 +299,14 @@ def delete_banque_transaction(request, pk):
     
     if request.method == 'POST':
         if transaction.raison_de_transaction == 'Cotisation':
-            Cotisation.objects.filter(adherent=transaction.adherent).delete()
+            Cotisation.objects.filter(adhérent=transaction.adhrent).delete()
         transaction.delete()
         adherent=transaction.adhérent
         adherent.cotisation_annuelle = 'non payée'
         adherent.save()
         delete_banque_transaction_history(sender=BanqueTransactions, instance=transaction, request=request) 
         # Perform any additional actions after deletion if needed
-        return redirect('home')
+        return redirect('gestion_financiere')
     
     return render(request, 'base/delete.html', {'transaction': transaction})
 
@@ -336,7 +323,7 @@ def delete_caisse_transaction(request, pk):
         adherent.save()
         delete_banque_transaction_history(sender=CaisseTransactions, instance=transaction, request=request) 
         # Perform any additional actions after deletion if needed
-        return redirect('home')
+        return redirect('gestion_financiere')
     
     return render(request, 'base/delete.html', {'transaction': transaction})
 
@@ -350,7 +337,7 @@ def payer_ma_cotisation(request):
             cotisation.save()
             if cotisation.type_de_cotisation == 'B':
                 BanqueTransactions.objects.create(
-                    structure=None,  # Add the relevant structure if necessary
+                    structure=adherent.structure,  # Add the relevant structure if necessary
                     évènement=None,  # Add the relevant event if necessary
                     adhérent=cotisation.adhérent,
                     date=cotisation.date,
@@ -365,7 +352,7 @@ def payer_ma_cotisation(request):
                 )
             elif  cotisation.type_de_cotisation== 'C':
                 CaisseTransactions.objects.create(
-                    structure=None,  # Add the relevant structure if necessary
+                    structure=adherent.structure,  # Add the relevant structure if necessary
                     évènement=None,  # Add the relevant event if necessary
                     adhérent=cotisation.adhérent,
                     date=cotisation.date,
@@ -380,7 +367,7 @@ def payer_ma_cotisation(request):
             adherent = cotisation.adhérent
             adherent.cotisation_annuelle = 'payée'
             adherent.save()    
-            return redirect('home')
+            return redirect('profile')
     else:
         form = CotisationPaymentForm()
     return render(request, 'base/payer_ma_cotisation.html', {'form': form})
@@ -392,6 +379,6 @@ def profile(request):
 from django.http import JsonResponse
 
 def fetch_delegations(request):
-    governat_id = request.GET.get('governat_id')
+    governat_id = request.GET.get('gouvernorat_id')
     delegations = Delegation.objects.filter(governat_id=governat_id).values('id', 'name')
     return JsonResponse(list(delegations), safe=False)

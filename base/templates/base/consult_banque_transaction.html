@@ -12,38 +12,47 @@
 <body>
     <br>
     <div class="container">
-        <div class="profile-picture">
-            <img src="{{ transaction.justificatif_bancaire.url }}">
-        </div>
+        
         <div class="row">
             <div class="info-box">
-                <p><strong>Structure:</strong> {{ transaction.structure}} </p>
+                <p><strong>Structure:</strong> {{ transaction.structure|default:'---'}} </p>
             </div>
             <div class="info-box">
-                <p><strong>Evenement:</strong> {{ transaction.évènement }}</p>
+                
+                <p><strong>Numéro du chèque:</strong> {{ transaction.numéro_du_chèque}}</p>
             </div>
-            <div class="info-box">
-                <p><strong>Adhérent:</strong> {{ transaction.adhérent }}</p>
-            </div>
-            <div class="info-box">
-                <p><strong>Date:</strong> {{ transaction.date }}</p>
-            </div>
-            <div class="info-box">
-                <p><strong>Entreprise:</strong> {{ transaction.entreprise }}</p>
-            </div>
-        </div>
-        <div class="row">
             <div class="info-box">
                 <p><strong>Libellé:</strong> {{ transaction.libellé }}</p>
+                
+            </div>
+            <div class="info-box">
+                
+                <p><strong>Type de transaction:</strong> {{ transaction.type_de_transaction}}</p>
+            </div>
+            
+        </div>
+        <div class="row">
+            <div class="info-box">
+                <p><strong>Adhérent:</strong> {{ transaction.adhérent|default:'---' }}</p>
             </div>
             <div class="info-box">
                 <p><strong>Banque:</strong> {{ transaction.banque }}</p>
             </div>
             <div class="info-box">
-                <p><strong>Numéro du chèque:</strong> {{ transaction.numéro_du_chèque}}</p>
+                <p><strong>Entreprise:</strong> {{ transaction.entreprise }}</p>
+            </div>
+            <div class="justificatif">
+                <h3 class="justificatif-title">Justificatif de transaction</h3>
+                <img src="{{ transaction.justificatif_bancaire.url }}" alt="Justificatif de transaction" class="justificatif-image">
+            </div>
+        </div>
+        
+        <div class="row">
+            <div class="info-box">
+                <p><strong>Evenement:</strong> {{ transaction.évènement|default:'---' }}</p>
             </div>
             <div class="info-box">
-                <p><strong>Type de transaction:</strong> {{ transaction.type_de_transaction}}</p>
+                <p><strong>Date:</strong> {{ transaction.date }}</p>
             </div>
             <div class="info-box">
                 <p><strong>Solde:</strong> {{ transaction.solde }}</p>
@@ -51,12 +60,42 @@
             <div class="info-box">
                 <p><strong>Raison de transaction</strong> {{ transaction.raison_de_transaction }}</p>
             </div>
-        </div>
-        
-        <div class="row">
-            
         </div>  
+        
     </div>
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+    const justificatifImage = document.querySelector('.justificatif-image');
+  
+    justificatifImage.addEventListener('click', function() {
+    const zoomOverlay = document.createElement('div');
+    zoomOverlay.classList.add('zoom-overlay');
+    
+    const zoomedImage = document.createElement('img');
+    zoomedImage.src = justificatifImage.src;
+    
+    zoomOverlay.appendChild(zoomedImage);
+    document.body.appendChild(zoomOverlay);
+    
+    setTimeout(function() {
+      zoomOverlay.classList.add('show');
+      document.body.style.overflow = 'hidden';
+    }, 10);
+    
+    zoomOverlay.addEventListener('click', function() {
+      zoomOverlay.classList.remove('show');
+      
+      setTimeout(function() {
+        document.body.removeChild(zoomOverlay);
+        document.body.style.overflow = 'auto';
+      }, 300);
+    });
+  });
+});
+
+
+
+    </script>
 </body>
 </html>
 

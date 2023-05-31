@@ -62,7 +62,7 @@ class AdherentForm(ModelForm):
        
        
         # Set the 'date_adhesion' field for the new Adherent object to the current time
-        instance.date_adhesion = timezone.now()
+        instance.date_adhésion = timezone.now()
         
         
         if commit:
@@ -96,7 +96,7 @@ class UpdateAdherentForm(ModelForm):
     
      def save(self, commit=True):
         instance = super().save(commit=False)
-        instance.date_adhesion = timezone.now()
+        instance.date_adhésion = timezone.now()
         if commit:
             instance.save()
         return instance
@@ -113,7 +113,6 @@ class StructureForm(ModelForm):
             'rue',
             'gouvernorat',
             'délégation',
-            'code_postal',
             'numéro_de_téléphone',
             'adresse_email',
             'date_de_création',
@@ -132,8 +131,11 @@ class StructureForm(ModelForm):
         instance = super().save(commit=False)
         
         if not instance.code_structure:
-            code_structure = f"{instance.type}-{instance.gouvernorat.code}{instance.délégation.code}" # construct a new 'code_structure' value based on the 'type', 'governat', and 'delegation' fields
-            instance.code_structure = code_structure # set the 'code_structure' field for the new Structure object to the generated value
+            
+            code_structure = f"{instance.type}-{instance.gouvernorat.code}{instance.délégation.code}"
+            code_postal=f"{instance.gouvernorat.code}{instance.délégation.code}" # construct a new 'code_structure' value based on the 'type', 'governat', and 'delegation' fields
+            instance.code_structure = code_structure
+            instance.code_postal = code_postal # set the 'code_structure' field for the new Structure object to the generated value
         if commit:
             instance.save() # save the new Structure object to the database
         return instance  
@@ -147,6 +149,10 @@ class BanqueTransactionsForm(forms.ModelForm):
         widgets = {
             'date': forms.DateInput(attrs={'type': 'date'}),
         }
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        
+        self.fields['structure'].required = True    
 
 class CaisseTransactionsForm(forms.ModelForm):
     class Meta:
@@ -154,7 +160,11 @@ class CaisseTransactionsForm(forms.ModelForm):
         fields = '__all__'
         widgets = {
             'date': forms.DateInput(attrs={'type': 'date'}),
-        }     
+        }  
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['structure'].required = True       
+
 class CotisationPaymentForm(forms.ModelForm):
     class Meta:
         model = Cotisation

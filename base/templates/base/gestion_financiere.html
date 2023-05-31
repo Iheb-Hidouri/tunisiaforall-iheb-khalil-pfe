@@ -29,28 +29,29 @@
             <table>
                 <thead>
                     <tr>
-                        <th>Adherent</th>
                         <th>Structure</th>
-                        <th>Evenement</th>
-                        <th>Date</th>
-                        <th>Source du transaction</th>
                         <th>Type du transaction</th>
                         <th>Raison transaction</th>
                         <th>Solde</th>
+                        <th>Date</th>
+                        <th>Source du transaction</th>
+                        <th>Adherent</th>
+                        <th>Evenement</th>
                         <th>Actions</th>
                     </tr>
                 </thead>
                 <tbody>
                     {% for transaction in transactions %}
                     <tr>
-                        <td>{{ transaction.adhérent|default:'---' }}</td>
                         <td>{{ transaction.structure|default:'---' }}</td>
-                        <td>{{ transaction.évènement|default:'---' }}</td>
-                        <td>{{ transaction.date }}</td>
-                        <td>{{ transaction.type_transaction }}</td> 
                         <td>{{ transaction.type_de_transaction }}</td>
                         <td>{{ transaction.raison_de_transaction }}</td>
                         <td>{{ transaction.solde }}</td>
+                        <td>{{ transaction.date|date:"d-m-Y" }}</td>
+                        <td>{{ transaction.source_transaction }}</td> 
+                        <td>{{ transaction.adhérent|default:'---' }}</td>
+                        <td>{{ transaction.évènement|default:'---' }}</td>
+                        
                         <td>
                             {% if transaction|is_banque_transaction %}
                                 <button class="finance-button"><a href="{% url 'update-banque-transaction' transaction.id %}" class="btn-update">Mettre à jour</a></button>

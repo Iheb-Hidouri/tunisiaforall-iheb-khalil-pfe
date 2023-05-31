@@ -77,7 +77,7 @@ class Structure(models.Model):
 class Adherent(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE , related_name='adherent')
     code = models.CharField(max_length=8)
-    photo_de_profile= models.ImageField(upload_to='img/',null=True, blank=True)
+    photo_de_profile= models.ImageField(upload_to='img/',null=True, blank=True,default='img/default_profile_pic.jpg')
     structure = models.ForeignKey(Structure, on_delete=models.CASCADE , related_name='adherents', default = 1)
    
     TYPE_ADHERENT_CHOICES = (
@@ -151,22 +151,26 @@ class Adherent(models.Model):
         return self.code
     
     
-class AdherentHistory(models.Model):
-    user = models.CharField(max_length=20,blank=True, null=True)
-    adherent = models.CharField(max_length=20,blank=True, null=True)
+class History(models.Model):
+    user = models.CharField(max_length=20, blank=True, null=True)
     action = models.CharField(max_length=10)
     changes = models.TextField(blank=True, null=True)
     timestamp = models.DateTimeField(default=timezone.now)
 
+    class Meta:
+        abstract = True
+
+class AdherentHistory(History):
+    adherent = models.CharField(max_length=20, blank=True, null=True)
+
     def __str__(self):
         return f"Adherent: {self.adherent}, Action: {self.action}"
 
-class StructureHistory(models.Model):
-    user = models.CharField(max_length=20,blank=True, null=True)
-    structure = models.CharField(max_length=20,blank=True, null=True)
-    action = models.CharField(max_length=10)
-    changes = models.TextField(blank=True, null=True)
-    timestamp = models.DateTimeField(default=timezone.now)    
+class StructureHistory(History):
+    structure = models.CharField(max_length=20, blank=True, null=True)
+
+    def __str__(self):
+        return f"Structure: {self.structure}, Action: {self.action}" 
 
 
 
@@ -203,60 +207,45 @@ class Evenement(models.Model):
     membres_invites = models.ManyToManyField(Adherent, related_name='evenements_membres_invites', blank=True)
 
     def __str__(self):
-        return f"{self.libelle} ({self.get_type_display()}) - {self.initiateur} ({self.date_debut} {self.heure_debut} - {self.date_fin} {self.heure_fin})"
+        return f"{self.libelle} ({self.get_type_display()}) "
     
-class BanqueTransactions(models.Model):
-    structure = models.ForeignKey(Structure, on_delete=models.CASCADE ,null=True, blank=True)
-    évènement = models.ForeignKey(Evenement, on_delete=models.CASCADE ,null=True, blank=True)
-    adhérent = models.ForeignKey(Adherent, on_delete=models.CASCADE ,null=True, blank=True)
+class Transaction(models.Model):
+    structure = models.ForeignKey(Structure, on_delete=models.CASCADE,null=True, blank=True )
+    évènement = models.ForeignKey(Evenement, on_delete=models.CASCADE, null=True, blank=True)
+    adhérent = models.ForeignKey(Adherent, on_delete=models.CASCADE, null=True, blank=True)
     date = models.DateField(null=True, blank=True)
     entreprise = models.CharField(max_length=50)
     libellé = models.CharField(max_length=50)
+    solde = models.DecimalField(max_digits=10, decimal_places=2)
+    TRANSACTION_CHOICES = (
+        ('Crédit', 'Crédit'),
+        ('Débit', 'Débit'),
+    )
+    type_de_transaction = models.CharField(max_length=6, choices=TRANSACTION_CHOICES)
+    REASON_CHOICES = (
+        ('Don', 'Don'),
+        ('Cotisation', 'Cotisation'),
+        ('Frais', 'Frais'),
+        ('Profits', 'profits'),
+    )
+    raison_de_transaction = models.CharField(max_length=20, choices=REASON_CHOICES, default='raison inconnue')
+    source_transaction = models.CharField(max_length=20)
+    
+    class Meta:
+        abstract = True
+
+class BanqueTransactions(Transaction):
     banque = models.CharField(max_length=50)
     numéro_du_chèque = models.CharField(max_length=20)
-    TRANSACTION_CHOICES = (
-        ('Crédit', 'Credit'),
-        ('Débit', 'Debit'),
-    )
-    
-    type_de_transaction = models.CharField(max_length=6, choices=TRANSACTION_CHOICES)
-    solde = models.DecimalField(max_digits=10, decimal_places=2)
     justificatif_bancaire = models.ImageField(upload_to='img/', null=True, blank=True)
-    REASON_CHOICES = (
-        ('Don', 'Don'),
-        ('Cotisation', 'Cotisation'),
-        ('Frais', 'Frais'),
-        ('Profits', 'profits'),
-        
-    )
-    raison_de_transaction = models.CharField(max_length=20, choices=REASON_CHOICES, default='don')
-     
-        
-class CaisseTransactions(models.Model):
-    structure = models.ForeignKey(Structure, on_delete=models.CASCADE ,null=True, blank=True)
-    évènement = models.ForeignKey(Evenement, on_delete=models.CASCADE ,null=True, blank=True)
-    adhérent = models.ForeignKey(Adherent, on_delete=models.CASCADE ,null=True, blank=True)
-    date = models.DateField(null=True, blank=True)
-    entreprise = models.CharField(max_length=50)
-    libellé = models.CharField(max_length=50)
-    recu_numéro = models.CharField(max_length=20)
-    TRANSACTION_CHOICES = (
-        ('Crédit', 'Credit'),
-        ('Débit', 'Debit'),
-    )
+    source_transaction = 'Bancaire'
     
-    type_de_transaction = models.CharField(max_length=6, choices=TRANSACTION_CHOICES)
-    solde = models.DecimalField(max_digits=10, decimal_places=2)
-    justificatif_caisse = models.ImageField(upload_to='img/',null=True, blank=True) 
-    REASON_CHOICES = (
-        ('Don', 'Don'),
-        ('Cotisation', 'Cotisation'),
-        ('Frais', 'Frais'),
-        ('Profits', 'profits'),
-        
-    )
-    raison_de_transaction = models.CharField(max_length=20,choices= REASON_CHOICES, default='don')
-
+    
+class CaisseTransactions(Transaction):
+    recu_numéro = models.CharField(max_length=20)
+    justificatif_caisse = models.ImageField(upload_to='img/', null=True, blank=True)
+    source_transaction = 'En liquide'
+   
 
 class CaisseTransactionHistory(models.Model):
     user = models.CharField(max_length=20,blank=True, null=True)
@@ -277,7 +266,7 @@ class BanqueTransactionHistory(models.Model):
 
 class Cotisation(models.Model):
     ADHERENT_CHOICES = (
-        ('B', 'Bank'),
+        ('B', 'Banque'),
         ('C', 'Caisse'),
     )
     adhérent = models.ForeignKey(Adherent, on_delete=models.CASCADE)

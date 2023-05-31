@@ -21,8 +21,8 @@
                     <td>{{ entry.adherent }}</td>
                     <td>{{ entry.action }}</td>
                     <td>{{ entry.user }}</td>
-                    <td>{{ entry.timestamp }}</td>
-                    <td>{{ entry.changes }}</td>
+                    <td>{{ entry.timestamp|date:"d-m-Y H:i:s" }}</td>
+                    <td>{{ entry.changes|default:'---' }}</td>
                 </tr>
             {% endfor %}
         </tbody>

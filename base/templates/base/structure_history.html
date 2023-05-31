@@ -21,7 +21,7 @@
                     <td>{{ entry.structure }}</td>
                     <td>{{ entry.action }}</td>
                     <td>{{ entry.user }}</td>
-                    <td>{{ entry.timestamp }}</td>
+                    <td>{{ entry.timestamp|date:"d-m-Y H:i:s" }}</td>
                     <td>{{ entry.changes}}</td>
                     
                 </tr>

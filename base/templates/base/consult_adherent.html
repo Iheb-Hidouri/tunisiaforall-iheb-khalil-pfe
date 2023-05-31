@@ -13,7 +13,7 @@
     <br>
     <div class="container">
         <div class="profile-picture">
-            <img src="{{ adherent.photo_de_profile.url }}">
+            <img src="{{ adherent.photo_de_profile.url }}" alt="Profile Picture" class="profile-image">
         </div>
         <div class="row">
             <div class="info-box">
@@ -49,7 +49,7 @@
                 <p><strong>Numero de document d'identité:</strong> {{ adherent.numero_document_identité }}</p>
             </div>
             <div class="info-box">
-                <p><strong>Date d'adhésion</strong> {{ adherent.date_adhésion }}</p>
+                <p><strong>Date d'adhésion</strong> {{ adherent.date_adhésion|date:"d-m-Y" }}</p>
             </div>
         </div>
         <div class="row">
@@ -60,19 +60,55 @@
                 <p><strong>Nationalité:</strong> {{ adherent.nationalité }}</p>
             </div>
             <div class="info-box">
-                <p><strong>Date de naissance:</strong> {{ adherent.date_de_naissance }}</p>
+                <p><strong>Date de naissance:</strong> {{ adherent.date_de_naissance|date:"d-m-Y" }}</p>
             </div>
             <div class="info-box">
                 <p><strong>Lieu de naissance:</strong> {{ adherent.lieu_de_naissance }}</p>
             </div>
             <div class="info-box">
-                <p><strong>Cotisation annuelle</strong> {{ adherent.cotisation_annuelle }}</p>
+                <p>
+                    {% if adherent.cotisation_annuelle == 'payée' %}
+                     <strong>Cotisation annuelle :</strong> <span style="color: rgb(64, 162, 64);">payée</span>
+                    {% elif adherent.cotisation_annuelle == 'non payée' %}
+                     <strong>Cotisation annuelle :</strong> <span style="color: rgb(167, 40, 40);">non payée</span>
+                    {% endif %}
+                </p>
             </div>
         </div>
         <div class="row">
             
         </div>  
     </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const profileImage = document.querySelector('.profile-image');
+
+            profileImage.addEventListener('click', function() {
+                const zoomOverlay = document.createElement('div');
+                zoomOverlay.classList.add('zoom-overlay');
+
+                const zoomedImage = document.createElement('img');
+                zoomedImage.src = profileImage.src;
+
+                zoomOverlay.appendChild(zoomedImage);
+                document.body.appendChild(zoomOverlay);
+
+                setTimeout(function() {
+                    zoomOverlay.classList.add('show');
+                    document.body.style.overflow = 'hidden';
+                }, 10);
+
+                zoomOverlay.addEventListener('click', function() {
+                    zoomOverlay.classList.remove('show');
+
+                    setTimeout(function() {
+                        document.body.removeChild(zoomOverlay);
+                        document.body.style.overflow = 'auto';
+                    }, 300);
+                });
+            });
+        });
+    </script>
 </body>
 </html>
 

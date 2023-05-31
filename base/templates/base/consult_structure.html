@@ -22,7 +22,7 @@
         </div>
         <div class="row">
             <div class="info-box">
-                <p><strong>Date de création:</strong> {{ structure.date_de_création }}</p>
+                <p><strong>Date de création:</strong> {{ structure.date_de_création|date:"d-m-Y" }}</p>
             </div>
             <div class="info-box">
                 <p><strong>Code Postal:</strong> {{ structure.code_postal }}</p>
@@ -36,7 +36,7 @@
         </div>
         <div class="row">
             <div class="info-box">
-                <p><strong>Date AG:</strong> {{ structure.date_ag }}</p>
+                <p><strong>Date AG:</strong> {{ structure.date_ag|date:"d-m-Y" }}</p>
             </div>
             <div class="info-box">
                 <p><strong>Gouvernorat:</strong> {{ structure.gouvernorat }}</p>
