@@ -217,7 +217,7 @@ def create_banque_transaction(request):
             if transaction.raison_de_transaction == 'Cotisation':
                 Cotisation.objects.create(
                     adhérent=transaction.adhérent,
-                    moyen_de_payement='Banque',  # Assuming it represents a caisse transaction
+                    type_de_cotisation='B',  # Assuming it represents a caisse transaction
                     numéro_chèque_ou_recu=transaction.numéro_du_chèque,
                     date=transaction.date,
                     entreprise=transaction.entreprise,
@@ -265,7 +265,7 @@ def create_caisse_transaction(request):
             if transaction.raison_de_transaction == 'Cotisation':
                 Cotisation.objects.create(
                     adhérent=transaction.adhérent,
-                    moyen_de_payement='Caisse',  # Assuming it represents a caisse transaction
+                    type_de_cotisation='C',  # Assuming it represents a caisse transaction
                     numéro_chèque_ou_recu=transaction.recu_numéro,
                     date=transaction.date,
                     entreprise=transaction.entreprise,

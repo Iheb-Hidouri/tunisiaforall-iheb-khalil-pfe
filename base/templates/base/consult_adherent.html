@@ -31,7 +31,11 @@
             <div class="info-box">
                 <p><strong>Profession:</strong> {{ adherent.profession }}</p>
             </div>
+            <div class="info-box">
+                <p><strong>Date d'adhésion</strong> {{ adherent.date_adhésion|date:"d-m-Y" }}</p>
+            </div>
         </div>
+        
         <div class="row">
             <div class="info-box">
                 <p><strong>Code:</strong> {{ adherent.code }}</p>
@@ -48,9 +52,7 @@
             <div class="info-box">
                 <p><strong>Numero de document d'identité:</strong> {{ adherent.numero_document_identité }}</p>
             </div>
-            <div class="info-box">
-                <p><strong>Date d'adhésion</strong> {{ adherent.date_adhésion|date:"d-m-Y" }}</p>
-            </div>
+            
         </div>
         <div class="row">
             <div class="info-box">
@@ -64,6 +66,9 @@
             </div>
             <div class="info-box">
                 <p><strong>Lieu de naissance:</strong> {{ adherent.lieu_de_naissance }}</p>
+            </div>
+            <div class="info-box">
+                <p><strong>Responsabilité Adhérent </strong> {{ adherent.responsabilité_adhérent}}</p>
             </div>
             <div class="info-box">
                 <p>

@@ -55,8 +55,11 @@ class AdherentForm(ModelForm):
         # Autogenerate the code for the new Adherent object
         last_code = Adherent.objects.order_by('-code').values_list('code', flat=True).first() # get the last 'code' value from the Adherent model
         last_count = int(last_code.split('-')[0]) if last_code else 0 # extract the count from the last 'code' value if it exists, otherwise set it to 0
-        structure_code = instance.structure.code_structure.split('-')[1] # extract the last 4 digits of the 'code_structure' value from the associated Structure object
-        code = f"{last_count+1:04d}-{structure_code[-4:]}" # construct the new 'code' value for the Adherent object
+        structure_code = instance.structure.code_structure.split('-')[1]
+        if instance.type_adhérent == 'Membre fondateur':
+                code = f"{last_count+1:04d}-0000"   
+        else :            # extract the last 4 digits of the 'code_structure' value from the associated Structure object
+                code = f"{last_count+1:04d}-{structure_code[-4:]}" # construct the new 'code' value for the Adherent object
         
         instance.code = code # set the 'code' field for the new Adherent object to the generated value
         

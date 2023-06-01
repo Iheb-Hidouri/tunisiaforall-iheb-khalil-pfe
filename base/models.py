@@ -82,13 +82,22 @@ class Adherent(models.Model):
     ('Membre actif', 'Membre actif'),
     ('Membre actif jeune', 'Membre actif jeune'),
     ('Soutien', 'Soutien'),
-    ('Président', 'Président'),
-    ('Directeur Executif', 'Directeur Executif'),
-    ('Trésorier', 'Trésorier'),
-    ('Simple membre', 'Simple membre'),
+    ('Membre d\'honneur ', 'Membre d\'honneur '),
+    
     )
     
-    type_adhérent = models.CharField(max_length=20, choices=TYPE_ADHERENT_CHOICES)
+    type_adhérent = models.CharField(max_length=27, choices=TYPE_ADHERENT_CHOICES)
+    RESPONSABILTE_ADHERENT_CHOICES = (
+    ('Président', 'Président'),
+    ('Viceprésident', 'Vice président'),
+    ('Directeur Executif', 'Directeur Executif'),
+    ('Trésorier', 'Trésorier'),
+    ('Trésorier adjoint ', 'Trésorier adjoint '),
+    ('Chef Projet', 'Chef Projet'),
+    ('Coordinateur de commission ', 'Coordinateur de commission '),
+    ('Membre Simple ', 'Membre Simple '),
+    )
+    responsabilité_adhérent= models.CharField(max_length=27, choices=RESPONSABILTE_ADHERENT_CHOICES, null=True, blank=True)
     GENRE_CHOICES = (
         ('M', 'M.'),
         ('F', 'Mme.'),
@@ -222,7 +231,8 @@ class Transaction(models.Model):
     REASON_CHOICES = (
         ('Don', 'Don'),
         ('Cotisation', 'Cotisation'),
-        ('Frais', 'Frais'),
+        ('Soutien', 'Soutien'),
+        ('Dépenses', 'Dépenses'),
         ('Profits', 'profits'),
     )
     raison_de_transaction = models.CharField(max_length=20, choices=REASON_CHOICES, default='raison inconnue')

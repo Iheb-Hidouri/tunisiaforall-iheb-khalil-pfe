@@ -31,6 +31,9 @@
             <div class="info-box">
                 <p><strong>Profession:</strong> {{ adherent.profession }}</p>
             </div>
+            <div class="info-box">
+                <p><strong>Date d'adhésion</strong> {{ adherent.date_adhésion }}</p>
+            </div>
         </div>
         <div class="row">
             <div class="info-box">
@@ -48,9 +51,7 @@
             <div class="info-box">
                 <p><strong>Numero de document d'identité:</strong> {{ adherent.numero_document_identité }}</p>
             </div>
-            <div class="info-box">
-                <p><strong>Date d'adhésion</strong> {{ adherent.date_adhésion }}</p>
-            </div>
+            
         </div>
         <div class="row">
             <div class="info-box">
@@ -66,13 +67,16 @@
                 <p><strong>Lieu de naissance:</strong> {{ adherent.lieu_de_naissance }}</p>
             </div>
             <div class="info-box">
+                <p><strong>Responsabilité Adhérent </strong> {{ adherent.responsabilité_adhérent}}</p>
+            </div>
+            <div class="info-box">
                 <p>
                 {% if adherent.cotisation_annuelle == 'payée' %}
                  <strong>Cotisation annuelle :</strong> <span style="color: rgb(64, 162, 64);">payée</span>
                 {% elif adherent.cotisation_annuelle == 'non payée' %}
                  <strong>Cotisation annuelle :</strong> <span style="color: rgb(167, 40, 40);">non payée</span>
                 {% endif %}
-            </p>
+                </p>
             </div>
         </div>
         <div class="row">
