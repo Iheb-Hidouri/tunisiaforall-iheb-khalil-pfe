@@ -12,7 +12,7 @@ from django.contrib.auth import get_user
 def post_delete_adherent(sender, instance,request=None , **kwargs,):
     if request is None:
         return
-    history = AdherentHistory(user=instance.user.username, adherent=str(instance), action='supprimé')
+    history = AdherentHistory(user =request.user.username, adherent=str(instance), action='supprimé')
     history.save()
 
 
@@ -22,14 +22,14 @@ def post_save_adherent(sender, instance, created,request=None , **kwargs ):
         return
     action = 'crée' if created else 'mis à jour'
     changes = instance._changes if not created else None
-    history = AdherentHistory(user=request.user.username, adherent=str(instance), action=action, changes=changes)
+    history = AdherentHistory(user =request.user.username, adherent=str(instance), action=action, changes=changes)
     history.save()
 
 @receiver(post_delete, sender=Structure)
 def post_delete_structure(sender, instance,request=None , **kwargs,):
     if request is None:
         return
-    history = StructureHistory(user=request.user.username, structure=str(instance), action='supprimé')
+    history = StructureHistory(user =request.user.username, structure=str(instance), action='supprimé')
     history.save()
 
 
@@ -39,7 +39,7 @@ def post_save_structure(sender, instance, created,request=None , **kwargs ):
         return
     action = 'crée' if created else 'mis à jour '
     changes = instance._changes if not created else None
-    history = StructureHistory(user=request.user.username, structure=str(instance), action=action, changes=changes)
+    history = StructureHistory(user =request.user.username, structure=str(instance), action=action, changes=changes)
     history.save()
 
 @receiver(post_save, sender=CaisseTransactions)

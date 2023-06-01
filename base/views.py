@@ -217,7 +217,7 @@ def create_banque_transaction(request):
             if transaction.raison_de_transaction == 'Cotisation':
                 Cotisation.objects.create(
                     adhérent=transaction.adhérent,
-                    type_de_cotisation='B',  # Assuming it represents a caisse transaction
+                    moyen_de_payement='Banque',  # Assuming it represents a caisse transaction
                     numéro_chèque_ou_recu=transaction.numéro_du_chèque,
                     date=transaction.date,
                     entreprise=transaction.entreprise,
@@ -265,7 +265,7 @@ def create_caisse_transaction(request):
             if transaction.raison_de_transaction == 'Cotisation':
                 Cotisation.objects.create(
                     adhérent=transaction.adhérent,
-                    type_de_cotisation='C',  # Assuming it represents a caisse transaction
+                    moyen_de_payement='Caisse',  # Assuming it represents a caisse transaction
                     numéro_chèque_ou_recu=transaction.recu_numéro,
                     date=transaction.date,
                     entreprise=transaction.entreprise,
@@ -335,7 +335,7 @@ def payer_ma_cotisation(request):
             cotisation = form.save(commit=False)
             cotisation.adhérent = adherent
             cotisation.save()
-            if cotisation.type_de_cotisation == 'B':
+            if cotisation.moyen_de_payement == 'Banque':
                 BanqueTransactions.objects.create(
                     structure=adherent.structure,  # Add the relevant structure if necessary
                     évènement=None,  # Add the relevant event if necessary
@@ -350,7 +350,7 @@ def payer_ma_cotisation(request):
                     type_de_transaction='Crédit',
                     raison_de_transaction='Cotisation'
                 )
-            elif  cotisation.type_de_cotisation== 'C':
+            elif  cotisation.moyen_de_payement== 'Caisse':
                 CaisseTransactions.objects.create(
                     structure=adherent.structure,  # Add the relevant structure if necessary
                     évènement=None,  # Add the relevant event if necessary
@@ -377,7 +377,6 @@ def profile(request):
     return render(request, 'base/profile.html', {'adherent': adherent})    
 
 from django.http import JsonResponse
-
 def fetch_delegations(request):
     governat_id = request.GET.get('gouvernorat_id')
     delegations = Delegation.objects.filter(governat_id=governat_id).values('id', 'name')

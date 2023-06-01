@@ -28,18 +28,15 @@ class Delegation(models.Model):
         return self.name    
 
 class Structure(models.Model):
-    BN = 'BN'
-    BR = 'BR'
-    BL = 'BL'
-    PR = 'PR'
+  
     TYPE_CHOICES = [
-        (BN, 'Bureau National'),
-        (BR, 'Bureau regional'),
-        (BL, 'Bureau Local'),
-        (PR, 'Projet'),
+        ('BN', 'Bureau National'),
+        ('BR', 'Bureau regional'),
+        ('BL', 'Bureau Local'),
+        ('PR', 'Projet'),
     ]
     code_structure = models.CharField(max_length=6)
-    type = models.CharField(max_length=2, choices=TYPE_CHOICES)
+    type = models.CharField(max_length=15, choices=TYPE_CHOICES)
     libellé = models.CharField(max_length=20)
     rue = models.CharField(max_length=20)
     gouvernorat = models.ForeignKey(Governat, on_delete=models.CASCADE , related_name='structures')
@@ -100,10 +97,10 @@ class Adherent(models.Model):
     nom = models.CharField(max_length=50)
     prénom = models.CharField(max_length=50)
     DOCUMENT_IDENTITE_CHOICES = (
-        ('CI', 'Carte d\'identité'),
+        ('CIN', 'Carte d\'identité'),
         ('CS', 'Carte de séjour'),
     )
-    type_document_identité = models.CharField(max_length=2, choices=DOCUMENT_IDENTITE_CHOICES,null=True)
+    type_document_identité = models.CharField(max_length=3, choices=DOCUMENT_IDENTITE_CHOICES,null=True)
 
     numero_document_identité = models.CharField(max_length=8)
     
@@ -266,11 +263,11 @@ class BanqueTransactionHistory(models.Model):
 
 class Cotisation(models.Model):
     ADHERENT_CHOICES = (
-        ('B', 'Banque'),
-        ('C', 'Caisse'),
+        ('Banque', 'Banque'),
+        ('Caisse', 'Caisse'),
     )
     adhérent = models.ForeignKey(Adherent, on_delete=models.CASCADE)
-    type_de_cotisation = models.CharField(max_length=1, choices=ADHERENT_CHOICES)
+    moyen_de_payement = models.CharField(max_length=8, choices=ADHERENT_CHOICES,null=True)
     numéro_chèque_ou_recu = models.CharField(max_length=20)
     date = models.DateField(null=True, blank=True)
     entreprise = models.CharField(max_length=50)

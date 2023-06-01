@@ -22,6 +22,7 @@ class AdherentForm(ModelForm):
         widgets = {
             'date_de_naissance': forms.DateInput(attrs={'type': 'date'}),
             'date_adhésion': forms.widgets.HiddenInput(),
+            'photo_de_profile': ClearableFileInput()
             
         }
         
@@ -168,7 +169,7 @@ class CaisseTransactionsForm(forms.ModelForm):
 class CotisationPaymentForm(forms.ModelForm):
     class Meta:
         model = Cotisation
-        fields = ['type_de_cotisation', 'numéro_chèque_ou_recu', 'date', 'entreprise', 'libellé', 'solde', 'justificatif']                  
+        fields = ['moyen_de_payement', 'numéro_chèque_ou_recu', 'date', 'entreprise', 'libellé', 'solde', 'justificatif']                  
         widgets = {
             'date': forms.DateInput(attrs={'type': 'date'}),
         }     
