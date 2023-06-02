@@ -233,7 +233,7 @@ class Transaction(models.Model):
         ('Cotisation', 'Cotisation'),
         ('Soutien', 'Soutien'),
         ('Dépenses', 'Dépenses'),
-        ('Profits', 'profits'),
+        ('Profits', 'Profits'),
     )
     raison_de_transaction = models.CharField(max_length=20, choices=REASON_CHOICES, default='raison inconnue')
     source_transaction = models.CharField(max_length=20)

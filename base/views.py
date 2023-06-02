@@ -41,18 +41,21 @@ def home (request) :
 #VIEWS FOR ADHERENTS
 def gestion_adherent(request):
     # Get the search query from the GET request parameters
-    query = request.GET.get('q')
-    if query:
-        # If a search query is present, filter the list of adherents based on the query
-        adherents = Adherent.objects.filter(
-            Q(nom__icontains=query) | Q(prenom__icontains=query)
-        )
-    else:
-        # If no search query is present, display all adherents
-        adherents = Adherent.objects.all()
+    if request.user.adherent.structure.code_structure == 'BN-1169' :
+       adherents = Adherent.objects.all()
+    else:   # If no search query is present, display all adherents
+       adherents = Adherent.objects.filter(structure=request.user.adherent.structure)
     # Create a dictionary with the adherents queryset and pass it to the template
     context = {'adherents': adherents}
     return render(request, 'base/gestion_adherent.html', context)
+def liste_adherent(request):
+    # Get the search query from the GET request parameters
+    
+        # If no search query is present, display all adherents
+    adherents = Adherent.objects.filter(structure=request.user.adherent.structure)
+    # Create a dictionary with the adherents queryset and pass it to the template
+    context = {'adherents': adherents}
+    return render(request, 'base/liste_adherent.html', context)
 
 # This view displays a form for creating a new adherent
 def create_adherent(request):
@@ -131,15 +134,16 @@ def consult_adherent(request, pk):
 #VIEWS FOR STRUCTURES 
 # This view displays a list of adherents and allows searching for specific adherents.
 def gestion_structure (request) :
-    query = request.GET.get('q')  # retrieve the search query from the request parameters
-    if query:  # if there is a search query
-        structures = Structure.objects.filter(  # retrieve structures that contain the search query in their code or label
-            Q(code_structure__icontains=query) | Q(libelle__icontains=query)
-        )
-    else:  # if there is no search query
-        structures = Structure.objects.all()  # retrieve all structures
+      # if there is no search query
+    structures = Structure.objects.all()  # retrieve all structures
     context = {'structures': structures}  # create a dictionary to store the structures and pass it to the view
-    return render (request , 'base/gestion_structure.html', context)  # render the HTML template with the context data
+    return render (request , 'base/gestion_structure.html', context)
+def liste_structure (request) :
+
+     # if there is no search query
+    structures = Structure.objects.all()  # retrieve all structures
+    context = {'structures': structures}  # create a dictionary to store the structures and pass it to the view
+    return render (request , 'base/liste_structure.html', context)   # render the HTML template with the context data
 
 # This view creates a new structure using a form.
 def create_structure(request) : 
@@ -193,14 +197,19 @@ def structure_history(request):
 
 def gestion_financiere(request):
     # Get the search query from the GET request parameters
-   
+    if request.user.adherent.structure.code_structure == 'BN-1169':
         # If no search query is present, display all adherents
-    banque_transactions = BanqueTransactions.objects.all() 
-    caisse_transactions = CaisseTransactions.objects.all()
+      banque_transactions = BanqueTransactions.objects.all() 
+      caisse_transactions = CaisseTransactions.objects.all()
 
     # Combine the instances into a single list
-    transactions = list(banque_transactions) + list(caisse_transactions)
-  
+      transactions = list(banque_transactions) + list(caisse_transactions)
+    else :  
+      banque_transactions = BanqueTransactions.objects.filter(structure=request.user.adherent.structure) 
+      caisse_transactions = CaisseTransactions.objects.filter(structure=request.user.adherent.structure) 
+
+    # Combine the instances into a single list
+      transactions = list(banque_transactions) + list(caisse_transactions)
 
     # Pass the transactions to the template
     context = {'transactions': transactions }
@@ -217,7 +226,7 @@ def create_banque_transaction(request):
             if transaction.raison_de_transaction == 'Cotisation':
                 Cotisation.objects.create(
                     adhérent=transaction.adhérent,
-                    type_de_cotisation='B',  # Assuming it represents a caisse transaction
+                    moyen_de_payement='Banque',  # Assuming it represents a caisse transaction
                     numéro_chèque_ou_recu=transaction.numéro_du_chèque,
                     date=transaction.date,
                     entreprise=transaction.entreprise,
@@ -265,7 +274,7 @@ def create_caisse_transaction(request):
             if transaction.raison_de_transaction == 'Cotisation':
                 Cotisation.objects.create(
                     adhérent=transaction.adhérent,
-                    type_de_cotisation='C',  # Assuming it represents a caisse transaction
+                    moyen_de_payement='Caisse',  # Assuming it represents a caisse transaction
                     numéro_chèque_ou_recu=transaction.recu_numéro,
                     date=transaction.date,
                     entreprise=transaction.entreprise,
@@ -346,7 +355,7 @@ def payer_ma_cotisation(request):
                     banque='',  # Add the relevant bank information
                     numéro_du_chèque=cotisation.numéro_chèque_ou_recu,
                     solde=cotisation.solde,
-                    justificatif_banque=cotisation.justificatif,
+                    justificatif_bancaire=cotisation.justificatif,
                     type_de_transaction='Crédit',
                     raison_de_transaction='Cotisation'
                 )
@@ -381,3 +390,9 @@ def fetch_delegations(request):
     governat_id = request.GET.get('gouvernorat_id')
     delegations = Delegation.objects.filter(governat_id=governat_id).values('id', 'name')
     return JsonResponse(list(delegations), safe=False)
+def dashboard(request):
+    
+    return render(request, 'base/dashboard.html')
+
+
+

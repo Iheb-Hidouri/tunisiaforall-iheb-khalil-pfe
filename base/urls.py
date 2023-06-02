@@ -6,6 +6,7 @@ from .views import adherent_history
 
 
 
+
 urlpatterns = [
    path('login/' , views.loginPage , name="login") ,
    path('logout/' , views.logoutUser, name="logout") ,
@@ -34,6 +35,10 @@ urlpatterns = [
    path('consult_structure/<str:pk>/', views.consult_structure, name='consult_structure'),
    path('consult_banque_transaction/<str:pk>/', views.consult_banque_transaction, name='consult_banque_transaction'),
    path('consult_caisse_transaction/<str:pk>/', views.consult_caisse_transaction, name='consult_caisse_transaction'),
+   path('liste_adherent/' , views.liste_adherent , name="liste_adherent"),
+   path('liste_structure/' , views.liste_structure , name="liste_structure"),
+   path('dashboard/' , views.dashboard , name="dashboard"),
+   
    
   
   ]

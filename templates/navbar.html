@@ -14,17 +14,33 @@
             <img class="logo" src="{% static 'img/navbar_logo.png' %}" alt="logo">
             <nav>
                 <ul class ="liens">
-                    <li><a href="{% url 'home' %}" class="lneutral">Accueil</a></li>
-                    <li><a href="{% url 'gestion_adherent' %}" class="ladherent">Gestion des adhérents</a></li>
-                    <li><a href="{% url 'gestion_structure' %}" class="lstructure" >Gestion des structures</a></li>
-                    <li><a href="{% url 'gestion_financiere' %}" class="lfinance" >Gestion financière</a></li>
                     {% if request.user.is_authenticated %}
-                      
-                      {% if request.user.adherent.cotisation_annuelle == 'non payée' %}
-                          <li><a href="{% url 'payer_ma_cotisation' %}" class="lfinance" >Payer ma cotisation</a></li>
-                      {% endif %}
-                      <li><a href="{% url 'profile' %}" class="ladherent"> Profil</a></li>
+                      {% if request.user.adherent.responsabilité_adhérent == 'Membre Simple ' %}
+                         <li><a href="{% url 'home' %}" class="lneutral">Accueil</a></li>
+                         <li><a href="{% url 'liste_adherent' %}" class="ladherent">Liste des adhérents</a></li>
+                         <li><a href="{% url 'liste_structure' %}" class="lstructure" >Liste des structures</a></li>
+                         
+                         {% if request.user.adherent.cotisation_annuelle == 'non payée' %}
+                            <li><a href="{% url 'payer_ma_cotisation' %}" class="lfinance" >Payer ma cotisation</a></li>
+                         {% endif %}
+                         <li><a href="{% url 'profile' %}" class="ladherent"> Profil</a></li>
+                      {% else %}
+                         <li><a href="{% url 'home' %}" class="lneutral">Accueil</a></li>
+                         <li><a href="{% url 'gestion_adherent' %}" class="ladherent">Gestion des adhérents</a></li>
+                         {% if request.user.adherent.structure.code_structure == 'BN-1169' %}
+                             <li><a href="{% url 'gestion_structure' %}" class="lstructure" >Gestion des structures</a></li>
+                         {% else %}   
+                             <li><a href="{% url 'liste_structure' %}" class="lstructure" >Liste des structures</a></li>
+                         {% endif %}  
+                         <li><a href="{% url 'gestion_financiere' %}" class="lfinance" >Gestion financière</a></li>
+                         {% if request.user.adherent.cotisation_annuelle == 'non payée' %}
+                            <li><a href="{% url 'payer_ma_cotisation' %}" class="lfinance" >Payer ma cotisation</a></li>
+                         {% endif %}
+                         <li><a href="{% url 'profile' %}" class="ladherent"> Profil</a></li>
+                      {% endif %}  
                     
+                    {% else %}
+                    <li><a href="{% url 'home' %}" class="lneutral">Accueil</a></li>
                     {% endif %}
                 </ul>
             </nav>

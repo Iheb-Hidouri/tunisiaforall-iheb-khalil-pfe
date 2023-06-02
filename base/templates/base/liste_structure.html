@@ -1,0 +1,106 @@
+{% extends 'main.html' %}
+{% load static %}
+
+{% block content %}
+<div>
+
+  <div>
+    <h2>Gestion des structures</h2>
+    <hr class="hrstructure">
+  </div>
+
+ 
+
+  <div class="page-content">
+    <form id="search-form" class="search-container" action="{% url 'gestion_structure' %}">
+      <input type="text" class="textbox" id="search-input" name="q" placeholder="Chercher...">
+      <button type="submit" class="structure-button"><i><img src="{% static 'img/search.png' %}"></i></button>
+      <img class="print" src="{% static 'img/print.png' %}" height="40px" width="40px" onclick="printTable()">
+    </form>
+
+    <div class="structure-table">
+      <table>
+        <thead>
+          <tr>
+            <th>Code</th>
+            <th>Type</th>
+            <th>Libéllé</th>
+            <th>Telephone</th>
+            <th>Email</th>
+            <th>Date de création</th>
+            <th>Date AG</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for structure in structures %}
+          <tr>
+            <td><strong>{{ structure.code_structure }}</strong></td>
+            <td>{{ structure.type }}</td>
+            <td>{{ structure.libellé }}</td>
+            <td>{{ structure.numéro_de_téléphone }}</td>
+            <td>{{ structure.adresse_email }}</td>
+            <td>{{ structure.date_de_création|date:"d-m-Y" }}</td>
+            <td>{{ structure.date_ag|date:"d-m-Y" }}</td>
+            <td>
+              
+              <button class="structure-button"><a href="{% url 'consult_structure' structure.id %}">Consulter</a></button>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <script>
+    function printTable() {
+    const navbar = document.querySelector('header');
+    navbar.style.display = 'none'; // Hide the navigation bar
+
+    const searchForm = document.getElementById('search-form');
+    searchForm.style.display = 'none'; // Hide the search form
+
+    const printButton = document.querySelector('.print');
+    printButton.style.display = 'none'; // Hide the print button
+
+    const buttons = document.querySelectorAll('.structure-button');
+    buttons.forEach(function(button) {
+      button.style.display = 'none'; // Hide all the buttons
+    });
+
+    const table = document.querySelector('.structure-table');
+    const actionHeader = table.querySelector('th:nth-child(8)');
+    actionHeader.style.display = 'none'; // Hide the "Action" table header
+
+    window.print(); // Print the page
+
+    navbar.style.display = ''; // Restore the navigation bar's display
+    searchForm.style.display = ''; // Restore the search form's display
+    printButton.style.display = ''; // Restore the print button's display
+
+    buttons.forEach(function(button) {
+      button.style.display = ''; // Restore the display of the buttons
+    });
+
+    actionHeader.style.display = ''; // Restore the "Action" table header's display
+  }
+document.getElementById('search-form').addEventListener('submit', function(e) {
+      e.preventDefault();
+      const searchInput = document.getElementById('search-input').value.toLowerCase();
+      const tableRows = document.querySelectorAll('.structure-table tbody tr');
+
+      for (let i = 0; i < tableRows.length; i++) {
+        const row = tableRows[i];
+        const rowData = row.textContent.toLowerCase();
+
+        if (rowData.includes(searchInput)) {
+          row.style.display = '';
+        } else {
+          row.style.display = 'none';
+        }
+      }
+    });
+  </script>
+</div>
+{% endblock %}

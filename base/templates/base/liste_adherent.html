@@ -1,0 +1,110 @@
+{% extends 'main.html' %}
+{% load static %}
+
+{% block content %}
+
+<div>
+  <h2>Gestion des adhérents</h2>
+  <hr class="hradherent">
+</div>
+
+
+<div class="page-content">
+  <form id="search-form" class="search-container" action="{% url 'gestion_adherent' %}">
+    <input type="text" class="textbox" id="search-input" name="search" placeholder="Chercher...">
+    <button type="submit" class="adherent-button"><i><img src="{% static 'img/search.png' %}"></i></button>
+    <img class="print" src="{% static 'img/print.png' %}" height="40px" width="40px" onclick="printTable()">
+  </form>
+
+  <div class="adherent-table">
+    <table>
+      <thead>
+        <tr>
+          <th>Code</th>
+          <th>Nom</th>
+          <th>Prénom</th>
+          <th>Genre</th>
+          <th>Email</th>
+          <th>Téléphone</th>
+          <th>Document d'identité</th>
+          <th>Type</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for adherent in adherents %}
+        <tr>
+          <td><strong>{{ adherent.code }}</strong></td>
+          <td>{{ adherent.nom }}</td>
+          <td>{{ adherent.prénom }}</td>
+          <td>{{ adherent.genre }}</td>
+          <td>{{ adherent.adresse_email }}</td>
+          <td>{{ adherent.numéro_de_téléphone }}</td>
+          <td>{{ adherent.type_document_identité }}: {{ adherent.numero_document_identité }}</td>
+          <td>{{ adherent.type_adhérent }}</td>
+          <td>
+            
+            <button class="adherent-button"><a href="{% url 'consult_adherent' adherent.id %}">Consulter</a></button>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<script>
+  function printTable() {
+    const navbar = document.querySelector('header');
+    navbar.style.display = 'none'; // Hide the navigation bar
+
+    const searchForm = document.getElementById('search-form');
+    searchForm.style.display = 'none'; // Hide the search form
+
+    const printButton = document.querySelector('.print');
+    printButton.style.display = 'none'; // Hide the print button
+
+    const buttons = document.querySelectorAll('.adherent-button');
+    buttons.forEach(function(button) {
+      button.style.display = 'none'; // Hide all the buttons
+    });
+
+    const table = document.querySelector('.adherent-table');
+    const actionColumnHeader = table.querySelector('thead th:last-child'); // Select the last th element in the table header
+    actionColumnHeader.style.display = 'none'; // Hide the "Action" column header
+
+ 
+    window.print(); // Print the page
+
+    navbar.style.display = ''; // Restore the navigation bar's display
+    searchForm.style.display = ''; // Restore the search form's display
+    printButton.style.display = ''; // Restore the print button's display
+
+    buttons.forEach(function(button) {
+      button.style.display = ''; // Restore the display of the buttons
+    });
+
+    actionColumnHeader.style.display = ''; // Restore the display of the "Action" column header
+
+    actionColumnCells.forEach(function(cell) {
+      cell.style.display = ''; // Restore the display of the action cells
+    });
+  }
+document.getElementById('search-form').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const searchInput = document.getElementById('search-input').value;
+    const tableRows = document.querySelectorAll('.adherent-table tbody tr');
+
+    for (let i = 0; i < tableRows.length; i++) {
+      const row = tableRows[i];
+      const rowData = row.textContent.toLowerCase();
+
+      if (rowData.includes(searchInput.toLowerCase())) {
+        row.style.display = '';
+      } else {
+        row.style.display = 'none';
+      }
+    }
+  });
+</script>
+{% endblock %}
