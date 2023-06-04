@@ -15,7 +15,8 @@ from .signals import  post_delete_adherent,post_save_adherent , post_save_struct
 from django.forms.models import model_to_dict
 from .forms import BanqueTransactionsForm, CaisseTransactionsForm , CotisationPaymentForm
 from .models import BanqueTransactions, CaisseTransactions
-
+from django.shortcuts import render
+from django.db.models import Count
 def loginPage(request):
     if request.method == "POST":
         username = request.POST.get('username')
@@ -390,9 +391,25 @@ def fetch_delegations(request):
     governat_id = request.GET.get('gouvernorat_id')
     delegations = Delegation.objects.filter(governat_id=governat_id).values('id', 'name')
     return JsonResponse(list(delegations), safe=False)
-def dashboard(request):
-    
-    return render(request, 'base/dashboard.html')
+import json
+def adherents_view(request):
+    count_male = Adherent.objects.filter(genre='M').count()
+    count_female = Adherent.objects.filter(genre='F').count()
+    # Perform other calculations or retrieve data from the Adherent model as needed
 
+    gender_list = ['Male', 'Female']
+    gender_number= [count_male, count_female]
+    gender_labels_json = json.dumps(gender_list)
+    gender_data_json = json.dumps(gender_number)
+
+    # Add the JSON strings to the context
+    context = {
+        'gender_labels_json': gender_labels_json,
+        'gender_data_json': gender_data_json,
+    }
+    # Prepare other data for charts if needed
+
+    
+    return render(request, 'base/dashboard.html', context)
 
 
