@@ -37,7 +37,7 @@ urlpatterns = [
    path('consult_caisse_transaction/<str:pk>/', views.consult_caisse_transaction, name='consult_caisse_transaction'),
    path('liste_adherent/' , views.liste_adherent , name="liste_adherent"),
    path('liste_structure/' , views.liste_structure , name="liste_structure"),
-   path('dashboard/' , views.adherents_view , name="dashboard"),
+   path('dashboard/' , views.financial_dashboard , name="dashboard"),
    
    
   

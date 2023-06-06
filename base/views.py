@@ -309,7 +309,7 @@ def delete_banque_transaction(request, pk):
     
     if request.method == 'POST':
         if transaction.raison_de_transaction == 'Cotisation':
-            Cotisation.objects.filter(adhérent=transaction.adhrent).delete()
+            Cotisation.objects.filter(adhérent=transaction.adhérent).delete()
         transaction.delete()
         adherent=transaction.adhérent
         adherent.cotisation_annuelle = 'non payée'
@@ -391,25 +391,164 @@ def fetch_delegations(request):
     governat_id = request.GET.get('gouvernorat_id')
     delegations = Delegation.objects.filter(governat_id=governat_id).values('id', 'name')
     return JsonResponse(list(delegations), safe=False)
+
 import json
-def adherents_view(request):
-    count_male = Adherent.objects.filter(genre='M').count()
-    count_female = Adherent.objects.filter(genre='F').count()
-    # Perform other calculations or retrieve data from the Adherent model as needed
 
-    gender_list = ['Male', 'Female']
-    gender_number= [count_male, count_female]
-    gender_labels_json = json.dumps(gender_list)
-    gender_data_json = json.dumps(gender_number)
+from django.db.models import Sum 
+import json
+from decimal import Decimal
+from django.shortcuts import render
+from django.db.models import Sum
+from django.core.serializers.json import DjangoJSONEncoder
+from .models import Transaction ,BanqueTransactions, Structure
+from django.db.models import Sum, F, Q
+from django.db.models.functions import TruncDate,TruncMonth
+from django.db.models import Subquery, OuterRef
+from django.utils.timezone import localtime
+from .models import BanqueTransactions, CaisseTransactions, Evenement
+class DecimalEncoder(DjangoJSONEncoder):
+    def default(self, o):
+        if isinstance(o, Decimal):
+            return str(o)
+        return super().default(o)
 
-    # Add the JSON strings to the context
-    context = {
-        'gender_labels_json': gender_labels_json,
-        'gender_data_json': gender_data_json,
-    }
-    # Prepare other data for charts if needed
+def financial_dashboard(request):
+    ######
+    adherent_cotisation_data = Adherent.objects.values('cotisation_annuelle').annotate(count=Count('id'))
+    labels = []
+    data = []
+    
+    for item in adherent_cotisation_data:
+        labels.append(item['cotisation_annuelle'])
+        data.append(item['count'])
+    ########### 
+    credit_banque = BanqueTransactions.objects.filter(type_de_transaction='Crédit').annotate(month=TruncMonth('date')).values('month').annotate(total=Sum('solde'))
+    debit_banque = BanqueTransactions.objects.filter(type_de_transaction='Débit').annotate(month=TruncMonth('date')).values('month').annotate(total=Sum('solde'))
+
+    credit_caisse = CaisseTransactions.objects.filter(type_de_transaction='Crédit').annotate(month=TruncMonth('date')).values('month').annotate(total=Sum('solde'))
+    debit_caisse = CaisseTransactions.objects.filter(type_de_transaction='Débit').annotate(month=TruncMonth('date')).values('month').annotate(total=Sum('solde'))
+
+    # Combine the credit and debit transactions from both models
+    credit_data = list(credit_banque) + list(credit_caisse)
+    debit_data = list(debit_banque) + list(debit_caisse)
+
+    # Truncate the month to group transactions by month
+    credit_data = [{'month': item['month'].strftime('%Y-%m') if item['month'] else None, 'total': float(item['total'])} for item in credit_data]
+    debit_data = [{'month': item['month'].strftime('%Y-%m') if item['month'] else None, 'total': float(item['total'])} for item in debit_data]
+
+    # Filter out None values from the data
+    credit_data = [item for item in credit_data if item['month']]
+    debit_data = [item for item in debit_data if item['month']]
+
+    # Sort the data by month in ascending order
+    credit_data = sorted(credit_data, key=lambda x: x['month'])
+    debit_data = sorted(debit_data, key=lambda x: x['month'])
+
+    # Prepare data for the chart
+    linechart_custom_labels = list(set(item['month'] for item in credit_data))
+    linechart_custom_labels.sort()  # Sort the labels in ascending order
+
+    linechart_credit_totals = [sum(item['total'] for item in credit_data if item['month'] == month) for month in linechart_custom_labels]
+    linechart_debit_totals = [sum(item['total'] for item in debit_data if item['month'] == month) for month in linechart_custom_labels]
+
+    # Convert the data to JSON format
+    linechart_custom_labels_json = json.dumps(linechart_custom_labels)
+    linechart_credit_totals_json = json.dumps(linechart_credit_totals)
+    linechart_debit_totals_json = json.dumps(linechart_debit_totals)
+
+   
+
+
+    ############
+    events = Evenement.objects.all()
+
+    # Prepare data for the chart
+    event_labels = []
+    dépenses_data = []
+    profits_data = []
+
+    # Iterate over each event and calculate total dépenses and profits
+    for event in events:
+        dépenses_total = BanqueTransactions.objects.filter(évènement=event, raison_de_transaction='Dépenses').aggregate(total=Sum('solde'))['total'] or 0
+        profits_total = BanqueTransactions.objects.filter(évènement=event, raison_de_transaction='Profits').aggregate(total=Sum('solde'))['total'] or 0
+
+        event_labels.append(event.libelle)
+        dépenses_data.append(float(dépenses_total))
+        profits_data.append(float(profits_total))
+
+    # Convert the data to JSON format
+    event_labels_json = json.dumps(event_labels)
+    dépenses_data_json = json.dumps(dépenses_data)
+    profits_data_json = json.dumps(profits_data)
+    #####################
+    banque_reasons = (
+        BanqueTransactions.objects.values('raison_de_transaction')
+        .annotate(count=Count('raison_de_transaction'))
+        .values('raison_de_transaction', 'count')
+    )
+
+    # Retrieve the total count of transactions for each reason from CaisseTransactions
+    caisse_reasons = (
+        CaisseTransactions.objects.values('raison_de_transaction')
+        .annotate(count=Count('raison_de_transaction'))
+        .values('raison_de_transaction', 'count')
+    )
+
+    # Combine the counts from both BanqueTransactions and CaisseTransactions
+    transaction_reasons = {}
+
+    # Aggregate counts from BanqueTransactions
+    for reason in banque_reasons:
+        transaction_reasons.setdefault(reason['raison_de_transaction'], 0)
+        transaction_reasons[reason['raison_de_transaction']] += reason['count']
+
+    # Aggregate counts from CaisseTransactions
+    for reason in caisse_reasons:
+        transaction_reasons.setdefault(reason['raison_de_transaction'], 0)
+        transaction_reasons[reason['raison_de_transaction']] += reason['count']
+
+    # Prepare the chart data
+    reason_labels = list(transaction_reasons.keys())
+    transaction_counts = list(transaction_reasons.values())
+
+     # Calculate the balance of the organization
+    banque_credit_total = BanqueTransactions.objects.filter(type_de_transaction='Crédit').aggregate(total=Sum('solde'))['total'] or 0
+    banque_debit_total = BanqueTransactions.objects.filter(type_de_transaction='Débit').aggregate(total=Sum('solde'))['total'] or 0
+
+    # Calculate the balance for CaisseTransactions
+    caisse_credit_total = CaisseTransactions.objects.filter(type_de_transaction='Crédit').aggregate(total=Sum('solde'))['total'] or 0
+    caisse_debit_total = CaisseTransactions.objects.filter(type_de_transaction='Débit').aggregate(total=Sum('solde'))['total'] or 0
+
+    # Calculate the total balance
+    balance = 1000 + banque_credit_total + caisse_credit_total - banque_debit_total - caisse_debit_total
+
+   
+
 
     
+
+   
+
+
+    context = {
+        'adherent_cotisation_data_json': json.dumps(data),
+        'adherent_cotisation_labels_json': json.dumps(labels),
+        'linechart_custom_labels': linechart_custom_labels_json,
+        'linechart_credit_totals': linechart_credit_totals_json,
+        'linechart_debit_totals': linechart_debit_totals_json,
+        'event_labels': event_labels_json,
+        'dépenses_data': dépenses_data_json,
+        'profits_data': profits_data_json,
+        'reason_labels': json.dumps(reason_labels),
+        'transaction_counts': json.dumps(transaction_counts),
+        'balance': balance,
+        
+       
+        
+    }
+
     return render(request, 'base/dashboard.html', context)
+
+
 
 

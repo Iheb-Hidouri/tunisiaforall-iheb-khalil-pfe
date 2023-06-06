@@ -2,6 +2,13 @@
 {% load static %}
 
 {% block content %}
+<select id="structureSelector">
+    <option value="">All Structures</option>
+    {% for structure in structures %}
+        <option value="{{ structure.id }}">{{ structure.code_structure }}</option>
+    {% endfor %}
+</select>
+<h3>Balance: {{ balance }}</h3>
 <div id="content-wrapper" style="padding-top: 105px">
     <div class="container-fluid">
         <!-- Breadcrumbs -->
@@ -12,45 +19,249 @@
             <li class="breadcrumb-item active">Overview</li>
         </ol>
 
-        <!-- Gender Chart -->
-        <canvas id="genderChart" width="300" height="200"></canvas>
+        <!-- Chart Container -->
+        <div id="chartContainer" style="width: 800px; margin: 0 auto;">
+            <!-- Adherent Cotisation Pie Chart -->
+            <div class="chart-item">
+                <canvas id="adherentCotisationChart" width="400" height="300"></canvas>
+            </div>
+
+            <!-- Monthly Revenue or Expenses Bar Chart -->
+            <div class="chart-item">
+                <canvas id="lineChart" width="400" height="300"></canvas>
+            </div>
+
+            <!-- Cash Flow Over Time Line Chart -->
+            <div class="chart-item">
+                <canvas id="eventChart" width="400" height="300"></canvas>
+            </div>
+
+            <!-- Top Structures by Revenue Horizontal Bar Chart -->
+            <div class="chart-item">
+                <canvas id="reasonChart" width="400" height="300"></canvas>
+            </div>
+
+            <!-- Adherent Cotisation Pie Chart by Structure -->
+            
+        </div>
+
+        <!-- Add slicers here -->
+
     </div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script type="text/javascript">
-    var genderLabels = JSON.parse('{{ gender_labels_json|safe }}');
-    var genderData = JSON.parse('{{ gender_data_json|safe }}');
+    var adherentCotisationData = JSON.parse('{{ adherent_cotisation_data_json|safe }}');
+    var adherentCotisationLabels = JSON.parse('{{ adherent_cotisation_labels_json|safe }}');
 
-    var ctx = document.getElementById('genderChart').getContext('2d');
-    var genderChart = new Chart(ctx, {
+    var ctx = document.getElementById('adherentCotisationChart').getContext('2d');
+    var adherentCotisationChart = new Chart(ctx, {
         type: 'pie',
         data: {
-            labels: genderLabels,
+            labels: adherentCotisationLabels,
             datasets: [{
-                label: 'Gender',
-                data: genderData,
+                data: adherentCotisationData,
                 backgroundColor: [
-                    
-                    'rgba(54, 162, 235, 1)',
-                    'rgba(255, 99, 132, 1)',
-                    // Include other colors for different categories if needed
+                    '#FF6384',
+                    '#36A2EB',
+                    '#FFCE56',
+                    // Add more colors as needed
                 ],
-                borderColor: [
-                    'rgba(255, 99, 132, 1)',
-                    'rgba(54, 162, 235, 1)',
-                    // Include other colors for border if needed
-                ],
-                borderWidth: 1
+                hoverBackgroundColor: [
+                    '#FF6384',
+                    '#36A2EB',
+                    '#FFCE56',
+                    // Add more colors as needed
+                ]
             }]
         },
         options: {
+            responsive: true,
+            maintainAspectRatio: false
+        }
+    });
+</script>
+
+<script>
+    
+    document.addEventListener('DOMContentLoaded', function() {
+        // Retrieve the chart data from the template context
+        const customLabels = JSON.parse('{{ linechart_custom_labels|escapejs }}');
+        const creditTotals = JSON.parse('{{ linechart_credit_totals|escapejs }}');
+        const debitTotals = JSON.parse('{{ linechart_debit_totals|escapejs }}');
+
+        // Create the line chart
+        new Chart(document.getElementById('lineChart'), {
+            type: 'line',
+            data: {
+                labels: customLabels,
+                datasets: [
+                    {
+                        label: 'Credit Transactions',
+                        data: creditTotals,
+                        fill: false,
+                        borderColor: '#36A2EB',
+                        tension: 0.4
+                    },
+                    {
+                        label: 'Debit Transactions',
+                        data: debitTotals,
+                        fill: false,
+                        borderColor: '#FF6384',
+                        tension: 0.4
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    x: {
+                        display: true,
+                        title: {
+                            display: true,
+                            text: 'Custom Labels'
+                        }
+                    },
+                    y: {
+                        display: true,
+                        title: {
+                            display: true,
+                            text: 'Total Amount'
+                        }
+                    }
+                }
+            }
+        });
+    });
+</script>
+
+<script type="text/javascript">
+    // Retrieve the chart data from the template context
+    const eventLabels = JSON.parse('{{ event_labels|safe }}');
+    const dépensesData = JSON.parse('{{ dépenses_data|safe }}');
+    const profitsData = JSON.parse('{{ profits_data|safe }}');
+
+    // Create the bar chart
+    new Chart(document.getElementById('eventChart'), {
+        type: 'bar',
+        data: {
+            labels: eventLabels,
+            datasets: [
+                {
+                    label: 'Dépenses',
+                    data: dépensesData,
+                    backgroundColor: 'rgba(255, 99, 132, 0.5)'
+                },
+                {
+                    label: 'Profits',
+                    data: profitsData,
+                    backgroundColor: 'rgba(54, 162, 235, 0.5)'
+                }
+            ]
+        },
+        options: {
+            responsive: true,
             scales: {
+                x: {
+                    display: true,
+                    title: {
+                        display: true,
+                        text: 'Events'
+                    }
+                },
                 y: {
-                    beginAtZero: true
+                    display: true,
+                    title: {
+                        display: true,
+                        text: 'Total Amount'
+                    }
                 }
             }
         }
     });
 </script>
+<script type="text/javascript">
+    // Retrieve the chart data from the template context
+    const reasonLabels = JSON.parse('{{ reason_labels|safe }}');
+    const transactionCounts = JSON.parse('{{ transaction_counts|safe }}');
+
+    // Create the polar area chart
+    new Chart(document.getElementById('reasonChart'), {
+        type: 'polarArea',
+        data: {
+            labels: reasonLabels,
+            datasets: [
+                {
+                    data: transactionCounts,
+                    backgroundColor: [
+                        'rgba(255, 99, 132, 0.5)',
+                        'rgba(54, 162, 235, 0.5)',
+                        'rgba(255, 206, 86, 0.5)',
+                        'rgba(75, 192, 192, 0.5)',
+                        'rgba(153, 102, 255, 0.5)',
+                        'rgba(255, 159, 64, 0.5)',
+                        // Add more colors if needed
+                    ],
+                    borderWidth: 1,
+                },
+            ],
+        },
+        options: {
+            responsive: true,
+            scales: {
+                r: {
+                    suggestedMin: 0,
+                },
+            },
+        },
+    });
+</script>
+<script>
+    // Add this script after the chart scripts
+
+    // Add event listener for structure selector
+    const structureSelector = document.getElementById('structureSelector');
+    structureSelector.addEventListener('change', function() {
+        const selectedStructureId = structureSelector.value;
+        updateCharts(selectedStructureId);
+    });
+
+    // Function to update charts based on the selected structure
+    function updateCharts(selectedStructureId) {
+        // Implement your logic to update the charts here based on the selected structure
+        // You can access the selectedStructureId and use it to filter the data or update the chart options
+        // For each chart, you'll need to retrieve the chart instance and update its data or options
+
+        // Example: Updating the adherentCotisationChart based on the selected structure
+        // Retrieve the adherentCotisationChart instance
+        const adherentCotisationChart = Chart.getChart('adherentCotisationChart');
+
+        // Implement the logic to update the chart data based on the selected structure
+        // Example: filter the data or fetch new data based on the selectedStructureId
+        const updatedAdherentCotisationData = getUpdatedAdherentCotisationData(selectedStructureId);
+
+        // Update the chart data
+        adherentCotisationChart.data.datasets[0].data = updatedAdherentCotisationData;
+
+        // Update the chart
+        adherentCotisationChart.update();
+        
+        // Implement similar logic for other charts as needed
+    }
+
+    // Example function to get updated adherent cotisation data based on the selected structure
+    function getUpdatedAdherentCotisationData(selectedStructureId) {
+        // Implement your logic to fetch or filter the adherent cotisation data based on the selected structure
+        // Return the updated data
+
+        // Example: Filtering the adherent cotisation data based on the selectedStructureId
+        const adherentCotisationData = JSON.parse('{{ adherent_cotisation_data_json|safe }}');
+        const filteredData = adherentCotisationData.filter(item => item.structureId === selectedStructureId);
+        return filteredData;
+    }
+</script>
+
+
+
 {% endblock %}
