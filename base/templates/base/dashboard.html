@@ -2,53 +2,137 @@
 {% load static %}
 
 {% block content %}
-<select id="structureSelector">
-    <option value="">All Structures</option>
-    {% for structure in structures %}
-        <option value="{{ structure.id }}">{{ structure.code_structure }}</option>
-    {% endfor %}
-</select>
-<h3>Balance: {{ balance }}</h3>
-<div id="content-wrapper" style="padding-top: 105px">
-    <div class="container-fluid">
-        <!-- Breadcrumbs -->
-        <ol class="breadcrumb">
-            <li class="breadcrumb-item">
-                <a href="">Dashboard</a>
-            </li>
-            <li class="breadcrumb-item active">Overview</li>
-        </ol>
-
-        <!-- Chart Container -->
-        <div id="chartContainer" style="width: 800px; margin: 0 auto;">
-            <!-- Adherent Cotisation Pie Chart -->
+<style>
+    /* Dashboard */
+   #container {
+       display: flex;
+       justify-content: center;
+   }
+   
+   #sidebar-container {
+       background-color: #2458b3;
+       padding: 10px;
+       color: white;
+       width: 130px;
+       height: 590px;
+       display: flex;
+       margin-top: 14px;
+       flex-direction: column;
+       justify-content: center;
+       align-items: center;
+       border-radius:10px;
+   }
+   
+   #structure-info {
+       margin-bottom: 20px;
+   }
+   
+   #structureSelector {
+       background-color: #555;
+       color: white;
+       padding: 5px 10px;
+       border: none;
+       width: 100%;
+       margin-bottom: 10px;
+   }
+   
+   #balance {
+       background-color: #4972bb;
+       padding: 5px 10px;
+       border-radius: 10px;
+       width: 100%;
+   }
+   
+   #chartBox {
+       display: flex;
+       flex-direction: column;
+       align-items: center;
+       margin-left: 10px;
+       margin-top:23px;
+       height: 580px;
+       
+       
+   }
+   
+   .chart-row {
+       display: flex;
+       flex-wrap: wrap;
+       justify-content: center;
+       width: 100%;
+       margin-bottom: 50px;
+       
+   }
+   
+   .chart-item {
+    width: 425px;
+    height: 250px;
+    box-sizing: border-box;
+    margin: 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    }
+   
+   .chart-title {
+       background-color: #2458b3;
+       color: white;
+       width: 420px;
+       padding: 5px;
+       text-align: center;
+       border-top-left-radius: 5px;
+       border-top-right-radius: 5px;
+       margin-bottom: 10px;
+       font-size: 14px;
+   }
+   </style>
+   
+   
+   <div id="container">
+       <div id="sidebar-container">
+           <div id="structure-info">
+               <span id="balance">Balance: {{ balance }}</span>
+               <span id="balance">  Profit moyen par evenement : {{average_revenue_events}} </span>
+               <span id="balance">Nomrbe total des adherents: {{ total_adherents }}</span>
+           </div>
+       </div>
+   
+       <div id="chartBox">
+           <div class="chart-row">
+               <div class="chart-item">
+                   <div class="chart-title">Cotisation des Adhérents</div>
+                   <canvas id="adherentCotisationChart" width="400" height="300"></canvas>
+               </div>
+   
+               <div class="chart-item">
+                   <div class="chart-title">Débits et Crédits Mensuels</div>
+                   <canvas id="lineChart" width="400" height="300"></canvas>
+               </div>
+           </div>
+   
+           <div class="chart-row">
+               <div class="chart-item">
+                   <div class="chart-title">Dépenses et Profits des évènements </div>
+                   <canvas id="eventChart" width="400" height="300"></canvas>
+               </div>
+   
+               <div class="chart-item">
+                   <div class="chart-title">Raisons des transactions </div>
+                   <canvas id="reasonChart" width="400" height="300"></canvas>
+               </div>
+               
+           </div>
+           <div class="chart-row">
+        
             <div class="chart-item">
-                <canvas id="adherentCotisationChart" width="400" height="300"></canvas>
+                <div class="chart-title">Revenu Par structure</div>
+                <canvas id="incomeChart" width="400" height="300"></canvas>
             </div>
-
-            <!-- Monthly Revenue or Expenses Bar Chart -->
-            <div class="chart-item">
-                <canvas id="lineChart" width="400" height="300"></canvas>
-            </div>
-
-            <!-- Cash Flow Over Time Line Chart -->
-            <div class="chart-item">
-                <canvas id="eventChart" width="400" height="300"></canvas>
-            </div>
-
-            <!-- Top Structures by Revenue Horizontal Bar Chart -->
-            <div class="chart-item">
-                <canvas id="reasonChart" width="400" height="300"></canvas>
-            </div>
-
-            <!-- Adherent Cotisation Pie Chart by Structure -->
-            
         </div>
+       </div>
+   </div>
+   
 
-        <!-- Add slicers here -->
-
-    </div>
-</div>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script type="text/javascript">
@@ -63,13 +147,13 @@
             datasets: [{
                 data: adherentCotisationData,
                 backgroundColor: [
-                    '#FF6384',
+                    '#D61820',
                     '#36A2EB',
                     '#FFCE56',
                     // Add more colors as needed
                 ],
                 hoverBackgroundColor: [
-                    '#FF6384',
+                    '#D61820',
                     '#36A2EB',
                     '#FFCE56',
                     // Add more colors as needed
@@ -78,7 +162,7 @@
         },
         options: {
             responsive: true,
-            maintainAspectRatio: false
+            maintainAspectRatio: true
         }
     });
 </script>
@@ -98,17 +182,17 @@
                 labels: customLabels,
                 datasets: [
                     {
-                        label: 'Credit Transactions',
+                        label: 'Transactions crédits',
                         data: creditTotals,
                         fill: false,
                         borderColor: '#36A2EB',
                         tension: 0.4
                     },
                     {
-                        label: 'Debit Transactions',
+                        label: 'Transactions débits',
                         data: debitTotals,
                         fill: false,
-                        borderColor: '#FF6384',
+                        borderColor: '#D61820',
                         tension: 0.4
                     }
                 ]
@@ -120,14 +204,14 @@
                         display: true,
                         title: {
                             display: true,
-                            text: 'Custom Labels'
+                            text: 'Mois'
                         }
                     },
                     y: {
                         display: true,
                         title: {
                             display: true,
-                            text: 'Total Amount'
+                            text: 'Montant Total'
                         }
                     }
                 }
@@ -151,12 +235,12 @@
                 {
                     label: 'Dépenses',
                     data: dépensesData,
-                    backgroundColor: 'rgba(255, 99, 132, 0.5)'
+                    backgroundColor: '#D61820'
                 },
                 {
                     label: 'Profits',
                     data: profitsData,
-                    backgroundColor: 'rgba(54, 162, 235, 0.5)'
+                    backgroundColor: '#36A2EB'
                 }
             ]
         },
@@ -167,54 +251,96 @@
                     display: true,
                     title: {
                         display: true,
-                        text: 'Events'
+                        text: 'Evènements'
                     }
                 },
                 y: {
                     display: true,
                     title: {
                         display: true,
-                        text: 'Total Amount'
+                        text: 'Montant Total'
                     }
                 }
             }
         }
     });
 </script>
-<script type="text/javascript">
+
+<script>
     // Retrieve the chart data from the template context
     const reasonLabels = JSON.parse('{{ reason_labels|safe }}');
     const transactionCounts = JSON.parse('{{ transaction_counts|safe }}');
 
-    // Create the polar area chart
-    new Chart(document.getElementById('reasonChart'), {
-        type: 'polarArea',
+    // Create the doughnut chart
+    var ctx = document.getElementById('reasonChart').getContext('2d');
+    var reasonChart = new Chart(ctx, {
+        type: 'doughnut',
         data: {
             labels: reasonLabels,
-            datasets: [
-                {
-                    data: transactionCounts,
-                    backgroundColor: [
-                        'rgba(255, 99, 132, 0.5)',
-                        'rgba(54, 162, 235, 0.5)',
-                        'rgba(255, 206, 86, 0.5)',
-                        'rgba(75, 192, 192, 0.5)',
-                        'rgba(153, 102, 255, 0.5)',
-                        'rgba(255, 159, 64, 0.5)',
-                        // Add more colors if needed
-                    ],
-                    borderWidth: 1,
-                },
-            ],
+            datasets: [{
+                data: transactionCounts,
+                backgroundColor: [
+                    '#D61820',
+                    '#36A2EB',
+                    '#FFCE56',
+                    '#73B43D',
+                    '#b3b3b3',
+                    '#73B43D',
+                    // Add more colors as needed
+                ],
+                hoverBackgroundColor: [
+                    '#D61820',
+                    '#36A2EB',
+                    '#FFCE56',
+                    '#73B43D',
+                    '#b3b3b3',
+                    '#73B43D',
+                    // Add more colors as needed
+                ]
+            }]
         },
         options: {
             responsive: true,
-            scales: {
-                r: {
-                    suggestedMin: 0,
-                },
-            },
+            maintainAspectRatio: true
+        }
+    });
+</script>
+<script>
+    // Retrieve the structure income data from the server
+    var structureIncomeData = JSON.parse('{{ structure_income_data|safe }}');
+  
+    // Extract the labels and data from the received data
+    var structureLabels = structureIncomeData.labels;
+    var structureData = structureIncomeData.data;
+  
+    // Create the bar chart using Chart.js
+    var ctx = document.getElementById('incomeChart').getContext('2d');
+    var chart = new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: structureLabels,
+        datasets: [
+          {
+            label: 'Income',
+            data: structureData,
+            backgroundColor: 'rgba(75, 192, 192, 0.2)',
+            borderColor: 'rgba(75, 192, 192, 1)',
+            borderWidth: 1,
+          },
+        ],
+      },
+      options: {
+        indexAxis: 'y', // Set the index axis to 'y' for horizontal bar chart
+        responsive: true,
+        scales: {
+          x: {
+            beginAtZero: true,
+          },
+          y: {
+            beginAtZero: true,
+          },
         },
+      },
     });
 </script>
 <script>

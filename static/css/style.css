@@ -75,15 +75,15 @@ header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  border-radius: 50px;
+  border-radius: 30px;
   background-color: #fff;
   height: 80px;
-  padding: 20px 50px;
+  padding: 6px 45px;
   box-shadow: 0px 2px 10px rgba(0, 0, 0, 0.1);
 }
 
 .logo {
-  height: 70px;
+  height: 60px;
   margin-left:30px;
 }
 
@@ -99,8 +99,8 @@ li {
 .liens a {
     text-decoration: none;
     color: #000;
-    font-size: 15.5px;
-    padding: 10px 15px;
+    font-size: 14px;
+    padding: 10px 17px;
     border-radius: 50px;
     transition: background-color 0.2s ease;
 }
@@ -131,7 +131,7 @@ li {
   border: none;
   border-radius: 50px;
   padding: 10px 20px;
-  font-size: 18px;
+  font-size: 16px;
   cursor: pointer;
   transition: background-color 0.2s ease;
   letter-spacing: 1px;
@@ -304,7 +304,7 @@ padding: 8px;
 }
 
 .finance-table th {
-background-color: #D61820;
+background-color: #d61820;
 color: #fff;
 }
 
@@ -638,3 +638,4 @@ form label[for="femme"] {
   max-width: 90%;
   max-height: 90%;
 }
+
