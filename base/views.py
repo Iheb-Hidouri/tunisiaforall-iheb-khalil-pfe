@@ -17,6 +17,7 @@ from .forms import BanqueTransactionsForm, CaisseTransactionsForm , CotisationPa
 from .models import BanqueTransactions, CaisseTransactions
 from django.shortcuts import render
 from django.db.models import Count
+from datetime import datetime
 def loginPage(request):
     if request.method == "POST":
         username = request.POST.get('username')
@@ -236,7 +237,14 @@ def create_banque_transaction(request):
                     justificatif=transaction.justificatif_bancaire
                 )
                 adherent = transaction.adhérent
-                adherent.cotisation_annuelle = 'payée'
+                adherent.dernière_date_de_payement = transaction.date
+                cette_année = datetime.now().year  # Get the current year
+
+                if transaction.date.year == cette_année:
+                 adherent.cotisation_annuelle = 'payée'
+                else:
+                 adherent.cotisation_annuelle = 'non payée'
+                
                 adherent.save()
             return redirect('gestion_financiere')  # Replace with your desired URL
     else:
@@ -250,6 +258,18 @@ def update_banque_transaction(request, pk):
         if form.is_valid():
             transaction =form.save()
             save_banque_transaction_history (sender=BanqueTransactions, instance=transaction,created=False, request=request)
+            if transaction.raison_de_transaction == 'Cotisation':
+                adherent = transaction.adhérent
+                adherent.dernière_date_de_payement = transaction.date
+                cette_année = datetime.now().year  # Get the current year
+
+                if transaction.date.year == cette_année:
+                 adherent.cotisation_annuelle = 'payée'
+                else:
+                 adherent.cotisation_annuelle = 'non payée'
+                
+                adherent.save() 
+
             return redirect('gestion_financiere')  # Replace with your desired URL
     else:
         form = BanqueTransactionsForm(instance=transaction)
@@ -284,8 +304,15 @@ def create_caisse_transaction(request):
                     justificatif=transaction.justificatif_caisse
                 )
                 adherent = transaction.adhérent
-                adherent.cotisation_annuelle = 'payée'
-                adherent.save()
+                adherent.dernière_date_de_payement = transaction.date
+                cette_année = datetime.now().year  # Get the current year
+
+                if transaction.date.year == cette_année:
+                 adherent.cotisation_annuelle = 'payée'
+                else:
+                 adherent.cotisation_annuelle = 'non payée'
+                
+                adherent.save() 
             return redirect('gestion_financiere')  # Replace with your desired URL
     else:
         form = CaisseTransactionsForm()
@@ -299,6 +326,17 @@ def update_caisse_transaction(request, pk):
         if form.is_valid():
             form.save()
             save_caisse_transaction_history (sender=BanqueTransactions, instance=transaction,created=False, request=request)
+            if transaction.raison_de_transaction == 'Cotisation':
+                adherent = transaction.adhérent
+                adherent.dernière_date_de_payement = transaction.date
+                cette_année = datetime.now().year  # Get the current year
+
+                if transaction.date.year == cette_année:
+                 adherent.cotisation_annuelle = 'payée'
+                else:
+                 adherent.cotisation_annuelle = 'non payée'
+                
+                adherent.save() 
             return redirect('gestion_financiere')  # Replace with your desired URL
     else:
         form = CaisseTransactionsForm(instance=transaction)

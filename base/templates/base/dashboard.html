@@ -2,136 +2,187 @@
 {% load static %}
 
 {% block content %}
-<style>
-    /* Dashboard */
-   #container {
-       display: flex;
-       justify-content: center;
-   }
-   
-   #sidebar-container {
-       background-color: #2458b3;
-       padding: 10px;
-       color: white;
-       width: 130px;
-       height: 590px;
-       display: flex;
-       margin-top: 14px;
-       flex-direction: column;
-       justify-content: center;
-       align-items: center;
-       border-radius:10px;
-   }
-   
-   #structure-info {
-       margin-bottom: 20px;
-   }
-   
-   #structureSelector {
-       background-color: #555;
-       color: white;
-       padding: 5px 10px;
-       border: none;
-       width: 100%;
-       margin-bottom: 10px;
-   }
-   
-   #balance {
-       background-color: #4972bb;
-       padding: 5px 10px;
-       border-radius: 10px;
-       width: 100%;
-   }
-   
-   #chartBox {
-       display: flex;
-       flex-direction: column;
-       align-items: center;
-       margin-left: 10px;
-       margin-top:23px;
-       height: 580px;
-       
-       
-   }
-   
-   .chart-row {
-       display: flex;
-       flex-wrap: wrap;
-       justify-content: center;
-       width: 100%;
-       margin-bottom: 50px;
-       
-   }
-   
-   .chart-item {
-    width: 425px;
-    height: 250px;
-    box-sizing: border-box;
-    margin: 10px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
+  <style>
+    /* Reset default styles */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
     }
-   
-   .chart-title {
-       background-color: #2458b3;
-       color: white;
-       width: 420px;
-       padding: 5px;
-       text-align: center;
-       border-top-left-radius: 5px;
-       border-top-right-radius: 5px;
-       margin-bottom: 10px;
-       font-size: 14px;
-   }
-   </style>
-   
-   
-   <div id="container">
-       <div id="sidebar-container">
-           <div id="structure-info">
-               <span id="balance">Balance: {{ balance }}</span>
-               <span id="balance">  Profit moyen par evenement : {{average_revenue_events}} </span>
-               <span id="balance">Nomrbe total des adherents: {{ total_adherents }}</span>
-           </div>
-       </div>
-   
-       <div id="chartBox">
-           <div class="chart-row">
-               <div class="chart-item">
-                   <div class="chart-title">Cotisation des Adhérents</div>
-                   <canvas id="adherentCotisationChart" width="400" height="300"></canvas>
-               </div>
-   
-               <div class="chart-item">
-                   <div class="chart-title">Débits et Crédits Mensuels</div>
-                   <canvas id="lineChart" width="400" height="300"></canvas>
-               </div>
-           </div>
-   
-           <div class="chart-row">
-               <div class="chart-item">
-                   <div class="chart-title">Dépenses et Profits des évènements </div>
-                   <canvas id="eventChart" width="400" height="300"></canvas>
-               </div>
-   
-               <div class="chart-item">
-                   <div class="chart-title">Raisons des transactions </div>
-                   <canvas id="reasonChart" width="400" height="300"></canvas>
-               </div>
-               
-           </div>
-           <div class="chart-row">
-        
-            <div class="chart-item">
-                <div class="chart-title">Revenu Par structure</div>
-                <canvas id="incomeChart" width="400" height="300"></canvas>
-            </div>
+
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f0f0f0;
+      margin: 0;
+      padding: 0;
+    }
+
+    .container {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: flex-start;
+      align-items: flex-start;
+      padding: 20px;
+      max-width: 100%;
+      overflow-x: hidden;
+    }
+
+    .sidebar {
+      margin-top:20px;
+  flex: 0 0 300px;
+  background-color: #f9f9f9;
+  padding: 20px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  height: 113vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.kpi-box {
+  flex: 1 1 auto;
+  aspect-ratio: 1 / 1;
+  background-color: #ffffff;
+  border-radius: 5px;
+  margin-bottom: 20px;
+  padding: 10px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+.kpi-label {
+  font-weight: bold;
+  font-size: 16px;
+  margin-bottom: 5px;
+}
+
+.kpi-value {
+  font-size: 50px;
+}
+
+    .charts-section {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      padding: 20px;
+      width: calc(100% - 300px);
+    }
+
+    .chart-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      width: 100%;
+      margin-bottom: 20px;
+    }
+
+    .chart {
+     flex: 0 0 calc(50% - 10px);
+     max-height: 300px;
+     background-color: #ffffff;
+     border-radius: 5px;
+     padding: 30px;
+     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+     display: flex;
+     flex-direction: column;
+     justify-content: space-between;
+    }
+
+    .chart canvas {
+     width: 100%;
+     height: auto;
+     max-height: calc(100% - 40px); /* Account for the padding */
+     }
+
+     .chart.chart-line {
+  flex: 0 0 100%;
+  background-color: #ffffff;
+  border-radius: 5px;
+  padding: 20px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.chart.chart-line canvas {
+  max-width: 100%;
+  height: auto;
+  max-height: calc(100% - 40px); /* Account for the padding */
+}
+
+    .chart-title {
+      font-size: 16px;
+      font-weight: bold;
+      margin-bottom: 10px;
+      text-align: center;
+    }
+
+    
+
+    .chart.chart-pie,
+    .chart.chart-doughnut {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+  </style>
+
+
+  <div class="container">
+    <div class="sidebar">
+        <div class="kpi-box">
+            <span class="kpi-label">Balance de l'organisation :</span>
+            <span class="kpi-value">{{balance}} DT</span>
+          </div>
+          <div class="kpi-box">
+            <span class="kpi-label">Nombre total des adhérents:</span>
+            <span class="kpi-value">{{total_adherents}}</span>
+          </div>
+          <div class="kpi-box">
+            <span class="kpi-label">Revenu moyen par évènement :</span>
+            <span class="kpi-value">{{average_revenue_events}} DT</span>
+          </div>
+    </div>
+    <div class="charts-section">
+      <div class="chart-row">
+        <div class="chart chart-bar">
+          <div class="chart-title">Dépenses et profits par évènement</div>
+          <canvas id="eventChart"></canvas>
         </div>
-       </div>
-   </div>
-   
+        <div class="chart chart-pie">
+          <div class="chart-title">Cotisations des adhérents</div>
+          <canvas id="adherentCotisationChart"></canvas>
+        </div>
+      </div>
+      <div class="chart-row">
+        <div class="chart chart-doughnut">
+          <div class="chart-title">Raisons de transactions</div>
+          <canvas id="reasonChart"></canvas>
+        </div>
+        <div class="chart chart-radar">
+          <div class="chart-title">Structures par revenu généré </div>
+          <canvas id="incomeChart"></canvas>
+        </div>
+      </div>
+      <div class="chart-row">
+        <div class="chart chart-line">
+          <div class="chart-title">Crédits et Débits de l'organisation</div>
+          <canvas id="lineChart"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+
+
+
+
+
+
+
+
 
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -321,9 +372,9 @@
         labels: structureLabels,
         datasets: [
           {
-            label: 'Income',
+            label: 'Revenu',
             data: structureData,
-            backgroundColor: 'rgba(75, 192, 192, 0.2)',
+            backgroundColor: '#73B43D',
             borderColor: 'rgba(75, 192, 192, 1)',
             borderWidth: 1,
           },
@@ -389,5 +440,5 @@
 </script>
 
 
-
 {% endblock %}
+

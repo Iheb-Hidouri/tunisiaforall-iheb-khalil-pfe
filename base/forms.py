@@ -7,6 +7,8 @@ from PIL import Image
 from .models import BanqueTransactions, CaisseTransactions
 from django.forms import ClearableFileInput
 from django.forms.widgets import SelectDateWidget
+from datetime import date
+from django.utils.translation import gettext_lazy as _
 
 
 
@@ -18,9 +20,10 @@ class AdherentForm(ModelForm):
     
     class Meta:
         model = Adherent
-        exclude = ['code','user', 'cotisation_annuelle','date_depart','motif_depart'] # exclude the 'code' field from the form
+        exclude = ['code','user', 'cotisation_annuelle','date_depart','motif_depart','dernière_date_de_payement'] # exclude the 'code' field from the form
         widgets = {
-            'date_de_naissance': forms.DateInput(attrs={'type': 'date'}),
+            'date_de_naissance': forms.DateInput({'type': 'date', 'lang': 'fr', 'format': '%d/%m/%Y'}),
+            'date_émission_de_la_carte': forms.DateInput({'type': 'date', 'lang': 'fr', 'format': '%d/%m/%Y'}),
             'date_adhésion': forms.widgets.HiddenInput(),
             'photo_de_profile': ClearableFileInput()
             
@@ -39,14 +42,17 @@ class AdherentForm(ModelForm):
             
     def clean(self):
         cleaned_data = super().clean()
-       
-
         password = cleaned_data.get('mot_de_passe')
         confirm_password = cleaned_data.get('confirmer_le_mot_de_passe')
 
         if password != confirm_password:
             raise forms.ValidationError("The two password fields do not match.")
-        
+
+        date_de_naissance = cleaned_data.get('date_de_naissance')
+        max_date = date(date.today().year - 18, 12, 31)  # Calculate the maximum allowed date (18 years ago)
+        if date_de_naissance and date_de_naissance > max_date:
+            self.add_error('date_de_naissance', "Date de naissance must be on or before 2005.")
+
         return cleaned_data
     
     def save(self, commit=True):
@@ -83,9 +89,9 @@ class AdherentForm(ModelForm):
 class UpdateAdherentForm(ModelForm):
      class Meta:
         model = Adherent
-        exclude = ['code', 'user','cotisation_annuelle','date_depart','motif_depart']
+        exclude = ['code', 'user','cotisation_annuelle','date_depart','motif_depart','dernière_date_de_payement']
         widgets = {
-            'date_de_naissance': forms.DateInput(attrs={'type': 'date'}),
+            'date_de_naissance': forms.DateInput(attrs={'type': 'date', 'lang': 'fr'}),
             'date_adhésion': forms.widgets.HiddenInput(),
             
         }
@@ -97,10 +103,17 @@ class UpdateAdherentForm(ModelForm):
         self.fields['profession'].required = True
         self.fields['numéro_de_téléphone'].required = True
         self.fields['adresse_email'].required = True
+
+     def clean_date_de_naissance(self):
+        date_de_naissance = self.cleaned_data['date_de_naissance']
+        max_date = date(date.today().year - 18, 12, 31)  # Calculate the maximum allowed date (18 years ago)
+        if date_de_naissance > max_date:
+            raise forms.ValidationError("Date de naissance must be on or before 2005.")
+        return date_de_naissance   
     
      def save(self, commit=True):
         instance = super().save(commit=False)
-        instance.date_adhésion = timezone.now()
+        
         if commit:
             instance.save()
         return instance
@@ -113,18 +126,18 @@ class StructureForm(ModelForm):
         model= Structure
         fields= [
             'type',
-            'libellé',
-            'rue',
             'gouvernorat',
             'délégation',
+            'adresse',
+            'code_postal',
             'numéro_de_téléphone',
             'adresse_email',
             'date_de_création',
-            'date_ag'
+            'date_AG'
         ] 
         widgets = {
             'date_de_création': forms.DateInput(attrs={'type': 'date'}),
-            'date_ag': forms.DateInput(attrs={'type': 'date'}),
+            'date_AG': forms.DateInput(attrs={'type': 'date'}),
         }  # include these fields in the form for the Structure model
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -134,12 +147,14 @@ class StructureForm(ModelForm):
        
         instance = super().save(commit=False)
         
-        if not instance.code_structure:
+        
             
-            code_structure = f"{instance.type}-{instance.gouvernorat.code}{instance.délégation.code}"
-            code_postal=f"{instance.gouvernorat.code}{instance.délégation.code}" # construct a new 'code_structure' value based on the 'type', 'governat', and 'delegation' fields
-            instance.code_structure = code_structure
-            instance.code_postal = code_postal # set the 'code_structure' field for the new Structure object to the generated value
+        code_structure = f"{instance.type}-{instance.gouvernorat.code}{instance.délégation.code}"
+             # construct a new 'code_structure' value based on the 'type', 'governat', and 'delegation' fields
+        instance.code_structure = code_structure
+        libellé=f"{instance.type}-{instance.délégation.name}"
+        instance.libellé= libellé
+            # set the 'code_structure' field for the new Structure object to the generated value
         if commit:
             instance.save() # save the new Structure object to the database
         return instance  
@@ -149,25 +164,53 @@ class StructureForm(ModelForm):
 class BanqueTransactionsForm(forms.ModelForm):
     class Meta:
         model = BanqueTransactions
-        fields = '__all__'
+        exclude = ['libellé']
         widgets = {
             'date': forms.DateInput(attrs={'type': 'date'}),
         }
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         
-        self.fields['structure'].required = True    
+        self.fields['structure'].required = True   
+    def save(self, commit=True):
+        instance = super().save(commit=False)
+        libelle = f"{instance.structure}-{instance.raison_de_transaction}"
+        
+        if instance.adhérent:
+            libelle += f"-{instance.adhérent}"
+        elif instance.évènement:
+            libelle += f"-{instance.évènement}"
+        
+        instance.libellé = libelle
+        if commit:
+            instance.save()
+        return instance     
 
 class CaisseTransactionsForm(forms.ModelForm):
     class Meta:
         model = CaisseTransactions
-        fields = '__all__'
+        exclude = ['libellé']
         widgets = {
             'date': forms.DateInput(attrs={'type': 'date'}),
         }  
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields['structure'].required = True       
+        self.fields['structure'].required = True  
+    def save(self, commit=True):
+        instance = super().save(commit=False)
+        libelle = f"{instance.structure}-{instance.raison_de_transaction}"
+        
+        if instance.adhérent:
+            libelle += f"-{instance.adhérent}"
+        elif instance.évènement:
+            libelle += f"-{instance.évènement}"
+        
+        instance.libellé = libelle
+        if commit:
+            instance.save()
+        return instance
+      
+           
 
 class CotisationPaymentForm(forms.ModelForm):
     class Meta:

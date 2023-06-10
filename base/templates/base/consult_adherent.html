@@ -71,13 +71,18 @@
                 <p><strong>Responsabilité:</strong> {{ adherent.responsabilité_adhérent}}</p>
             </div>
             <div class="info-box">
-                <p>
-                    {% if adherent.cotisation_annuelle == 'payée' %}
-                     <strong>Cotisation annuelle :</strong> <span style="color: rgb(64, 162, 64);">payée</span>
-                    {% elif adherent.cotisation_annuelle == 'non payée' %}
-                     <strong>Cotisation annuelle :</strong> <span style="color: rgb(167, 40, 40);">non payée</span>
-                    {% endif %}
-                </p>
+                {% if adherent.cotisation_annuelle == 'payée' %}
+                <div style="margin-bottom: 5px;">
+                    <strong>Cotisation annuelle :</strong> <span style="color: rgb(64, 162, 64);">payée</span>
+                </div>
+                {% elif adherent.cotisation_annuelle == 'non payée' %}
+                <div style="margin-bottom: 5px;">
+                    <strong>Cotisation annuelle :</strong> <span style="color: rgb(167, 40, 40);">non payée</span>
+                </div>
+                {% endif %}
+                <div>
+                    <strong>Dernière date de payement:</strong> <span>{{ adherent.dernière_date_de_payement|date:"d-m-Y"}}</span>
+                </div>
             </div>
         </div>
         <div class="row">

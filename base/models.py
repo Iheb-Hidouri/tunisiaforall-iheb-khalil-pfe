@@ -8,8 +8,11 @@ import os
 import uuid
 from django.db.models.signals import pre_save
 from django.dispatch import receiver
+from django.core.exceptions import ValidationError
 
-
+def validate_fixed_length(value):
+    if len(value) != 8:
+        raise ValidationError('Le numéro de la carte d\'identité doit être 8 charactères.')
 
 class Governat(models.Model):
     name = models.CharField(max_length=50)
@@ -38,14 +41,14 @@ class Structure(models.Model):
     code_structure = models.CharField(max_length=6)
     type = models.CharField(max_length=15, choices=TYPE_CHOICES)
     libellé = models.CharField(max_length=20)
-    rue = models.CharField(max_length=20)
+    adresse = models.CharField(max_length=20)
     gouvernorat = models.ForeignKey(Governat, on_delete=models.CASCADE , related_name='structures')
     délégation = models.ForeignKey(Delegation, on_delete=models.CASCADE , related_name='structures')
     code_postal = models.CharField(max_length=4)
     numéro_de_téléphone = models.CharField(max_length=20)
     adresse_email = models.EmailField()
     date_de_création = models.DateField()
-    date_ag = models.DateField()
+    date_AG = models.DateField()
     exclude_fields = ['date_creation', 'date_ag']
 
     @receiver(pre_save, sender='base.Structure')
@@ -74,7 +77,7 @@ class Structure(models.Model):
 class Adherent(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE , related_name='adherent')
     code = models.CharField(max_length=8)
-    photo_de_profile= models.ImageField(upload_to='img/',null=True, blank=True,default='img/default_profile_pic.jpg')
+    photo_de_profile= models.ImageField(upload_to='img/',null=True, blank=True,default='img/navbar_logo.png')
     structure = models.ForeignKey(Structure, on_delete=models.CASCADE , related_name='adherents', default = 1)
    
     TYPE_ADHERENT_CHOICES = (
@@ -99,8 +102,8 @@ class Adherent(models.Model):
     )
     responsabilité_adhérent= models.CharField(max_length=27, choices=RESPONSABILTE_ADHERENT_CHOICES, null=True, blank=True)
     GENRE_CHOICES = (
-        ('M', 'M.'),
-        ('F', 'Mme.'),
+        ('M', 'M'),
+        ('F', 'F'),
     )
     genre = models.CharField(max_length=1, choices=GENRE_CHOICES)
     nom = models.CharField(max_length=50)
@@ -111,7 +114,8 @@ class Adherent(models.Model):
     )
     type_document_identité = models.CharField(max_length=3, choices=DOCUMENT_IDENTITE_CHOICES,null=True)
 
-    numero_document_identité = models.CharField(max_length=8)
+    numero_document_identité = models.CharField(max_length=8, validators=[validate_fixed_length])
+    date_émission_de_la_carte = models.DateField(null=True, blank=True)
     
     
     nationalité = models.CharField(max_length=50)
@@ -133,6 +137,7 @@ class Adherent(models.Model):
     date_depart = models.DateField(null=True, blank=True)
     motif_depart = models.CharField(max_length=50, null=True, blank=True)
     cotisation_annuelle = models.CharField(max_length=50, default='non payée')
+    dernière_date_de_payement = models.DateField(null=True, blank=True)
     exclude_fields = ['date_adhesion', 'date_naissance']
 
     @receiver(pre_save, sender='base.Adherent')
