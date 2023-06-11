@@ -38,20 +38,25 @@ class AdherentForm(ModelForm):
         self.fields['profession'].required = True
         self.fields['numéro_de_téléphone'].required = True
         self.fields['adresse_email'].required = True
+        self.fields['date_émission_de_la_carte'].required = True
         
             
     def clean(self):
         cleaned_data = super().clean()
+        pseudo = cleaned_data.get('pseudo')
+
+        if User.objects.filter(username=pseudo).exists():
+            self.add_error('pseudo', "Ce pseudo est déjà utilisé.")
         password = cleaned_data.get('mot_de_passe')
         confirm_password = cleaned_data.get('confirmer_le_mot_de_passe')
 
         if password != confirm_password:
-            raise forms.ValidationError("The two password fields do not match.")
+            raise forms.ValidationError("Les deux champs de mot de passe ne correspondent pas.")
 
         date_de_naissance = cleaned_data.get('date_de_naissance')
         max_date = date(date.today().year - 18, 12, 31)  # Calculate the maximum allowed date (18 years ago)
         if date_de_naissance and date_de_naissance > max_date:
-            self.add_error('date_de_naissance', "Date de naissance must be on or before 2005.")
+            self.add_error('date_de_naissance', "l'âge minimum d'un adhérent est 18 ans .")
 
         return cleaned_data
     
@@ -92,6 +97,7 @@ class UpdateAdherentForm(ModelForm):
         exclude = ['code', 'user','cotisation_annuelle','date_depart','motif_depart','dernière_date_de_payement']
         widgets = {
             'date_de_naissance': forms.DateInput(attrs={'type': 'date', 'lang': 'fr'}),
+            'date_émission_de_la_carte': forms.DateInput({'type': 'date', 'lang': 'fr', 'format': '%d/%m/%Y'}),
             'date_adhésion': forms.widgets.HiddenInput(),
             
         }

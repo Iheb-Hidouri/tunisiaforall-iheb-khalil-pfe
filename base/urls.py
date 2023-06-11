@@ -38,6 +38,11 @@ urlpatterns = [
    path('liste_adherent/' , views.liste_adherent , name="liste_adherent"),
    path('liste_structure/' , views.liste_structure , name="liste_structure"),
    path('dashboard/' , views.financial_dashboard , name="dashboard"),
+   path('export-adherents-csv/', views.export_adherents_csv, name='export-adherents-csv'),
+   path('export-structures-csv/', views.export_structures_csv, name='export-structures-csv'),
+   path('export-banque-transactions-csv/', views.export_banque_transactions_csv, name='export-banque-transactions-csv'),
+   path('export-caisse-transactions-csv/', views.export_caisse_transactions_csv, name='export-caisse-transactions-csv'),
+   
    
    
   

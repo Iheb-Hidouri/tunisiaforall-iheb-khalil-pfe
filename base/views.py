@@ -18,6 +18,10 @@ from .models import BanqueTransactions, CaisseTransactions
 from django.shortcuts import render
 from django.db.models import Count
 from datetime import datetime
+import csv
+from django.http import HttpResponse
+from django.db.models import Q
+
 def loginPage(request):
     if request.method == "POST":
         username = request.POST.get('username')
@@ -43,13 +47,85 @@ def home (request) :
 #VIEWS FOR ADHERENTS
 def gestion_adherent(request):
     # Get the search query from the GET request parameters
-    if request.user.adherent.structure.code_structure == 'BN-1169' :
-       adherents = Adherent.objects.all()
-    else:   # If no search query is present, display all adherents
-       adherents = Adherent.objects.filter(structure=request.user.adherent.structure)
+    search_query = request.GET.get('search', '')
+
+    # Retrieve adherents based on the user's structure
+    if request.user.adherent.structure.code_structure == 'BN-1169':
+        adherents = Adherent.objects.all()
+    else:
+        adherents = Adherent.objects.filter(structure=request.user.adherent.structure)
+
+    # Perform search if a query is present
+    if search_query:
+        adherents = adherents.filter(
+            Q(nom__icontains=search_query) |
+            Q(prénom__icontains=search_query) |
+            Q(adresse_email__icontains=search_query) |
+            Q(type_adhérent__icontains=search_query) |
+            Q(responsabilité_adhérent__icontains=search_query) |
+            Q(numéro_de_téléphone__icontains=search_query)
+        )
+
     # Create a dictionary with the adherents queryset and pass it to the template
     context = {'adherents': adherents}
     return render(request, 'base/gestion_adherent.html', context)
+
+def export_adherents_csv(request):
+    search_query = request.GET.get('search', '')
+
+    # Retrieve adherents based on the user's structure
+    if request.user.adherent.structure.code_structure == 'BN-1169':
+        adherents = Adherent.objects.all()
+    else:
+        adherents = Adherent.objects.filter(structure=request.user.adherent.structure)
+
+    # Perform search if a query is present
+    if search_query:
+        adherents = adherents.filter(
+            Q(nom__icontains=search_query) |
+            Q(prénom__icontains=search_query) |
+            Q(adresse_email__icontains=search_query) |
+            Q(type_adhérent__icontains=search_query) |
+            Q(responsabilité_adhérent__icontains=search_query) |
+            Q(numéro_de_téléphone__icontains=search_query)
+        )
+
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = 'attachment; filename="adherents.csv"'
+
+    writer = csv.writer(response, delimiter=',', encoding='utf-8-sig')
+    writer.writerow(['Code', 'Nom', 'Prénom', 'Genre', 'Email', 'Téléphone', 'Document d\'identité', 'Type', 'Responsabilité Adhérent', 'Date de Naissance', 'Lieu de Naissance', 'Profession', 'Nationalité', 'Date d\'adhésion', 'Date de départ', 'Motif de départ', 'Cotisation annuelle', 'Dernière date de paiement', 'Commission'])
+
+    # Get the list of adherent IDs from the request session (set in the gestion_adherent view)
+    adherent_ids = request.session.get('adherent_ids', [])
+
+    # Filter adherents based on the IDs stored in the session
+    adherents = adherents.filter(id__in=adherent_ids)
+
+    for adherent in adherents:
+        writer.writerow([
+            adherent.code,
+            adherent.nom,
+            adherent.prénom,
+            adherent.genre,
+            adherent.adresse_email,
+            adherent.numéro_de_téléphone,
+            f"{adherent.type_document_identité}: {adherent.numero_document_identité}",
+            adherent.type_adhérent,
+            adherent.responsabilité_adhérent,
+            adherent.date_de_naissance,
+            adherent.lieu_de_naissance,
+            adherent.profession,
+            adherent.nationalité,
+            adherent.date_adhésion,
+            adherent.date_depart,
+            adherent.motif_depart,
+            adherent.cotisation_annuelle,
+            adherent.dernière_date_de_payement,
+            adherent.commissions
+        ])
+
+    return response
 def liste_adherent(request):
     # Get the search query from the GET request parameters
     
@@ -58,6 +134,60 @@ def liste_adherent(request):
     # Create a dictionary with the adherents queryset and pass it to the template
     context = {'adherents': adherents}
     return render(request, 'base/liste_adherent.html', context)
+def export_adherents_csv(request):
+    search_query = request.GET.get('search', '')
+
+    if request.user.adherent.structure.code_structure == 'BN-1169':
+        adherents = Adherent.objects.all()
+    else:
+        adherents = Adherent.objects.filter(structure=request.user.adherent.structure)
+
+    if search_query:
+        adherents = adherents.filter(
+            Q(code__icontains=search_query) |
+            Q(nom__icontains=search_query) |
+            Q(prénom__icontains=search_query) |
+            Q(genre__icontains=search_query) |
+            Q(adresse_email__icontains=search_query) |
+            Q(numéro_de_téléphone__icontains=search_query) |
+            Q(type_document_identité__icontains=search_query) |
+            Q(numero_document_identité__icontains=search_query) |
+            Q(type_adhérent__icontains=search_query)
+        )
+
+    # Define the response object with appropriate headers for a CSV file
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = 'attachment; filename="adherents.csv"'
+
+    # Create a CSV writer and write the header row
+    writer = csv.writer(response)
+    writer.writerow(['Code', 'Nom', 'Prénom', 'Genre', 'Email', 'Téléphone', 'Document d\'identité', 'Type', 'Responsabilité', 'Nationalité', 'Date de naissance', 'Lieu de naissance', 'Profession', 'Commissions', 'Date adhésion', 'Date départ', 'Motif départ', 'Cotisation annuelle', 'Dernière date de paiement'])
+
+    # Write the data rows for each adherent
+    for adherent in adherents:
+        writer.writerow([
+            adherent.code,
+            adherent.nom,
+            adherent.prénom,
+            adherent.genre,
+            adherent.adresse_email,
+            adherent.numéro_de_téléphone,
+            f"{adherent.type_document_identité}: {adherent.numero_document_identité}",
+            adherent.type_adhérent,
+            adherent.responsabilité_adhérent,
+            adherent.nationalité,
+            adherent.date_de_naissance,
+            adherent.lieu_de_naissance,
+            adherent.profession,
+            adherent.commissions,
+            adherent.date_adhésion,
+            adherent.date_depart,
+            adherent.motif_depart,
+            adherent.cotisation_annuelle,
+            adherent.dernière_date_de_payement
+        ])
+
+    return response
 
 # This view displays a form for creating a new adherent
 def create_adherent(request):
@@ -137,9 +267,61 @@ def consult_adherent(request, pk):
 # This view displays a list of adherents and allows searching for specific adherents.
 def gestion_structure (request) :
       # if there is no search query
-    structures = Structure.objects.all()  # retrieve all structures
-    context = {'structures': structures}  # create a dictionary to store the structures and pass it to the view
+    search_query = request.GET.get('q', '')  # Get the search query from the GET request parameters
+
+    structures = Structure.objects.all()  # Retrieve all structures
+
+    # Perform search if a query is present
+    if search_query:
+        structures = structures.filter(
+            Q(code_structure__icontains=search_query) |
+            Q(type__icontains=search_query) |
+            Q(libellé__icontains=search_query) |
+            Q(numéro_de_téléphone__icontains=search_query) |
+            Q(adresse_email__icontains=search_query) |
+            Q(date_de_création__icontains=search_query) |
+            Q(date_AG__icontains=search_query)
+        )
+
+    context = {'structures': structures} 
     return render (request , 'base/gestion_structure.html', context)
+def export_structures_csv(request):
+    search_query = request.GET.get('search', '')
+
+    structures = Structure.objects.all()
+
+    if search_query:
+        structures = structures.filter(
+            Q(code_structure__icontains=search_query) |
+            Q(type__icontains=search_query) |
+            Q(libellé__icontains=search_query) |
+            Q(numéro_de_téléphone__icontains=search_query) |
+            Q(adresse_email__icontains=search_query) |
+            Q(date_de_création__icontains=search_query) |
+            Q(date_AG__icontains=search_query)
+        )
+
+    # Define the response object with appropriate headers for a CSV file
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = 'attachment; filename="structures.csv"'
+
+    # Create a CSV writer and write the header row
+    writer = csv.writer(response)
+    writer.writerow(['Code Structure', 'Type', 'Libellé', 'Numéro de téléphone', 'Adresse email', 'Date de création', 'Date AG'])
+
+    # Write the data rows for each structure
+    for structure in structures:
+        writer.writerow([
+            structure.code_structure,
+            structure.type,
+            structure.libellé,
+            structure.numéro_de_téléphone,
+            structure.adresse_email,
+            structure.date_de_création,
+            structure.date_AG
+        ])
+
+    return response
 def liste_structure (request) :
 
      # if there is no search query
@@ -218,6 +400,80 @@ def gestion_financiere(request):
     # Create a dictionary with the adherents queryset and pass it to the template
     
     return render(request, 'base/gestion_financiere.html', context)
+def export_banque_transactions_csv(request):
+    search_query = request.GET.get('search', '')
+
+    banque_transactions = BanqueTransactions.objects.all()
+
+    if search_query:
+        banque_transactions = banque_transactions.filter(
+            Q(entreprise__icontains=search_query) |
+            Q(libellé__icontains=search_query) |
+            Q(banque__icontains=search_query) |
+            Q(numéro_du_chèque__icontains=search_query)
+        )
+
+    # Define the response object with appropriate headers for a CSV file
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = 'attachment; filename="banque_transactions.csv"'
+
+    # Create a CSV writer and write the header row
+    writer = csv.writer(response)
+    writer.writerow(['Structure', 'Évènement', 'Adhérent', 'Date', 'Entreprise', 'Libellé', 'Solde', 'Type de transaction', 'Raison de transaction', 'Banque', 'Numéro du chèque'])
+
+    # Write the data rows for each BanqueTransaction
+    for transaction in banque_transactions:
+        writer.writerow([
+            transaction.structure,
+            transaction.évènement,
+            transaction.adhérent,
+            transaction.date,
+            transaction.entreprise,
+            transaction.libellé,
+            transaction.solde,
+            transaction.type_de_transaction,
+            transaction.raison_de_transaction,
+            transaction.banque,
+            transaction.numéro_du_chèque
+        ])
+
+    return response
+def export_caisse_transactions_csv(request):
+    search_query = request.GET.get('search', '')
+
+    caisse_transactions = CaisseTransactions.objects.all()
+
+    if search_query:
+        caisse_transactions = caisse_transactions.filter(
+            Q(entreprise__icontains=search_query) |
+            Q(libellé__icontains=search_query) |
+            Q(recu_numéro__icontains=search_query)
+        )
+
+    # Define the response object with appropriate headers for a CSV file
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = 'attachment; filename="caisse_transactions.csv"'
+
+    # Create a CSV writer and write the header row
+    writer = csv.writer(response)
+    writer.writerow(['Structure', 'Évènement', 'Adhérent', 'Date', 'Entreprise', 'Libellé', 'Solde', 'Type de transaction', 'Raison de transaction', 'Numéro du reçu'])
+
+    # Write the data rows for each CaisseTransaction
+    for transaction in caisse_transactions:
+        writer.writerow([
+            transaction.structure,
+            transaction.évènement,
+            transaction.adhérent,
+            transaction.date,
+            transaction.entreprise,
+            transaction.libellé,
+            transaction.solde,
+            transaction.type_de_transaction,
+            transaction.raison_de_transaction,
+            transaction.recu_numéro
+        ])
+
+    return response
 
 def create_banque_transaction(request):
     if request.method == 'POST':

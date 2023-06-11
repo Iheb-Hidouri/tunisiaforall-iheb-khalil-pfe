@@ -11,6 +11,8 @@
 <div class="features">
   <button class="adherent-button"><a href="{% url 'create-adherent'  %}">Ajouter Adhérent</a></button>
   <button class="adherent-button"><a href="{% url 'adherent_history' %}">Historique</a></button>
+  <button id="export-button" class="adherent-button"><a href="{% url 'export-adherents-csv' %}">Exporter en CSV</a></button>
+  
 </div>
 
 <div class="page-content">
@@ -95,21 +97,10 @@
       cell.style.display = ''; // Restore the display of the action cells
     });
   }
-document.getElementById('search-form').addEventListener('submit', function(e) {
-    e.preventDefault();
-    const searchInput = document.getElementById('search-input').value;
-    const tableRows = document.querySelectorAll('.adherent-table tbody tr');
 
-    for (let i = 0; i < tableRows.length; i++) {
-      const row = tableRows[i];
-      const rowData = row.textContent.toLowerCase();
-
-      if (rowData.includes(searchInput.toLowerCase())) {
-        row.style.display = '';
-      } else {
-        row.style.display = 'none';
-      }
-    }
-  });
+  
 </script>
+
+
+
 {% endblock %}

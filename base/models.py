@@ -9,10 +9,13 @@ import uuid
 from django.db.models.signals import pre_save
 from django.dispatch import receiver
 from django.core.exceptions import ValidationError
+from django.core.validators import MinValueValidator, MaxValueValidator, RegexValidator
 
-def validate_fixed_length(value):
-    if len(value) != 8:
-        raise ValidationError('Le numéro de la carte d\'identité doit être 8 charactères.')
+
+
+def validate_eight_digits(value):
+    if not str(value).isdigit() or len(str(value)) != 8:
+        raise ValidationError('Le numéro de la carte d\'identité doit être 8 chiffres.')    
 
 class Governat(models.Model):
     name = models.CharField(max_length=50)
@@ -114,7 +117,11 @@ class Adherent(models.Model):
     )
     type_document_identité = models.CharField(max_length=3, choices=DOCUMENT_IDENTITE_CHOICES,null=True)
 
-    numero_document_identité = models.CharField(max_length=8, validators=[validate_fixed_length])
+    numero_document_identité = models.IntegerField(validators=[
+        MinValueValidator(0),
+        MaxValueValidator(99999999),
+        validate_eight_digits
+    ])
     date_émission_de_la_carte = models.DateField(null=True, blank=True)
     
     

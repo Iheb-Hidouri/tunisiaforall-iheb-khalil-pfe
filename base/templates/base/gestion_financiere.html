@@ -16,6 +16,8 @@
     <div class = "features">
         <button class="finance-button"><a href="{% url 'create-banque-transaction' %}">Ajouter Transaction Banque</a></button>
         <button class="finance-button"><a href="{% url 'create-caisse-transaction' %}">Ajouter Transaction Caisse</a></button>
+        <button id="export-button" class="finance-button"><a href="{% url 'export-banque-transactions-csv' %}">Exporter Banque Transactions en CSV</a></button>
+        <button id="export-button" class="finance-button"><a href="{% url 'export-caisse-transactions-csv' %}">Exporter Caisse Transactions en CSV</a></button>
     </div>
 
     <div class="page-content">
