@@ -34,43 +34,13 @@ margin-bottom: 20px;
 
 .hrfinance
 {
-  border-top: 3px solid #D61820;
+  border-top: 3px solid #b9030c;
 }
 
 .hrneutral
 {
   border-top: 3px solid #b3b3b3;
 }
-
-
-.intro {
-  margin: 30px auto;
-  max-width: 800px;
-  padding: 0 30px;
-  text-align: justify;
-  line-height: 1.5;
-}
-
-.intro span {
-  display: block;
-  font-size: 1.2em;
-  font-weight: bold;
-  margin-bottom: 20px;
-}
-
-.intro p {
-  font-size: 1em;
-  margin-bottom: 20px;
-}
-
-.intro ul {
-  list-style: disc;
-  margin-left: 30px;
-}
-
-.intro ul li {
-  margin-bottom: 10px;
-}  
 
 header {
   display: flex;
@@ -95,11 +65,10 @@ header {
   margin-right: 680px;
 }
 
-
-
 nav {
   display: flex;
   align-items: center;
+  
 }
 
 li {
@@ -136,7 +105,7 @@ li {
 }
 
 .profile button {
-  background-color: #73B43D;
+  background-color: #36A2EB;
   color: #fff;
   border: none;
   border-radius: 50px;
@@ -148,7 +117,7 @@ li {
 }
 
 .profile button:hover {
-  background-color: #54A642;
+  background-color: #36A2EB;
 }
   
 nav ul li
@@ -170,7 +139,7 @@ color: #fff;
 border: none;
 border-radius: 50px;
 padding: 8px 20px;
-font-size: 14px;
+font-size: 13.5px;
 cursor: pointer;
 transition: background-color 0.2s ease;
 letter-spacing: 1px;
@@ -179,6 +148,16 @@ margin-top:5px;
 margin-bottom: 5px;
 }
 
+#dashboard-section{
+  justify-content: flex-end;
+  margin-right:70px;
+  margin-top:-20px;
+}   
+
+#dashboard-button{
+  padding: 7px 40px;
+  font-size:16px
+}
 .adherent-button {
   background-color: #73B43D;
 }
@@ -197,11 +176,11 @@ margin-bottom: 5px;
 }
 
 .finance-button {
-  background-color: #D61820;
+  background-color: #b9030c;
 }
 
 .finance-button:hover {
-  background-color: #AD161B;
+  background-color: #9b020a;
 }
 
 .search-container {
@@ -291,7 +270,7 @@ border-radius : 0 8px 0 0;
 .adherent-history th, .adherent-history td{
 text-align: center;
 padding: 8px;
-font-size: 13px;
+font-size: 12px;
 }
 
 .adherent-table th, .adherent-history th {
@@ -306,7 +285,7 @@ font-size: 13px;
 }
 
 .finance-table th {
-background-color: #d61820;
+background-color: #b9030c;
 color: #fff;
 }
 
