@@ -8,8 +8,9 @@ body {
 
 h2 {
   text-align: center;
-  font-size: 32px;
-  margin-top: 50px;
+  font-size: 25px;
+  margin-top: 25px;
+  margin-bottom: 25px;
 }
 
 button a {
@@ -18,7 +19,7 @@ button a {
 
 hr {
 border: none;
-margin-bottom: 50px;
+margin-bottom: 20px;
 }
 
 .hradherent
@@ -77,7 +78,7 @@ header {
   align-items: center;
   border-radius: 30px;
   background-color: #fff;
-  height: 80px;
+  height: 70px;
   padding: 6px 45px;
   box-shadow: 0px 2px 10px rgba(0, 0, 0, 0.1);
 }
@@ -86,6 +87,15 @@ header {
   height: 60px;
   margin-left:30px;
 }
+
+.inpage-logo {
+  display: block;
+  margin: 0 auto;
+  width: 150px; 
+  margin-right: 680px;
+}
+
+
 
 nav {
   display: flex;
@@ -99,7 +109,7 @@ li {
 .liens a {
     text-decoration: none;
     color: #000;
-    font-size: 14px;
+    font-size: 13px;
     padding: 10px 17px;
     border-radius: 50px;
     transition: background-color 0.2s ease;
@@ -151,7 +161,7 @@ nav ul li
 .features {
 display: flex;
 justify-content: center;
-margin-bottom: 30px;
+margin-bottom: 20px;
 }
 
 .features button {
@@ -159,12 +169,14 @@ margin-bottom: 30px;
 color: #fff;
 border: none;
 border-radius: 50px;
-padding: 10px 30px;
-font-size: 18px;
+padding: 8px 20px;
+font-size: 14px;
 cursor: pointer;
 transition: background-color 0.2s ease;
 letter-spacing: 1px;
 margin-right: 20px;
+margin-top:5px;
+margin-bottom: 5px;
 }
 
 .adherent-button {
@@ -195,23 +207,11 @@ margin-right: 20px;
 .search-container {
   display: flex;
   justify-content: center;
-  width: 60%;
+  width: 55%;
   margin: 0 auto;
-  margin-top: 20px;
-}
 
-.textbox {
-  flex: 1;
-  padding: 10px;
-  border: none;
-  border-radius: 5px;
-  font-size: 16px;
-  background-color: #fff;
-  color: #444;
-  box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.1);
-  margin-bottom: 20px;
+  
 }
-
 
 .features button[type="submit"] img, .search-container button[type="submit"] img {
 height: 21px;
@@ -247,6 +247,7 @@ margin-right:auto;
 margin-left:auto;
 margin-right:auto;
 width: 97%;
+margin-top:5px;
 }
 
 .features a, .structure-table a, .adherent-table a, .finance-table a {
@@ -257,8 +258,8 @@ width: 97%;
   color: #fff;
   border: none;
   border-radius: 50px;
-  padding: 5px 20px;
-  font-size: 13px;
+  padding: 5px 15px;
+  font-size: 11px;
   cursor: pointer;
   transition: background-color 0.2s ease;
   letter-spacing: 1px;
@@ -290,6 +291,7 @@ border-radius : 0 8px 0 0;
 .adherent-history th, .adherent-history td{
 text-align: center;
 padding: 8px;
+font-size: 13px;
 }
 
 .adherent-table th, .adherent-history th {
@@ -317,6 +319,44 @@ background-color: #f2f2f2;
 .structure-history tr:hover, .adherent-history tr:hover {
 background-color: #ddd;
 }
+
+  #pagination-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 10px;
+  }
+
+  .page-number-display {
+    text-align: center;
+    background-color: #f2f2f2;
+    padding: 5px 15px;
+    border: 1px solid black;
+    border-radius: 5px;
+    margin: 10px auto 0;
+    width: fit-content;
+    font-size:12px;
+  }
+
+  #prev-button,
+  #next-button
+ {
+    margin: 0 5px;
+    padding: 5px 10px;
+    border: none;
+    cursor: pointer;
+  }
+
+  .page-number{
+    background-color: #ebebebcc;
+    color:#000 !important;
+  }
+
+
+  .current-page {
+    font-weight: bold;
+  }
+
 
 .adherent-form,
 .structure-form,
@@ -429,14 +469,14 @@ form label[for="femme"] {
 /* Login */
 
 .login {
-  margin-top: 40px;
-  padding-bottom:40px;
-  padding: 20px;
+  margin-top: 10px;
+  padding-bottom:30px;
+  padding: 10px;
 }
 .login form {
   background-color: #fcfcfc;
   color: #444;
-  padding: 50px;
+  padding: 30px;
   border-radius: 15px;
   max-width: 600px;
   margin: 30px auto;
@@ -448,8 +488,8 @@ form label[for="femme"] {
   color: #fff;
   border: none;
   border-radius: 50px;
-  padding: 10px 30px;
-  font-size: 18px;
+  padding: 8px 25px;
+  font-size: 16px;
   cursor: pointer;
   transition: background-color 0.2s ease;
   letter-spacing: 1px;
@@ -462,7 +502,8 @@ form label[for="femme"] {
 .login form input[type="text"],
 .login form input[type="password"] {
   width: 100%;
-  padding: 10px;
+  padding: 8px;
+  
   margin-bottom: 20px;
   border: 1px solid #ccc;
   border-radius: 10px;
@@ -638,4 +679,82 @@ form label[for="femme"] {
   max-width: 90%;
   max-height: 90%;
 }
+.buttonDownload {
+  display: inline-block;
+  position: relative;
+  padding: 10px 25px;
+  background-color: #4CC713;
+  color: white;
+  font-family: sans-serif;
+  text-decoration: none;
+  font-size: 0.9em;
+  text-align: center;
+  text-indent: 15px;
+  border: none;
+ }
+ 
+ .buttonDownload:hover {
+  background-color: #45a21a;
+  color: white;
+ }
+ 
+ .buttonDownload:before, .buttonDownload:after {
+  content: ' ';
+  display: block;
+  position: absolute;
+  left: 15px;
+  top: 52%;
+ }
+ 
+ .buttonDownload:before {
+  width: 10px;
+  height: 2px;
+  border-style: solid;
+  border-width: 0 2px 2px;
+ }
+ 
+ .buttonDownload:after {
+  width: 0;
+  height: 0;
+  margin-left: 3px;
+  margin-top: -7px;
+  border-style: solid;
+  border-width: 4px 4px 0 4px;
+  border-color: transparent;
+  border-top-color: inherit;
+  animation: downloadArrow 1s linear infinite;
+  animation-play-state: paused;
+ }
+ 
+ .buttonDownload:hover:before {
+  border-color: #cdefbd;
+ }
+ 
+ .buttonDownload:hover:after {
+  border-top-color: #cdefbd;
+  animation-play-state: running;
+ }
+ 
+ @keyframes downloadArrow {
+  0% {
+   margin-top: -7px;
+   opacity: 1;
+  }
+ 
+  0.001% {
+   margin-top: -15px;
+   opacity: 0.4;
+  }
+ 
+  50% {
+   opacity: 1;
+  }
+ 
+  100% {
+   margin-top: 0;
+   opacity: 0.4;
+  }
+ }
+
+
 

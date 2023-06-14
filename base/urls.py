@@ -8,7 +8,7 @@ from .views import adherent_history
 
 
 urlpatterns = [
-   path('login/' , views.loginPage , name="login") ,
+   
    path('logout/' , views.logoutUser, name="logout") ,
    path('', views.home , name="home"),
    path('create-adherent/' , views.create_adherent , name="create-adherent"),
@@ -28,7 +28,6 @@ urlpatterns = [
    path('update-caisse-transaction/<str:pk>/ ' , views.update_caisse_transaction , name="update-caisse-transaction"),
    path('delete-banque-transaction/<int:pk>/', views.delete_banque_transaction, name='delete-banque-transaction'),
    path('delete-caisse-transaction/<int:pk>/', views.delete_caisse_transaction, name='delete-caisse-transaction'),
-   path('payer_ma_cotisation/', views.payer_ma_cotisation, name='payer_ma_cotisation'),
    path('profile/', views.profile, name='profile'),
    path('fetch-delegations/', views.fetch_delegations, name='fetch_delegations'),
    path('consult_adherent/<str:pk>/', views.consult_adherent, name='consult_adherent'),
@@ -42,7 +41,7 @@ urlpatterns = [
    path('export-structures-csv/', views.export_structures_csv, name='export-structures-csv'),
    path('export-banque-transactions-csv/', views.export_banque_transactions_csv, name='export-banque-transactions-csv'),
    path('export-caisse-transactions-csv/', views.export_caisse_transactions_csv, name='export-caisse-transactions-csv'),
-   
+   path('liste_transactions/', views.liste_transactions, name='liste_transactions'),
    
    
   

@@ -5,7 +5,7 @@
 <div>
 
   <div>
-    <h2>Gestion des structures</h2>
+    <h2>Liste des structures</h2>
     <hr class="hrstructure">
   </div>
 
@@ -41,7 +41,7 @@
             <td>{{ structure.numéro_de_téléphone }}</td>
             <td>{{ structure.adresse_email }}</td>
             <td>{{ structure.date_de_création|date:"d-m-Y" }}</td>
-            <td>{{ structure.date_ag|date:"d-m-Y" }}</td>
+            <td>{{ structure.date_AG|date:"d-m-Y" }}</td>
             <td>
               
               <button class="structure-button"><a href="{% url 'consult_structure' structure.id %}">Consulter</a></button>
@@ -50,6 +50,12 @@
           {% endfor %}
         </tbody>
       </table>
+    <div id="page-number-display" class="page-number-display"></div>
+    <div id="pagination-container">
+      <button id="prev-button" class="structure-button" style="margin-right:10px;">Précédent</button>
+      <div id="page-numbers-container" style="margin-bottom:1.5px;"></div>
+      <button id="next-button" class="structure-button">Suivant</button>
+    </div>
     </div>
   </div>
 
@@ -101,6 +107,112 @@ document.getElementById('search-form').addEventListener('submit', function(e) {
         }
       }
     });
+     // Define variables
+  const tableRows = document.querySelectorAll('.structure-table tbody tr');
+  const numRows = tableRows.length;
+  const rowsPerPage = 5;
+  let currentPage = 1;
+  const totalPages = Math.ceil(numRows / rowsPerPage);
+
+  // Function to show the specified page
+  function showPage(page) {
+    const startIndex = (page - 1) * rowsPerPage;
+    const endIndex = startIndex + rowsPerPage;
+
+    tableRows.forEach(function (row, index) {
+      if (index >= startIndex && index < endIndex) {
+        row.style.display = 'table-row';
+      } else {
+        row.style.display = 'none';
+      }
+    });
+    updatePaginationButtons();
+    updatePageNumberDisplay();
+
+  }
+
+  // Function to generate the page numbers and update the UI
+  function generatePageNumbers() {
+    const pageNumbersContainer = document.getElementById('page-numbers-container');
+    pageNumbersContainer.innerHTML = ''; // Clear existing page numbers
+
+    for (let i = 1; i <= totalPages; i++) {
+      const pageNumber = document.createElement('button');
+      pageNumber.textContent = i;
+      pageNumber.classList.add('page-number');
+      if (i === currentPage) {
+        pageNumber.classList.add('current-page');
+        pageNumber.disabled = true;
+      } else {
+        pageNumber.addEventListener('click', function () {
+          currentPage = i;
+          showPage(currentPage);
+          generatePageNumbers();
+          updatePaginationButtons();
+        });
+      }
+      pageNumbersContainer.appendChild(pageNumber);
+    }
+  }
+
+  // Function to update the state of the pagination buttons
+  function updatePaginationButtons() {
+  const prevButton = document.getElementById('prev-button');
+  const nextButton = document.getElementById('next-button');
+
+  if (currentPage === 1) {
+    prevButton.disabled = true;
+  } else {
+    prevButton.disabled = false;
+  }
+
+  if (currentPage === totalPages) {
+    nextButton.disabled = true;
+  } else {
+    nextButton.disabled = false;
+  }
+
+  const pageNumberDisplay = document.getElementById('page-number-display');
+  pageNumberDisplay.textContent = currentPage;
+}
+
+// Function to update the display of the current page number
+function updatePageNumberDisplay() {
+  const pageNumberDisplay = document.getElementById('page-number-display');
+  pageNumberDisplay.textContent = currentPage;
+}
+
+// Function to handle "Précédent" button click
+function goToPrevPage() {
+  if (currentPage > 1) {
+    currentPage--;
+    showPage(currentPage);
+    generatePageNumbers();
+    updatePageNumberDisplay();
+    updatePaginationButtons();
+  }
+}
+
+// Function to handle "Suivant" button click
+function goToNextPage() {
+  if (currentPage < totalPages) {
+    currentPage++;
+    showPage(currentPage);
+    generatePageNumbers();
+    updatePageNumberDisplay();
+    updatePaginationButtons();
+  }
+}
+
+// Attach event listeners to the pagination buttons
+document.getElementById('prev-button').addEventListener('click', goToPrevPage);
+document.getElementById('next-button').addEventListener('click', goToNextPage);
+
+// Show the initial page and generate the page numbers
+showPage(currentPage);
+generatePageNumbers();
+updatePageNumberDisplay();
+updatePaginationButtons();
   </script>
 </div>
 {% endblock %}

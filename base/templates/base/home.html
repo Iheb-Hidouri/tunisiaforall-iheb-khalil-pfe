@@ -1,20 +1,81 @@
-{% extends 'main.html' %}
-
+{% load static %}
+{% block head %}
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-image: url("{% static 'img/background.jpg' %}");
+            background-color: #f5f5f5;
+            margin: 0;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .login-container {
+            width: 100%;
+            max-width: 400px;
+            background-color: #ffffff;
+            padding: 30px;
+            border-radius: 30px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+        .login-logo {
+            display: block;
+            width: 100px;
+            margin: 0 auto 30px;
+        }
+        .login-form {
+            display: flex;
+            flex-direction: column;
+        }
+        .login-form label {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        .login-form input {
+            margin-bottom: 20px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 20px;
+        }
+        .error-message {
+            color: red;
+            margin-bottom: 20px;
+        }
+        .login-button {
+            background-color: #73B43D;
+            color: #ffffff;
+            font-weight: bold;
+            padding: 10px;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .login-button:hover {
+            background-color: #36A2EB;
+        }
+    </style>
+{% endblock head %}
 
 {% block content %}
-    
-        <h2>Page d'accueil</h2>
-        <hr class="hrneutral">
-        <div class = intro>
-            <span>Tunisia For All est une association qui a pour mission de permettre à chaque tunisien de vivre avec dignité et respect de ses droits fondamentaux. <br> Elle a pour objet de :</span>
-            <p>
-                • Promouvoir le concept de société citoyenne et diffuser les bonnes pratiques en matière d'Investissement Socialement Responsable (ISR) et de citoyenneté de l'entreprise <br>
-                • Promouvoir et valoriser le bénévolat auprès du grand public, les services communautaires auprès des institutions et des milieux professionnels <br>
-                • Offrir un appui technique et financier au tissu associatif tunisien engagé dans des actions sociales de soutien aux populations des régions marginalisées <br>
-                • Faciliter l'accès à l'information ayant trait aux opportunités d'investissements, de financements et aux bonnes pratiques en matière de développement communautaire.</p>
-        <script src="" async defer></script>
+<div class="login-container">
+    <img class="login-logo" src="{% static 'img/navbar_logo.png' %}" alt="logo">
+    <form method="POST" action="" class="login-form">
+        {% csrf_token %}
+        <label>Pseudo</label>
+        <input type="text" name="username" placeholder="Saisir le pseudo" class="form-control"/>
+
+        <label>Mot de passe</label>
+        <input type="password" name="password" placeholder="Saisir le mot de passe" class="form-control"/>
+        {% if messages %}
+        <div class="error-message">
+            {% for message in messages %}
+            {{ message }}
+            {% endfor %}
         </div>
-    
-
-
-{% endblock  %}
+        {% endif %}
+        <button class="login-button" type="submit">Connexion</button>
+    </form>
+</div>
+{% endblock content %}

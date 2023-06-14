@@ -22,7 +22,7 @@ import csv
 from django.http import HttpResponse
 from django.db.models import Q
 
-def loginPage(request):
+def home(request):
     if request.method == "POST":
         username = request.POST.get('username')
         password = request.POST.get('password')
@@ -30,19 +30,17 @@ def loginPage(request):
 
         if user is not None:
             login(request, user)
-            return redirect('home')
+            return redirect('gestion_adherent')
         else:
             messages.error(request, 'Pseudo ou mot de passe invalide')
 
-    return render(request, 'base/login_register.html')
+    return render(request, 'base/home.html')
 
 def logoutUser(request): 
     logout(request)
     return redirect  ('home')
 
-def home (request) : 
-    
-    return render (request , 'base/home.html')
+
 
 #VIEWS FOR ADHERENTS
 def gestion_adherent(request):
@@ -191,12 +189,16 @@ def export_adherents_csv(request):
 
 # This view displays a form for creating a new adherent
 def create_adherent(request):
+    user_structure = None
+    if request.user.is_authenticated:
+        adherent = request.user.adherent
+        user_structure = adherent.structure
     # Create a new AdherentForm instance
-    form = AdherentForm()
+    form = AdherentForm(user_structure=user_structure )
     
     if request.method == 'POST':
         # If the request method is POST, populate the form with the POST data
-        form = AdherentForm(request.POST, request.FILES)
+        form = AdherentForm(request.POST, request.FILES, user_structure=user_structure )
         if form.is_valid():
             # If the form is valid, save the new adherent and redirect to the home page
             adherent = form.save(commit=False)
@@ -211,6 +213,8 @@ def create_adherent(request):
             
             post_save_adherent(sender=Adherent, instance=adherent, created=True, request=request)
             return redirect('gestion_adherent')
+    else:
+        form = AdherentForm(user_structure=user_structure)    
     # Create a dictionary with the form and pass it to the template
     context = {'form': form}
     return render(request, 'base/adherent_form.html', context)
@@ -400,6 +404,27 @@ def gestion_financiere(request):
     # Create a dictionary with the adherents queryset and pass it to the template
     
     return render(request, 'base/gestion_financiere.html', context)
+def liste_transactions(request):
+    # Get the search query from the GET request parameters
+    if request.user.adherent.structure.code_structure == 'BN-1169':
+        # If no search query is present, display all adherents
+      banque_transactions = BanqueTransactions.objects.all() 
+      caisse_transactions = CaisseTransactions.objects.all()
+
+    # Combine the instances into a single list
+      transactions = list(banque_transactions) + list(caisse_transactions)
+    else :  
+      banque_transactions = BanqueTransactions.objects.filter(structure=request.user.adherent.structure) 
+      caisse_transactions = CaisseTransactions.objects.filter(structure=request.user.adherent.structure) 
+
+    # Combine the instances into a single list
+      transactions = list(banque_transactions) + list(caisse_transactions)
+
+    # Pass the transactions to the template
+    context = {'transactions': transactions }
+    # Create a dictionary with the adherents queryset and pass it to the template
+    
+    return render(request, 'base/liste_transactions.html', context)
 def export_banque_transactions_csv(request):
     search_query = request.GET.get('search', '')
 
@@ -476,9 +501,17 @@ def export_caisse_transactions_csv(request):
     return response
 
 def create_banque_transaction(request):
+    user_structure = None
+    if request.user.is_authenticated:
+        adherent = request.user.adherent
+        user_structure = adherent.structure
+
+    
     if request.method == 'POST':
-        form = BanqueTransactionsForm(request.POST, request.FILES)
+        form = BanqueTransactionsForm(request.POST, request.FILES, user_structure=user_structure )
         if form.is_valid():
+
+            
             transaction = form.save()
             save_banque_transaction_history (sender=BanqueTransactions, instance=transaction,created=True, request=request)
             if transaction.raison_de_transaction == 'Cotisation':
@@ -504,7 +537,7 @@ def create_banque_transaction(request):
                 adherent.save()
             return redirect('gestion_financiere')  # Replace with your desired URL
     else:
-        form = BanqueTransactionsForm()
+        form = BanqueTransactionsForm(user_structure=user_structure)
     return render(request, 'base/banque_form.html', {'form': form})
 
 def update_banque_transaction(request, pk):
@@ -543,8 +576,12 @@ def consult_caisse_transaction(request, pk):
 
 # Similar functions for CaisseTransactions
 def create_caisse_transaction(request):
+    user_structure = None
+    if request.user.is_authenticated:
+        adherent = request.user.adherent
+        user_structure = adherent.structure
     if request.method == 'POST':
-        form = CaisseTransactionsForm(request.POST, request.FILES)
+        form = CaisseTransactionsForm(request.POST, request.FILES, user_structure=user_structure)
         if form.is_valid():
             transaction=form.save()
             save_caisse_transaction_history (sender=CaisseTransactions, instance=transaction,created=True, request=request)
@@ -571,7 +608,7 @@ def create_caisse_transaction(request):
                 adherent.save() 
             return redirect('gestion_financiere')  # Replace with your desired URL
     else:
-        form = CaisseTransactionsForm()
+        form = CaisseTransactionsForm(user_structure=user_structure)
     return render(request, 'base/caisse_form.html', {'form': form})
 
 def update_caisse_transaction(request, pk):
@@ -604,10 +641,12 @@ def delete_banque_transaction(request, pk):
     if request.method == 'POST':
         if transaction.raison_de_transaction == 'Cotisation':
             Cotisation.objects.filter(adhérent=transaction.adhérent).delete()
-        transaction.delete()
-        adherent=transaction.adhérent
-        adherent.cotisation_annuelle = 'non payée'
-        adherent.save()
+            adherent=transaction.adhérent
+            adherent.cotisation_annuelle = 'non payée'    
+            
+        
+            adherent.save()
+            
         delete_banque_transaction_history(sender=BanqueTransactions, instance=transaction, request=request) 
         # Perform any additional actions after deletion if needed
         return redirect('gestion_financiere')
@@ -620,61 +659,19 @@ def delete_caisse_transaction(request, pk):
     if request.method == 'POST':
         if transaction.raison_de_transaction == 'Cotisation':
             Cotisation.objects.filter(adhérent=transaction.adhérent).delete()
+            adherent=transaction.adhérent
+            adherent.cotisation_annuelle = 'non payée'    
             
-        transaction.delete()
-        adherent=transaction.adhérent
-        adherent.cotisation_annuelle = 'non payée'
-        adherent.save()
+        
+            adherent.save()
+        transaction.delete()    
         delete_banque_transaction_history(sender=CaisseTransactions, instance=transaction, request=request) 
         # Perform any additional actions after deletion if needed
         return redirect('gestion_financiere')
     
     return render(request, 'base/delete.html', {'transaction': transaction})
 
-def payer_ma_cotisation(request):
-    adherent = Adherent.objects.get(user=request.user)
-    if request.method == 'POST':
-        form = CotisationPaymentForm(request.POST ,  request.FILES)
-        if form.is_valid():
-            cotisation = form.save(commit=False)
-            cotisation.adhérent = adherent
-            cotisation.save()
-            if cotisation.moyen_de_payement == 'Banque':
-                BanqueTransactions.objects.create(
-                    structure=adherent.structure,  # Add the relevant structure if necessary
-                    évènement=None,  # Add the relevant event if necessary
-                    adhérent=cotisation.adhérent,
-                    date=cotisation.date,
-                    entreprise=cotisation.entreprise,
-                    libellé=cotisation.libellé,
-                    banque='',  # Add the relevant bank information
-                    numéro_du_chèque=cotisation.numéro_chèque_ou_recu,
-                    solde=cotisation.solde,
-                    justificatif_bancaire=cotisation.justificatif,
-                    type_de_transaction='Crédit',
-                    raison_de_transaction='Cotisation'
-                )
-            elif  cotisation.moyen_de_payement== 'Caisse':
-                CaisseTransactions.objects.create(
-                    structure=adherent.structure,  # Add the relevant structure if necessary
-                    évènement=None,  # Add the relevant event if necessary
-                    adhérent=cotisation.adhérent,
-                    date=cotisation.date,
-                    entreprise=cotisation.entreprise,
-                    libellé=cotisation.libellé,
-                    recu_numéro=cotisation.numéro_chèque_ou_recu,
-                    solde=cotisation.solde,
-                    justificatif_caisse=cotisation.justificatif,
-                    type_de_transaction='Crédit',
-                    raison_de_transaction='Cotisation'
-                )
-            adherent = cotisation.adhérent
-            adherent.cotisation_annuelle = 'payée'
-            adherent.save()    
-            return redirect('profile')
-    else:
-        form = CotisationPaymentForm()
-    return render(request, 'base/payer_ma_cotisation.html', {'form': form})
+
 
 def profile(request):
     adherent = Adherent.objects.get(user=request.user)
@@ -708,7 +705,8 @@ class DecimalEncoder(DjangoJSONEncoder):
 
 def financial_dashboard(request):
     total_adherents = Adherent.objects.count()
-    ######
+
+    ########################################## COTISATION CHART #########################################################
     adherent_cotisation_data = Adherent.objects.values('cotisation_annuelle').annotate(count=Count('id'))
     labels = []
     data = []
@@ -716,7 +714,9 @@ def financial_dashboard(request):
     for item in adherent_cotisation_data:
         labels.append(item['cotisation_annuelle'])
         data.append(item['count'])
-    ########### 
+
+
+    ########################################### CREDIT DEBIT LINE CHART#####################################################
     credit_banque = BanqueTransactions.objects.filter(type_de_transaction='Crédit').annotate(month=TruncMonth('date')).values('month').annotate(total=Sum('solde'))
     debit_banque = BanqueTransactions.objects.filter(type_de_transaction='Débit').annotate(month=TruncMonth('date')).values('month').annotate(total=Sum('solde'))
 
@@ -754,7 +754,7 @@ def financial_dashboard(request):
    
 
 
-    ############
+    ###################################################### EVENEMENT CHART ######################################################
     events = Evenement.objects.all()
 
     # Prepare data for the chart
@@ -764,8 +764,16 @@ def financial_dashboard(request):
 
     # Iterate over each event and calculate total dépenses and profits
     for event in events:
-        dépenses_total = BanqueTransactions.objects.filter(évènement=event, raison_de_transaction='Dépenses').aggregate(total=Sum('solde'))['total'] or 0
-        profits_total = BanqueTransactions.objects.filter(évènement=event, raison_de_transaction='Profits').aggregate(total=Sum('solde'))['total'] or 0
+        dépenses_total_banque = BanqueTransactions.objects.filter(évènement=event, raison_de_transaction='Dépenses sur évènement ').aggregate(total=Sum('solde'))['total'] or 0
+        profits_total_banque = BanqueTransactions.objects.filter(évènement=event, raison_de_transaction='Recette d\'évènement ').aggregate(total=Sum('solde'))['total'] or 0
+
+    # Calculate total dépenses and profits for CaisseTransactions
+        dépenses_total_caisse = CaisseTransactions.objects.filter(évènement=event, raison_de_transaction='Dépenses sur évènement ').aggregate(total=Sum('solde'))['total'] or 0
+        profits_total_caisse = CaisseTransactions.objects.filter(évènement=event, raison_de_transaction='Recette d\'évènement ').aggregate(total=Sum('solde'))['total'] or 0
+
+    # Combine the totals from both models
+        dépenses_total = dépenses_total_banque + dépenses_total_caisse
+        profits_total = profits_total_banque + profits_total_caisse
 
         event_labels.append(event.libelle)
         dépenses_data.append(float(dépenses_total))
@@ -775,36 +783,31 @@ def financial_dashboard(request):
     event_labels_json = json.dumps(event_labels)
     dépenses_data_json = json.dumps(dépenses_data)
     profits_data_json = json.dumps(profits_data)
-    #####################
-    banque_reasons = (
-        BanqueTransactions.objects.values('raison_de_transaction')
-        .annotate(count=Count('raison_de_transaction'))
-        .values('raison_de_transaction', 'count')
-    )
 
-    # Retrieve the total count of transactions for each reason from CaisseTransactions
-    caisse_reasons = (
-        CaisseTransactions.objects.values('raison_de_transaction')
-        .annotate(count=Count('raison_de_transaction'))
-        .values('raison_de_transaction', 'count')
-    )
 
-    # Combine the counts from both BanqueTransactions and CaisseTransactions
-    transaction_reasons = {}
+    ##################################################### REASONS CHART ############################################################
 
-    # Aggregate counts from BanqueTransactions
-    for reason in banque_reasons:
-        transaction_reasons.setdefault(reason['raison_de_transaction'], 0)
-        transaction_reasons[reason['raison_de_transaction']] += reason['count']
+    
 
-    # Aggregate counts from CaisseTransactions
-    for reason in caisse_reasons:
-        transaction_reasons.setdefault(reason['raison_de_transaction'], 0)
-        transaction_reasons[reason['raison_de_transaction']] += reason['count']
+    credit_reasons_banque = BanqueTransactions.objects.filter(type_de_transaction='Crédit').values('raison_de_transaction').annotate(total=Sum('solde'))
+    debit_reasons_banque = BanqueTransactions.objects.filter(type_de_transaction='Débit').values('raison_de_transaction').annotate(total=Sum('solde'))
 
-    # Prepare the chart data
-    reason_labels = list(transaction_reasons.keys())
-    transaction_counts = list(transaction_reasons.values())
+    credit_reasons_caisse = CaisseTransactions.objects.filter(type_de_transaction='Crédit').values('raison_de_transaction').annotate(total=Sum('solde'))
+    debit_reasons_caisse = CaisseTransactions.objects.filter(type_de_transaction='Débit').values('raison_de_transaction').annotate(total=Sum('solde'))
+
+# Combine the data from BanqueTransactions and CaisseTransactions
+    credit_reasons = credit_reasons_banque.union(credit_reasons_caisse)
+    debit_reasons = debit_reasons_banque.union(debit_reasons_caisse)
+
+# Convert the data to JSON format
+    credit_reasons_json = json.dumps(list(credit_reasons), cls=DjangoJSONEncoder)
+    debit_reasons_json = json.dumps(list(debit_reasons), cls=DjangoJSONEncoder)
+
+
+  
+   
+
+    ########################################################## KPIS ##################################################################
 
      # Calculate the balance of the organization
     banque_credit_total = BanqueTransactions.objects.filter(type_de_transaction='Crédit').aggregate(total=Sum('solde'))['total'] or 0
@@ -816,8 +819,32 @@ def financial_dashboard(request):
 
     # Calculate the total balance
     balance = 1000 + banque_credit_total + caisse_credit_total - banque_debit_total - caisse_debit_total
+    balance_année =  banque_credit_total + caisse_credit_total - banque_debit_total - caisse_debit_total
+        # Calculate the total debits for events
+    total_debits_events = (
+    BanqueTransactions.objects.filter(évènement__isnull=False, type_de_transaction='Débit')
+    .aggregate(total_debits=Sum('solde'))['total_debits'] or 0
+)
+    total_debits_events += (
+    CaisseTransactions.objects.filter(évènement__isnull=False, type_de_transaction='Débit')
+    .aggregate(total_debits=Sum('solde'))['total_debits'] or 0
+)
 
-   ############################################
+# Calculate the total credits for events
+    total_credits_events = (
+    BanqueTransactions.objects.filter(évènement__isnull=False, type_de_transaction='Crédit')
+    .aggregate(total_credits=Sum('solde'))['total_credits'] or 0
+)
+    total_credits_events += (
+    CaisseTransactions.objects.filter(évènement__isnull=False, type_de_transaction='Crédit')
+    .aggregate(total_credits=Sum('solde'))['total_credits'] or 0
+)
+
+# Calculate the average revenue from events
+    average_revenue_events = (total_credits_events - total_debits_events) / Evenement.objects.filter().count()
+
+   ######################################################## RECETTE STRUCTURES CHART ############################################
+
      # Calculate the income generated by each structure
     structures = Structure.objects.all()
     structure_codes = []
@@ -845,28 +872,7 @@ def financial_dashboard(request):
     }
 
     ########################
-    # Calculate the total debits for events
-    total_debits_events = (
-    BanqueTransactions.objects.filter(évènement__isnull=False, type_de_transaction='Débit')
-    .aggregate(total_debits=Sum('solde'))['total_debits'] or 0
-)
-    total_debits_events += (
-    CaisseTransactions.objects.filter(évènement__isnull=False, type_de_transaction='Débit')
-    .aggregate(total_debits=Sum('solde'))['total_debits'] or 0
-)
 
-# Calculate the total credits for events
-    total_credits_events = (
-    BanqueTransactions.objects.filter(évènement__isnull=False, type_de_transaction='Crédit')
-    .aggregate(total_credits=Sum('solde'))['total_credits'] or 0
-)
-    total_credits_events += (
-    CaisseTransactions.objects.filter(évènement__isnull=False, type_de_transaction='Crédit')
-    .aggregate(total_credits=Sum('solde'))['total_credits'] or 0
-)
-
-# Calculate the average revenue from events
-    average_revenue_events = (total_credits_events - total_debits_events) / Evenement.objects.filter().count()
 
 
     
@@ -883,12 +889,14 @@ def financial_dashboard(request):
         'event_labels': event_labels_json,
         'dépenses_data': dépenses_data_json,
         'profits_data': profits_data_json,
-        'reason_labels': json.dumps(reason_labels),
-        'transaction_counts': json.dumps(transaction_counts),
-        'balance': balance,
+        'balance' : balance ,
+        
+        'credit_reasons': credit_reasons_json,
+        'debit_reasons': debit_reasons_json,
         'total_adherents': total_adherents,
         'structure_income_data': json.dumps(structure_income_data),
         'average_revenue_events': average_revenue_events, 
+        'balance_année':balance_année
        
         
     }

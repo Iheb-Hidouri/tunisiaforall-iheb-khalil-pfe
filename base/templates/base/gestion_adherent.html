@@ -9,10 +9,9 @@
 </div>
 
 <div class="features">
-  <button class="adherent-button"><a href="{% url 'create-adherent'  %}">Ajouter Adhérent</a></button>
+  <button class="adherent-button"><a href="{% url 'create-adherent'  %}">Ajouter un adhérent</a></button>
   <button class="adherent-button"><a href="{% url 'adherent_history' %}">Historique</a></button>
   <button id="export-button" class="adherent-button"><a href="{% url 'export-adherents-csv' %}">Exporter en CSV</a></button>
-  
 </div>
 
 <div class="page-content">
@@ -57,6 +56,12 @@
         {% endfor %}
       </tbody>
     </table>
+    <div id="page-number-display" class="page-number-display"></div>
+    <div id="pagination-container">
+      <button id="prev-button" class="adherent-button" style="margin-right:10px;">Précédent</button>
+      <div id="page-numbers-container" style="margin-bottom:1.5px;"></div>
+      <button id="next-button" class="adherent-button">Suivant</button>
+    </div>
   </div>
 </div>
 
@@ -80,7 +85,6 @@
     const actionColumnHeader = table.querySelector('thead th:last-child'); // Select the last th element in the table header
     actionColumnHeader.style.display = 'none'; // Hide the "Action" column header
 
- 
     window.print(); // Print the page
 
     navbar.style.display = ''; // Restore the navigation bar's display
@@ -92,15 +96,114 @@
     });
 
     actionColumnHeader.style.display = ''; // Restore the display of the "Action" column header
-
-    actionColumnCells.forEach(function(cell) {
-      cell.style.display = ''; // Restore the display of the action cells
-    });
   }
 
-  
+  // Define variables
+  const tableRows = document.querySelectorAll('.adherent-table tbody tr');
+  const numRows = tableRows.length;
+  const rowsPerPage = 6;
+  let currentPage = 1;
+  const totalPages = Math.ceil(numRows / rowsPerPage);
+
+  // Function to show the specified page
+  function showPage(page) {
+    const startIndex = (page - 1) * rowsPerPage;
+    const endIndex = startIndex + rowsPerPage;
+
+    tableRows.forEach(function (row, index) {
+      if (index >= startIndex && index < endIndex) {
+        row.style.display = 'table-row';
+      } else {
+        row.style.display = 'none';
+      }
+    });
+    updatePaginationButtons();
+    updatePageNumberDisplay();
+
+  }
+
+  // Function to generate the page numbers and update the UI
+  function generatePageNumbers() {
+    const pageNumbersContainer = document.getElementById('page-numbers-container');
+    pageNumbersContainer.innerHTML = ''; // Clear existing page numbers
+
+    for (let i = 1; i <= totalPages; i++) {
+      const pageNumber = document.createElement('button');
+      pageNumber.textContent = i;
+      pageNumber.classList.add('page-number');
+      if (i === currentPage) {
+        pageNumber.classList.add('current-page');
+        pageNumber.disabled = true;
+      } else {
+        pageNumber.addEventListener('click', function () {
+          currentPage = i;
+          showPage(currentPage);
+          generatePageNumbers();
+          updatePaginationButtons();
+        });
+      }
+      pageNumbersContainer.appendChild(pageNumber);
+    }
+  }
+
+  // Function to update the state of the pagination buttons
+  function updatePaginationButtons() {
+  const prevButton = document.getElementById('prev-button');
+  const nextButton = document.getElementById('next-button');
+
+  if (currentPage === 1) {
+    prevButton.disabled = true;
+  } else {
+    prevButton.disabled = false;
+  }
+
+  if (currentPage === totalPages) {
+    nextButton.disabled = true;
+  } else {
+    nextButton.disabled = false;
+  }
+
+  const pageNumberDisplay = document.getElementById('page-number-display');
+  pageNumberDisplay.textContent = currentPage;
+}
+
+// Function to update the display of the current page number
+function updatePageNumberDisplay() {
+  const pageNumberDisplay = document.getElementById('page-number-display');
+  pageNumberDisplay.textContent = currentPage;
+}
+
+// Function to handle "Précédent" button click
+function goToPrevPage() {
+  if (currentPage > 1) {
+    currentPage--;
+    showPage(currentPage);
+    generatePageNumbers();
+    updatePageNumberDisplay();
+    updatePaginationButtons();
+  }
+}
+
+// Function to handle "Suivant" button click
+function goToNextPage() {
+  if (currentPage < totalPages) {
+    currentPage++;
+    showPage(currentPage);
+    generatePageNumbers();
+    updatePageNumberDisplay();
+    updatePaginationButtons();
+  }
+}
+
+// Attach event listeners to the pagination buttons
+document.getElementById('prev-button').addEventListener('click', goToPrevPage);
+document.getElementById('next-button').addEventListener('click', goToNextPage);
+
+// Show the initial page and generate the page numbers
+showPage(currentPage);
+generatePageNumbers();
+updatePageNumberDisplay();
+updatePaginationButtons();
 </script>
-
-
 
 {% endblock %}
