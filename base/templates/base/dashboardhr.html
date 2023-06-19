@@ -1,0 +1,367 @@
+{% extends 'main.html' %}
+{% load static %}
+
+{% block content %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard</title>
+    <style>
+   * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f0f0f0;
+    margin: 0;
+    padding: 0;
+    height: 100vh;
+}
+
+.container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 20px;
+    max-width: 100%;
+    overflow-x: hidden;
+    height: 100%;
+    
+}
+
+.sidebar {
+    flex: 0 0 20%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px;
+    background-color: #ffffff;
+    border-radius: 15px;
+    box-shadow: 0 4px 8px rgba(0, 0 0, 0.2);
+    margin-right: 20px;
+    height: 88%;
+}
+
+.kpi-box {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 140px;
+    margin-bottom: 20px;
+    border-radius: 10px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.kpi-label {
+    font-weight: bold;
+    font-size: 16px;
+    margin-bottom: 5px;
+    color: #333;
+}
+
+.kpi-value {
+    font-size: 30px;
+    color:  #73B43D;
+}
+
+.kpi-logo {
+    width: 50px;
+    height: auto;
+    margin-bottom: 10px;
+}
+
+.charts-container {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: flex-start;
+    width: 100%;
+}
+
+.chart-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    width: 100%;
+    margin-bottom: 20px;
+}
+
+.chart {
+    flex: 0 0 calc(50% - 10px);
+    background-color: #ffffff;
+    border-radius: 15px;
+    padding: 20px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    height: 300px;
+    align-items: center;
+}
+
+.chart-canvas {
+    width: 100%;
+    max-width: 250px;
+    height: auto;
+    max-height: calc(100% - 40px);
+}
+
+.chart-title {
+    font-size: 16px;
+    font-weight: bold;
+    margin-bottom: 10px;
+    text-align: center;
+    color: #333;
+}
+
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="sidebar">
+            <div class="kpi-box">
+                <img src="{% static 'img/adherents.png' %}" alt="Logo 1" class="kpi-logo">
+                <span class="kpi-label"> Nombre total des adherents : </span>
+                <span class="kpi-value"> {{ total_adherents }}</span>
+            </div>
+            <div class="kpi-box">
+                <img src="{% static 'img/femmes.png' %}" alt="Logo 1" class="kpi-logo">
+                <span class="kpi-label"> Adhérents femmes : </span>
+                <span class="kpi-value"> {{ total_male_adherents }}</span>
+            </div>
+            <div class="kpi-box">
+                <img src="{% static 'img/hommes.png' %}"alt="Logo 1" class="kpi-logo">
+                <span class="kpi-label"> Adhérents hommes : 
+                </span>
+                <span class="kpi-value"> {{ total_female_adherents }}</span>
+            </div>
+        </div>
+        <div class="charts-container">
+            <div class="chart-row">
+                <div class="chart">
+                    <div class="chart-title">Nombre des adhérents par commission</div>
+                    <canvas id= "commissionChart"   ></canvas>
+                </div>
+                <div class="chart">
+                    <div class="chart-title">Nombre des adhérents par structure</div>
+                    <canvas id= "structureChart"  ></canvas>
+                </div>
+            </div>
+            <div class="chart-row">
+                <div class="chart">
+                    <div class="chart-title">Répartition des adhérents par âge  </div>
+                    <canvas id="ageChart" class="chart-canvas"  ></canvas>
+                </div>
+                <div class="chart">
+                    <div class="chart-title">Graphique des départs et arrivées des adhérents</div>
+                    <canvas id="barChart" ></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</body> 
+</html>
+<script type="text/javascript">
+    // Retrieve the chart data from the template context
+    const ageLabels = JSON.parse('{{ age_labels|safe }}');
+    const ageData = JSON.parse('{{ age_data|safe }}');
+
+    // Create the pie chart
+    new Chart(document.getElementById('ageChart'), {
+        type: 'pie',
+        data: {
+            labels: ageLabels,
+            datasets: [
+                {
+                    data: ageData,
+                    backgroundColor: [
+                        '#73B43D',
+                        '#FFCE56',
+                        '#36A2EB',
+                    ]
+                }
+            ]
+        },
+        options: {
+            aspectRatio: 2, // Adjust this value to change the size of the graph within the chart
+            legend: {
+                display: true,
+                labels: {
+                    fontSize: 2 // Adjust this value to change the font size of the legend
+                }
+            },
+            tooltips: {
+                callbacks: {
+                    label: function(tooltipItem, data) {
+                        var label = data.labels[tooltipItem.index];
+                        var value = data.datasets[tooltipItem.datasetIndex].data[tooltipItem.index];
+                        return label + ': ' + value;
+                    }
+                }
+            }
+        }
+    });
+</script>
+
+
+<script type="text/javascript">
+    // Retrieve the chart data from the template context
+    const structureLabels = JSON.parse('{{ structure_labels|safe }}');
+    const adherentsData = JSON.parse('{{ adherents_data|safe }}');
+
+    // Create the bar chart
+    new Chart(document.getElementById('structureChart'), {
+        type: 'bar',
+        data: {
+            labels: structureLabels,
+            datasets: [
+                {
+                    label: 'Adherents',
+                    data: adherentsData,
+                    backgroundColor: '#73B43D'
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                x: {
+                    display: true,
+                    title: {
+                        display: true,
+                        text: 'Structures'
+                    }
+                },
+                y: {
+                    display: true,
+                    title: {
+                        display: true,
+                        text: 'Nombre  d\'adhérents'
+                    }
+                }
+            }
+        }
+    });
+</script>
+<script>
+    const commissionLabels = JSON.parse('{{ commission_labels|safe }}');
+    const adherentsCommissionData = JSON.parse('{{ adherents_data_commission|safe  }}');
+
+    var ctx = document.getElementById('commissionChart').getContext('2d');
+    var myChart = new Chart(ctx, {
+        type: 'polarArea',
+        data: {
+            labels: commissionLabels,
+            datasets: [{
+                data: adherentsCommissionData,
+                backgroundColor: [
+                
+                        '#FFCE56',
+                        '#73B43D',
+                        '#36A2EB',
+                        '#b3b3b3',
+                ],
+                borderColor: [
+                        '#FFCE56',
+                        '#73B43D',
+                        '#36A2EB',
+                        '#b3b3b3',
+                ],
+                borderWidth: 1
+            }]
+        },
+        options: {
+            aspectRatio: 2, // Adjust this value to change the size of the graph within the chart
+            legend: {
+                display: true,
+                labels: {
+                    fontSize: 1 // Adjust this value to change the font size of the legend
+                }
+            },
+            tooltips: {
+                callbacks: {
+                    label: function(tooltipItem, data) {
+                        var label = data.labels[tooltipItem.index];
+                        var value = data.datasets[tooltipItem.datasetIndex].data[tooltipItem.index];
+                        return label + ': ' + value;
+                    }
+                }
+            }
+        }
+    });
+</script>
+<script>
+    var ctx = document.getElementById('barChart').getContext('2d');
+    var lineLabels = JSON.parse('{{ bar_labels | escapejs }}');
+    var lineDataLeaving = JSON.parse('{{ bar_data_leaving | escapejs }}');
+    var lineDataJoining = JSON.parse('{{ bar_data_joining | escapejs }}');
+
+    var chart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: lineLabels,
+            datasets: [{
+                label: 'Départs',
+                data: lineDataLeaving,
+                backgroundColor:  '#FFCE56',
+                        
+                borderColor: '#FFCE56',
+                borderWidth: 1
+            }, {
+                label: 'Arrivées',
+                data: lineDataJoining,
+                backgroundColor: '#73B43D',
+                borderColor: '#73B43D',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            
+            scales: {
+                x: {
+                    display: true,
+                    title: {
+                        display: true,
+                        text: 'Mois'
+                    }
+                },
+                y: {
+                    beginAtZero: true,
+                    display: true,
+                    title: {
+                        display: true,
+                        text: 'Nombre  d\'adhérents'
+                    }
+                }
+            }
+        }
+    });
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+{% endblock %}

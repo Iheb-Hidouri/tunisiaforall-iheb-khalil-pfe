@@ -21,6 +21,7 @@ from datetime import datetime
 import csv
 from django.http import HttpResponse
 from django.db.models import Q
+from django.contrib.auth.decorators import login_required
 
 def home(request):
     if request.method == "POST":
@@ -425,6 +426,27 @@ def liste_transactions(request):
     # Create a dictionary with the adherents queryset and pass it to the template
     
     return render(request, 'base/liste_transactions.html', context)
+def liste_transactions_tb(request):
+    # Get the search query from the GET request parameters
+    if request.user.adherent.structure.code_structure == 'BN-1169':
+        # If no search query is present, display all adherents
+      banque_transactions = BanqueTransactions.objects.all() 
+      caisse_transactions = CaisseTransactions.objects.all()
+
+    # Combine the instances into a single list
+      transactions = list(banque_transactions) + list(caisse_transactions)
+    else :  
+      banque_transactions = BanqueTransactions.objects.filter(structure=request.user.adherent.structure) 
+      caisse_transactions = CaisseTransactions.objects.filter(structure=request.user.adherent.structure) 
+
+    # Combine the instances into a single list
+      transactions = list(banque_transactions) + list(caisse_transactions)
+
+    # Pass the transactions to the template
+    context = {'transactions': transactions }
+    # Create a dictionary with the adherents queryset and pass it to the template
+    
+    return render(request, 'base/liste_transactions_tb.html', context)
 def export_banque_transactions_csv(request):
     search_query = request.GET.get('search', '')
 
@@ -684,7 +706,7 @@ def fetch_delegations(request):
     return JsonResponse(list(delegations), safe=False)
 
 import json
-
+from datetime import date
 from django.db.models import Sum 
 import json
 from decimal import Decimal
@@ -808,7 +830,12 @@ def financial_dashboard(request):
    
 
     ########################################################## KPIS ##################################################################
+    current_month = datetime.now().month
 
+    banque_total_transactions = BanqueTransactions.objects.filter(date__month=current_month).count()
+    caisse_total_transactions = CaisseTransactions.objects.filter(date__month=current_month).count()
+
+    total_transactions_combined = banque_total_transactions + caisse_total_transactions
      # Calculate the balance of the organization
     banque_credit_total = BanqueTransactions.objects.filter(type_de_transaction='Crédit').aggregate(total=Sum('solde'))['total'] or 0
     banque_debit_total = BanqueTransactions.objects.filter(type_de_transaction='Débit').aggregate(total=Sum('solde'))['total'] or 0
@@ -890,7 +917,7 @@ def financial_dashboard(request):
         'dépenses_data': dépenses_data_json,
         'profits_data': profits_data_json,
         'balance' : balance ,
-        
+        'total_transactions_combined': total_transactions_combined,
         'credit_reasons': credit_reasons_json,
         'debit_reasons': debit_reasons_json,
         'total_adherents': total_adherents,
@@ -904,5 +931,77 @@ def financial_dashboard(request):
     return render(request, 'base/dashboard.html', context)
 
 
+def calculate_age(born):
+    today = date.today()
+    return today.year - born.year - ((today.month, today.day) < (born.month, born.day))
+
+@login_required(login_url='home')
+def hr_dashboard(request):
+    total_adherents = Adherent.objects.count()
+    total_male_adherents = Adherent.objects.filter(genre='M').count()
+    total_female_adherents = Adherent.objects.filter(genre='F').count()
+    # Get the count of adherents for each structure
+    adherents_per_structure = Adherent.objects.values('structure__code_structure').annotate(count=Count('structure')).order_by('-count')
+    structure_labels = json.dumps([item['structure__code_structure'] for item in adherents_per_structure], cls=DjangoJSONEncoder)
+    adherents_data = json.dumps([item['count'] for item in adherents_per_structure], cls=DjangoJSONEncoder)
+    # Get the count of adherents per commission
+    adherents_per_commission = Adherent.objects.values('commissions').annotate(count=Count('commissions'))
+    commission_labels = json.dumps([item['commissions'] for item in adherents_per_commission],cls=DjangoJSONEncoder)
+    adherents_data_commission = json.dumps([item['count'] for item in adherents_per_commission],cls=DjangoJSONEncoder)
+    #### AGE
+    adherents = Adherent.objects.all()
+    age_data = {'<25 ans': 0, '25-40 ans': 0, '40+ ans': 0}
+
+    for adherent in adherents:
+        age = calculate_age(adherent.date_de_naissance)
+        if age < 25:
+            age_data['<25 ans'] += 1
+        elif 25 <= age < 40:
+            age_data['25-40 ans'] += 1
+        
+        else :
+            age_data['40+ ans'] += 1
+          
+
+    age_labels = json.dumps(list(age_data.keys()), cls=DjangoJSONEncoder)
+    age_data = json.dumps(list(age_data.values()), cls=DjangoJSONEncoder)
+    ######
+    adherents_joining = AdherentHistory.objects.filter(action='crée').annotate(month=TruncMonth('timestamp')).values('month').annotate(count=Count('id')).order_by('month')
+    adherents_leaving = AdherentHistory.objects.filter(action='supprimé').annotate(month=TruncMonth('timestamp')).values('month').annotate(count=Count('id')).order_by('month')
+
+    bar_labels = [item['month'].strftime('%Y-%m') for item in adherents_joining]
+    bar_data_joining = [item['count'] for item in adherents_joining]
+    bar_data_leaving = [0] * len(bar_labels)  # Initialize leaving counts with zeros for all months
+
+# Update leaving counts for the respective month
+    for i, label in enumerate(bar_labels):
+     for item in adherents_leaving:
+        if item['month'].strftime('%Y-%m') == label:
+            bar_data_leaving[i] = item['count']
+            break
+
+    
+    
+    context = {
+        'total_adherents': total_adherents,
+        'total_male_adherents': total_male_adherents,
+        'total_female_adherents': total_female_adherents,
+        'structure_labels': structure_labels,
+        'adherents_data': adherents_data,
+        'commission_labels': commission_labels,
+        'adherents_data_commission': adherents_data_commission,
+        'age_labels': age_labels,
+        'age_data': age_data,
+        'bar_labels': json.dumps(bar_labels),
+        'bar_data_joining': json.dumps(bar_data_joining),
+        'bar_data_leaving': json.dumps(bar_data_leaving),
+        
+    }
+
+    
 
 
+
+
+
+    return render (request, 'base/dashboardhr.html', context)

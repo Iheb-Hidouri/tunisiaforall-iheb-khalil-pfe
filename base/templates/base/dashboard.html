@@ -33,7 +33,7 @@ body {
     max-width: 100%;
     overflow-x: hidden;
     height: 100%;
-    margin-top: 20px; 
+    
 }
 
 .sidebar {
@@ -136,9 +136,9 @@ body {
                 <span class="kpi-value">{{balance}} DT</span>
             </div>
             <div class="kpi-box">
-                <img src="{% static 'img/adherents.png' %}" alt="Logo 1" class="kpi-logo">
-                <span class="kpi-label">Nombre total des adhérents:</span>
-                <span class="kpi-value">{{total_adherents}}</span>
+                <img src="{% static 'img/transactions.png' %}" alt="Logo 1" class="kpi-logo">
+                <span class="kpi-label">N. de transactions ce mois:</span>
+                <span class="kpi-value">{{total_transactions_combined}}</span>
             </div>
             <div class="kpi-box">
                 <img src="{% static 'img/profit.png' %}"alt="Logo 1" class="kpi-logo">

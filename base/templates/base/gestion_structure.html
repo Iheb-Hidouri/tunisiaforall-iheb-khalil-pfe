@@ -27,7 +27,7 @@
         <thead>
           <tr>
             <th>Code</th>
-            <th>Type</th>
+            
             <th>Libéllé</th>
             <th>Telephone</th>
             <th>Email</th>
@@ -40,12 +40,12 @@
           {% for structure in structures %}
           <tr>
             <td><strong>{{ structure.code_structure }}</strong></td>
-            <td>{{ structure.type }}</td>
+            
             <td>{{ structure.libellé }}</td>
             <td>{{ structure.numéro_de_téléphone }}</td>
             <td>{{ structure.adresse_email }}</td>
             <td>{{ structure.date_de_création|date:"d-m-Y" }}</td>
-            <td>{{ structure.date_ag|date:"d-m-Y" }}</td>
+            <td>{{ structure.date_AG|date:"d-m-Y" }}</td>
             <td>
               <button class="structure-button"><a href="{% url 'update-structure' structure.id %}">Mettre à jour</a></button>
               <button class="structure-button"><a href="{% url 'delete-structure' structure.id %}">Supprimer</a></button>

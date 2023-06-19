@@ -42,6 +42,8 @@ urlpatterns = [
    path('export-banque-transactions-csv/', views.export_banque_transactions_csv, name='export-banque-transactions-csv'),
    path('export-caisse-transactions-csv/', views.export_caisse_transactions_csv, name='export-caisse-transactions-csv'),
    path('liste_transactions/', views.liste_transactions, name='liste_transactions'),
+   path('liste_transactions_tb/', views.liste_transactions_tb, name='liste_transactions_tb'),
+   path('dashboardhr/' , views.hr_dashboard , name="dashboardhr"),
    
    
   

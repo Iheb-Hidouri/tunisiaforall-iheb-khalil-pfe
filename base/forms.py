@@ -27,7 +27,7 @@ class AdherentForm(ModelForm):
     def __init__(self, *args, **kwargs):
         user_structure = kwargs.pop('user_structure', None)
         super().__init__(*args, **kwargs)
-        self.fields['structure'].disabled = True
+        
         if user_structure:
             self.fields['structure'].initial = user_structure   
        

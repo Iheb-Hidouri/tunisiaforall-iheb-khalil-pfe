@@ -107,7 +107,7 @@ class Adherent(models.Model):
         ('Autre', 'Autre'),
     )
     user = models.OneToOneField(User, on_delete=models.CASCADE , related_name='adherent')
-    code = models.CharField(max_length=8)
+    code = models.CharField(max_length=9)
     photo_de_profile= models.ImageField(upload_to='img/',null=True, blank=True,default='img/navbar_logo.png')
     structure = models.ForeignKey(Structure, on_delete=models.CASCADE , related_name='adherents', default = 1)
     type_adhérent = models.CharField(max_length=27, choices=TYPE_ADHERENT_CHOICES)
@@ -270,7 +270,7 @@ class BanqueTransactionHistory(models.Model):
     action = models.CharField(max_length=10)
     old_data = models.TextField(blank=True, null=True)
     new_data = models.TextField(blank=True, null=True, default='nothing')
-    timestamp = models.DateTimeField(default=timezone.now)     
+    timestamp = models.DateField(default=timezone.now)     
 
 class Cotisation(models.Model):
     ADHERENT_CHOICES = (

@@ -1,0 +1,245 @@
+{% extends 'main.html' %}
+{% load static %}
+
+{% load transaction_filters %}  <!-- Load custom filters -->
+
+{% block content %}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Gestion Financiere</title>
+</head>
+<body>
+    <h2>Liste des transactions</h2> 
+    <div id= "dashboard-section" class="features">
+        <button id= "dashboard-button"class="finance-button"><a href="{% url 'dashboard' %}">Tableau de bord</a></button>
+    </div>
+    <hr class="hrfinance">
+
+   
+
+    <div class="page-content">
+        <form id="search-form" class="search-container" action="{% url 'gestion_financiere' %}">
+            <input type="text" class="textbox" id="search-input" name="q" placeholder="Chercher...">
+            <button type="submit" class="finance-button"><i><img src="{% static 'img/search.png' %}"></i></button>
+            <img class="print" src="{% static 'img/print.png' %}" height="40px" width="40px" onclick="printTable()">
+        </form>
+
+        <div class="finance-table">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Libellé</th>
+                        <th>Type du transaction</th>
+                        <th>Raison transaction</th>
+                        <th>Solde</th>
+                        <th>Date</th>
+                        <th>Source du transaction</th>
+                        
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for transaction in transactions %}
+                    <tr>
+                        <td>{{ transaction.libellé|default:'---' }}</td>
+                        <td>{{ transaction.type_de_transaction }}</td>
+                        <td>{{ transaction.raison_de_transaction }}</td>
+                        <td>{{ transaction.solde }}</td>
+                        <td>{{ transaction.date|date:"d-m-Y" }}</td>
+                        <td>{{ transaction.source_transaction }}</td> 
+                        
+                        
+                        <td>
+                            
+                            {% if transaction|is_banque_transaction %}
+                                <button class="finance-button"><a href="{% url 'consult_banque_transaction' transaction.id %}">Consulter</a></button>
+                            {% else %}
+                                <button class="finance-button"><a href="{% url 'consult_caisse_transaction' transaction.id %}">Consulter</a></button>
+                            {% endif %}
+                            
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            <div id="page-number-display" class="page-number-display"></div>
+                <div id="pagination-container">
+                <button id="prev-button" class="finance-button" style="margin-right:10px;">Précédent</button>
+                <div id="page-numbers-container" style="margin-bottom:1.5px;"></div>
+                <button id="next-button" class="finance-button">Suivant</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+         
+    function printTable() {
+    const navbar = document.querySelector('header');
+    navbar.style.display = 'none'; // Hide the navigation bar
+
+    const searchForm = document.getElementById('search-form');
+    searchForm.style.display = 'none'; // Hide the search form
+
+    const printButton = document.querySelector('.print');
+    printButton.style.display = 'none'; // Hide the print button
+
+    const buttons = document.querySelectorAll('.finance-button');
+    buttons.forEach(function(button) {
+      button.style.display = 'none'; // Hide all the buttons
+    });
+
+    const actionColumn = document.querySelectorAll('.finance-table th')[8]; // Index 8 corresponds to the "Actions" column
+    const tableRows = document.querySelectorAll('.finance-table tbody tr');
+
+    actionColumn.style.display = 'none'; // Hide the "Actions" column
+
+    tableRows.forEach(function(row) {
+      const actionCell = row.querySelector('td:last-child'); // Select the last cell in each row
+      actionCell.style.display = 'none'; // Hide the action cell
+    });
+
+    window.print(); // Print the page
+
+    navbar.style.display = ''; // Restore the navigation bar's display
+    searchForm.style.display = ''; // Restore the search form's display
+    printButton.style.display = ''; // Restore the print button's display
+
+    buttons.forEach(function(button) {
+      button.style.display = ''; // Restore the display of the buttons
+    });
+
+    actionColumn.style.display = ''; // Restore the display of the "Actions" column
+
+    tableRows.forEach(function(row) {
+      const actionCell = row.querySelector('td:last-child'); // Select the last cell in each row
+      actionCell.style.display = ''; // Restore the display of the action cell
+    });
+  }
+  document.getElementById('search-form').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const searchInput = document.getElementById('search-input').value.toLowerCase();
+        const tableRows = document.querySelectorAll('.finance-table tbody tr');
+
+        for (let i = 0; i < tableRows.length; i++) {
+          const row = tableRows[i];
+          const rowData = row.textContent.toLowerCase();
+
+          if (rowData.includes(searchInput)) {
+            row.style.display = '';
+          } else {
+            row.style.display = 'none';
+          }
+        }
+
+      });
+    // Define variables
+  const tableRows = document.querySelectorAll('.finance-table tbody tr');
+  const numRows = tableRows.length;
+  const rowsPerPage = 6;
+  let currentPage = 1;
+  const totalPages = Math.ceil(numRows / rowsPerPage);
+
+  // Function to show the specified page
+  function showPage(page) {
+    const startIndex = (page - 1) * rowsPerPage;
+    const endIndex = startIndex + rowsPerPage;
+
+    tableRows.forEach(function (row, index) {
+      if (index >= startIndex && index < endIndex) {
+        row.style.display = 'table-row';
+      } else {
+        row.style.display = 'none';
+      }
+    });
+    updatePaginationButtons();
+    updatePageNumberDisplay();
+
+  }
+
+  // Function to generate the page numbers and update the UI
+  function generatePageNumbers() {
+    const pageNumbersContainer = document.getElementById('page-numbers-container');
+    pageNumbersContainer.innerHTML = ''; // Clear existing page numbers
+
+    for (let i = 1; i <= totalPages; i++) {
+      const pageNumber = document.createElement('button');
+      pageNumber.textContent = i;
+      pageNumber.classList.add('page-number');
+      if (i === currentPage) {
+        pageNumber.classList.add('current-page');
+        pageNumber.disabled = true;
+      } else {
+        pageNumber.addEventListener('click', function () {
+          currentPage = i;
+          showPage(currentPage);
+          generatePageNumbers();
+          updatePaginationButtons();
+        });
+      }
+      pageNumbersContainer.appendChild(pageNumber);
+    }
+  }
+
+  // Function to update the state of the pagination buttons
+  function updatePaginationButtons() {
+  const prevButton = document.getElementById('prev-button');
+  const nextButton = document.getElementById('next-button');
+
+  if (currentPage === 1) {
+    prevButton.disabled = true;
+  } else {
+    prevButton.disabled = false;
+  }
+
+  if (currentPage === totalPages) {
+    nextButton.disabled = true;
+  } else {
+    nextButton.disabled = false;
+  }
+
+  const pageNumberDisplay = document.getElementById('page-number-display');
+  pageNumberDisplay.textContent = currentPage;
+}
+
+// Function to update the display of the current page number
+function updatePageNumberDisplay() {
+  const pageNumberDisplay = document.getElementById('page-number-display');
+  pageNumberDisplay.textContent = currentPage;
+}
+
+// Function to handle "Précédent" button click
+function goToPrevPage() {
+  if (currentPage > 1) {
+    currentPage--;
+    showPage(currentPage);
+    generatePageNumbers();
+    updatePageNumberDisplay();
+    updatePaginationButtons();
+  }
+}
+
+// Function to handle "Suivant" button click
+function goToNextPage() {
+  if (currentPage < totalPages) {
+    currentPage++;
+    showPage(currentPage);
+    generatePageNumbers();
+    updatePageNumberDisplay();
+    updatePaginationButtons();
+  }
+}
+
+// Attach event listeners to the pagination buttons
+document.getElementById('prev-button').addEventListener('click', goToPrevPage);
+document.getElementById('next-button').addEventListener('click', goToNextPage);
+
+// Show the initial page and generate the page numbers
+showPage(currentPage);
+generatePageNumbers();
+updatePageNumberDisplay();
+updatePaginationButtons();
+    </script>
+</body>
+</html>
+{% endblock %}

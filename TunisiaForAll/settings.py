@@ -62,6 +62,7 @@ USE_L10N = True
 
 ROOT_URLCONF = 'TunisiaForAll.urls'
 
+
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
