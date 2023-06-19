@@ -6,7 +6,36 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Création/Ajout de transaction de banque</title>
+    <title>Formulaire de données de transaction de banque</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            $('#id_type_de_transaction').change(function() {
+                var transactionType = $(this).val();
+                if (transactionType == 'Débit') {
+                    $('#id_raison_de_transaction').html('<option value="Don">Don</option><option value="Dépenses sur évènement">Dépenses sur évènement</option>');
+                } else if (transactionType == 'Crédit') {
+                    $('#id_raison_de_transaction').html('<option value="Aide financier">Aide financier</option><option value="Cotisation">Cotisation</option><option value="Recette d\'évènement">Recette d\'évènement</option>');
+                }
+            });
+
+            $('#id_adhérent').change(function() {
+                if ($(this).val()) {
+                    $('#id_évènement').prop('disabled', true);
+                } else {
+                    $('#id_évènement').prop('disabled', false);
+                }
+            });
+
+            $('#id_évènement').change(function() {
+                if ($(this).val()) {
+                    $('#id_adhérent').prop('disabled', true);
+                } else {
+                    $('#id_adhérent').prop('disabled', false);
+                }
+            });
+        });
+    </script>
 </head>
 <body>
     <h2>Création/Ajout de transaction de banque</h2>

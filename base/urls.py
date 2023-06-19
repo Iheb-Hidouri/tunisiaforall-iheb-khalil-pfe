@@ -44,6 +44,11 @@ urlpatterns = [
    path('liste_transactions/', views.liste_transactions, name='liste_transactions'),
    path('liste_transactions_tb/', views.liste_transactions_tb, name='liste_transactions_tb'),
    path('dashboardhr/' , views.hr_dashboard , name="dashboardhr"),
+   path('liste_adherent_tb/', views.liste_adherent_tb, name='liste_adherent_tb'),
+   path('liste_structure_tb/', views.liste_structure_tb, name='liste_structure_tb'),
+   path('liste_adherent_pr/', views.liste_adherent_pr, name='liste_adherent_pr'),
+   path('liste_structure_pr/', views.liste_structure_pr, name='liste_structure_pr'),
+   path('liste_transactions_pr/', views.liste_transactions_pr, name='liste_transactions_pr'),
    
    
   

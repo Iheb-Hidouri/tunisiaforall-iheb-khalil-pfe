@@ -23,6 +23,7 @@ from django.http import HttpResponse
 from django.db.models import Q
 from django.contrib.auth.decorators import login_required
 
+
 def home(request):
     if request.method == "POST":
         username = request.POST.get('username')
@@ -31,7 +32,7 @@ def home(request):
 
         if user is not None:
             login(request, user)
-            return redirect('gestion_adherent')
+            return redirect('profile')
         else:
             messages.error(request, 'Pseudo ou mot de passe invalide')
 
@@ -42,7 +43,7 @@ def logoutUser(request):
     return redirect  ('home')
 
 
-
+@login_required(login_url='home')
 #VIEWS FOR ADHERENTS
 def gestion_adherent(request):
     # Get the search query from the GET request parameters
@@ -68,7 +69,7 @@ def gestion_adherent(request):
     # Create a dictionary with the adherents queryset and pass it to the template
     context = {'adherents': adherents}
     return render(request, 'base/gestion_adherent.html', context)
-
+@login_required(login_url='home')
 def export_adherents_csv(request):
     search_query = request.GET.get('search', '')
 
@@ -125,6 +126,7 @@ def export_adherents_csv(request):
         ])
 
     return response
+@login_required(login_url='home')
 def liste_adherent(request):
     # Get the search query from the GET request parameters
     
@@ -133,6 +135,22 @@ def liste_adherent(request):
     # Create a dictionary with the adherents queryset and pass it to the template
     context = {'adherents': adherents}
     return render(request, 'base/liste_adherent.html', context)
+def liste_adherent_tb(request):
+    # Get the search query from the GET request parameters
+    
+        # If no search query is present, display all adherents
+    adherents = Adherent.objects.filter(structure=request.user.adherent.structure)
+    # Create a dictionary with the adherents queryset and pass it to the template
+    context = {'adherents': adherents}
+    return render(request, 'base/liste_adherent_tb.html', context)
+def liste_adherent_pr(request):
+    # Get the search query from the GET request parameters
+    
+        # If no search query is present, display all adherents
+    adherents = Adherent.objects.filter(structure=request.user.adherent.structure)
+    # Create a dictionary with the adherents queryset and pass it to the template
+    context = {'adherents': adherents}
+    return render(request, 'base/liste_adherent_pr.html', context)
 def export_adherents_csv(request):
     search_query = request.GET.get('search', '')
 
@@ -270,6 +288,7 @@ def consult_adherent(request, pk):
 
 #VIEWS FOR STRUCTURES 
 # This view displays a list of adherents and allows searching for specific adherents.
+@login_required(login_url='home')
 def gestion_structure (request) :
       # if there is no search query
     search_query = request.GET.get('q', '')  # Get the search query from the GET request parameters
@@ -290,6 +309,7 @@ def gestion_structure (request) :
 
     context = {'structures': structures} 
     return render (request , 'base/gestion_structure.html', context)
+
 def export_structures_csv(request):
     search_query = request.GET.get('search', '')
 
@@ -327,12 +347,26 @@ def export_structures_csv(request):
         ])
 
     return response
+    
+@login_required(login_url='home')
 def liste_structure (request) :
 
      # if there is no search query
     structures = Structure.objects.all()  # retrieve all structures
     context = {'structures': structures}  # create a dictionary to store the structures and pass it to the view
-    return render (request , 'base/liste_structure.html', context)   # render the HTML template with the context data
+    return render (request , 'base/liste_structure.html', context)  
+def liste_structure_tb (request) :
+
+     # if there is no search query
+    structures = Structure.objects.all()  # retrieve all structures
+    context = {'structures': structures}  # create a dictionary to store the structures and pass it to the view
+    return render (request , 'base/liste_structure_tb.html', context) 
+def liste_structure_pr (request) :
+
+     # if there is no search query
+    structures = Structure.objects.all()  # retrieve all structures
+    context = {'structures': structures}  # create a dictionary to store the structures and pass it to the view
+    return render (request , 'base/liste_structure_pr.html', context)# render the HTML template with the context data
 
 # This view creates a new structure using a form.
 def create_structure(request) : 
@@ -447,6 +481,27 @@ def liste_transactions_tb(request):
     # Create a dictionary with the adherents queryset and pass it to the template
     
     return render(request, 'base/liste_transactions_tb.html', context)
+def liste_transactions_pr(request):
+    # Get the search query from the GET request parameters
+    if request.user.adherent.structure.code_structure == 'BN-1169':
+        # If no search query is present, display all adherents
+      banque_transactions = BanqueTransactions.objects.all() 
+      caisse_transactions = CaisseTransactions.objects.all()
+
+    # Combine the instances into a single list
+      transactions = list(banque_transactions) + list(caisse_transactions)
+    else :  
+      banque_transactions = BanqueTransactions.objects.filter(structure=request.user.adherent.structure) 
+      caisse_transactions = CaisseTransactions.objects.filter(structure=request.user.adherent.structure) 
+
+    # Combine the instances into a single list
+      transactions = list(banque_transactions) + list(caisse_transactions)
+
+    # Pass the transactions to the template
+    context = {'transactions': transactions }
+    # Create a dictionary with the adherents queryset and pass it to the template
+    
+    return render(request, 'base/liste_transactions_pr.html', context)
 def export_banque_transactions_csv(request):
     search_query = request.GET.get('search', '')
 

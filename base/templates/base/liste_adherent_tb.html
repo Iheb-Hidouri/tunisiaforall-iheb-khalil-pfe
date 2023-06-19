@@ -2,70 +2,73 @@
 {% load static %}
 
 {% block content %}
+
 <div>
-
-  <div>
-    <h2>Gestion des structures</h2>
-    <hr class="hrstructure">
+  <h2>Liste des adhérents</h2>
+  <div id= "dashboard-section" class="features">
+    <button id= "dashboard-button"class="adherent-button"><a href="{% url 'dashboardhr' %}">Tableau de bord</a></button>
   </div>
+  <hr class="hradherent">
+</div>
 
-  <div class="features">
-    <button class="structure-button"><a href="{% url 'create-structure' %}">Ajouter une structure</a></button>
-    <button class="structure-button"><a href="{% url 'structure_history' %}">Historique</a></button>
-    <button id="export-button" class="structure-button"><a href="{% url 'export-structures-csv' %}">Exporter en CSV</a></button>
-  </div>
+<div class="features">
+  
+  <button class="adherent-button"><a href="{% url 'adherent_history' %}">Historique</a></button>
+  <button id="export-button" class="adherent-button"><a href="{% url 'export-adherents-csv' %}">Exporter en CSV</a></button>
+</div>
 
-  <div class="page-content">
-    <form id="search-form" class="search-container" action="{% url 'gestion_structure' %}">
-      <input type="text" class="textbox" id="search-input" name="q" placeholder="Chercher...">
-      <button type="submit" class="structure-button"><i><img src="{% static 'img/search.png' %}"></i></button>
-      <img class="print" src="{% static 'img/print.png' %}" height="40px" width="40px" onclick="printTable()">
-    </form>
+<div class="page-content">
+  <form id="search-form" class="search-container" action="{% url 'gestion_adherent' %}">
+    <input type="text" class="textbox" id="search-input" name="search" placeholder="Chercher...">
+    <button type="submit" class="adherent-button"><i><img src="{% static 'img/search.png' %}"></i></button>
+    <img class="print" src="{% static 'img/print.png' %}" height="40px" width="40px" onclick="printTable()">
+  </form>
 
-    <div class="structure-table">
-      <table>
-        <thead>
-          <tr>
-            <th>Code</th>
+  <div class="adherent-table">
+    <table>
+      <thead>
+        <tr>
+          <th>Code</th>
+          <th>Nom</th>
+          <th>Prénom</th>
+          <th>Genre</th>
+          <th>Email</th>
+          <th>Téléphone</th>
+          <th>Document d'identité</th>
+          <th>Type</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for adherent in adherents %}
+        <tr>
+          <td><strong>{{ adherent.code }}</strong></td>
+          <td>{{ adherent.nom }}</td>
+          <td>{{ adherent.prénom }}</td>
+          <td>{{ adherent.genre }}</td>
+          <td>{{ adherent.adresse_email }}</td>
+          <td>{{ adherent.numéro_de_téléphone }}</td>
+          <td>{{ adherent.type_document_identité }}: {{ adherent.numero_document_identité }}</td>
+          <td>{{ adherent.type_adhérent }}</td>
+          <td>
             
-            <th>Libéllé</th>
-            <th>Telephone</th>
-            <th>Email</th>
-            <th>Date de création</th>
-            <th>Date AG</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          {% for structure in structures %}
-          <tr>
-            <td><strong>{{ structure.code_structure }}</strong></td>
-            
-            <td>{{ structure.libellé }}</td>
-            <td>{{ structure.numéro_de_téléphone }}</td>
-            <td>{{ structure.adresse_email }}</td>
-            <td>{{ structure.date_de_création|date:"d-m-Y" }}</td>
-            <td>{{ structure.date_AG|date:"d-m-Y" }}</td>
-            <td>
-              <button class="structure-button"><a href="{% url 'update-structure' structure.id %}">Mettre à jour</a></button>
-              <button class="structure-button"><a href="{% url 'delete-structure' structure.id %}">Supprimer</a></button>
-              <button class="structure-button"><a href="{% url 'consult_structure' structure.id %}">Consulter</a></button>
-            </td>
-          </tr>
-          {% endfor %}
-        </tbody>
-      </table>
-      <div id="page-number-display" class="page-number-display"></div>
+            <button class="adherent-button"><a href="{% url 'consult_adherent' adherent.id %}">Consulter</a></button>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    <div id="page-number-display" class="page-number-display"></div>
     <div id="pagination-container">
-      <button id="prev-button" class="structure-button" style="margin-right:10px;">Précédent</button>
+      <button id="prev-button" class="adherent-button" style="margin-right:10px;">Précédent</button>
       <div id="page-numbers-container" style="margin-bottom:1.5px;"></div>
-      <button id="next-button" class="structure-button">Suivant</button>
-    </div>
+      <button id="next-button" class="adherent-button">Suivant</button>
     </div>
   </div>
+</div>
 
-  <script>
-    function printTable() {
+<script>
+  function printTable() {
     const navbar = document.querySelector('header');
     navbar.style.display = 'none'; // Hide the navigation bar
 
@@ -75,14 +78,14 @@
     const printButton = document.querySelector('.print');
     printButton.style.display = 'none'; // Hide the print button
 
-    const buttons = document.querySelectorAll('.structure-button');
+    const buttons = document.querySelectorAll('.adherent-button');
     buttons.forEach(function(button) {
       button.style.display = 'none'; // Hide all the buttons
     });
 
-    const table = document.querySelector('.structure-table');
-    const actionHeader = table.querySelector('th:nth-child(8)');
-    actionHeader.style.display = 'none'; // Hide the "Action" table header
+    const table = document.querySelector('.adherent-table');
+    const actionColumnHeader = table.querySelector('thead th:last-child'); // Select the last th element in the table header
+    actionColumnHeader.style.display = 'none'; // Hide the "Action" column header
 
     window.print(); // Print the page
 
@@ -94,28 +97,13 @@
       button.style.display = ''; // Restore the display of the buttons
     });
 
-    actionHeader.style.display = ''; // Restore the "Action" table header's display
+    actionColumnHeader.style.display = ''; // Restore the display of the "Action" column header
   }
-document.getElementById('search-form').addEventListener('submit', function(e) {
-      e.preventDefault();
-      const searchInput = document.getElementById('search-input').value.toLowerCase();
-      const tableRows = document.querySelectorAll('.structure-table tbody tr');
 
-      for (let i = 0; i < tableRows.length; i++) {
-        const row = tableRows[i];
-        const rowData = row.textContent.toLowerCase();
-
-        if (rowData.includes(searchInput)) {
-          row.style.display = '';
-        } else {
-          row.style.display = 'none';
-        }
-      }
-    });
-    // Define variables
-  const tableRows = document.querySelectorAll('.structure-table tbody tr');
+  // Define variables
+  const tableRows = document.querySelectorAll('.adherent-table tbody tr');
   const numRows = tableRows.length;
-  const rowsPerPage = 5;
+  const rowsPerPage = 6;
   let currentPage = 1;
   const totalPages = Math.ceil(numRows / rowsPerPage);
 
@@ -218,6 +206,6 @@ showPage(currentPage);
 generatePageNumbers();
 updatePageNumberDisplay();
 updatePaginationButtons();
-  </script>
-</div>
+</script>
+
 {% endblock %}

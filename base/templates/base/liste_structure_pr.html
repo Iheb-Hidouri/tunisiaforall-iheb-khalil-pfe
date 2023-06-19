@@ -5,12 +5,12 @@
 <div>
 
   <div>
-    <h2>Gestion des structures</h2>
+    <h2>Liste des structures</h2>
     <hr class="hrstructure">
   </div>
 
   <div class="features">
-    <button class="structure-button"><a href="{% url 'create-structure' %}">Ajouter une structure</a></button>
+    
     <button class="structure-button"><a href="{% url 'structure_history' %}">Historique</a></button>
     <button id="export-button" class="structure-button"><a href="{% url 'export-structures-csv' %}">Exporter en CSV</a></button>
   </div>
@@ -47,8 +47,7 @@
             <td>{{ structure.date_de_création|date:"d-m-Y" }}</td>
             <td>{{ structure.date_AG|date:"d-m-Y" }}</td>
             <td>
-              <button class="structure-button"><a href="{% url 'update-structure' structure.id %}">Mettre à jour</a></button>
-              <button class="structure-button"><a href="{% url 'delete-structure' structure.id %}">Supprimer</a></button>
+              
               <button class="structure-button"><a href="{% url 'consult_structure' structure.id %}">Consulter</a></button>
             </td>
           </tr>

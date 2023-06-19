@@ -20,10 +20,18 @@
                             <li><a href="{% url 'liste_structure' %}" class="lstructure">Liste des structures</a></li>
                             <li><a href="{% url 'profile' %}" class="lprofile">Profil</a></li>
                         {% elif request.user.adherent.responsabilité_adhérent == 'Président' or request.user.adherent.responsabilité_adhérent == 'Vice Président' or request.user.adherent.responsabilité_adhérent == 'Chef Projet' %}
-                            <li><a href="{% url 'liste_adherent' %}" class="ladherent">Liste des adhérents</a></li>
-                            <li><a href="{% url 'liste_structure' %}" class="lstructure">Liste des structures</a></li>
+                         {% if request.user.adherent.structure.code_structure == 'BN-1169' %}
+                            <li><a href="{% url 'liste_adherent_tb' %}" class="ladherent">Liste des adhérents</a></li>
+                            <li><a href="{% url 'liste_structure_tb' %}" class="lstructure">Liste des structures</a></li>
                             <li><a href="{% url 'liste_transactions_tb' %}" class="lfinance">Liste des transactions</a></li>
+                         {% else %}  
+                            <li><a href="{% url 'liste_adherent_pr' %}" class="ladherent">Liste des adhérents</a></li>
+                            <li><a href="{% url 'liste_structure_pr' %}" class="lstructure">Liste des structures</a></li>
+                            <li><a href="{% url 'liste_transactions_pr' %}" class="lfinance">Liste des transactions</a></li>
+                         {% endif %}   
+
                             <li><a href="{% url 'profile' %}" class="lprofile">Profil</a></li>
+
                         {% elif request.user.adherent.responsabilité_adhérent == 'Trésorier' %}
                             <li><a href="{% url 'liste_adherent' %}" class="ladherent">Liste des adhérents</a></li>
                             <li><a href="{% url 'liste_structure' %}" class="lstructure">Liste des structures</a></li>
