@@ -11,14 +11,17 @@
 </head>
 <body>
     <h2>Gestion Financière</h2> 
+    {% if request.user.adherent.structure.code_structure == 'BN-1169' %}
     <div id= "dashboard-section" class="features">
       <button id= "dashboard-button"class="finance-button"><a href="{% url 'dashboard' %}">Tableau de bord</a></button>
     </div>
+    {% endif %}
     <hr class="hrfinance">
 
     <div class = "features">
         <button class="finance-button"><a href="{% url 'create-banque-transaction' %}">Ajouter une transaction bancaire</a></button>
         <button class="finance-button"><a href="{% url 'create-caisse-transaction' %}">Ajouter une transaction liquide</a></button>
+        <button class="finance-button"><a href="{% url 'transaction_history' %}">Historique</a></button>
         <button id="export-button" class="finance-button"><a href="{% url 'export-banque-transactions-csv' %}">Exporter les transactions bancaire en CSV</a></button>
         <button id="export-button" class="finance-button"><a href="{% url 'export-caisse-transactions-csv' %}">Exporter les transactions liquide en CSV</a></button>
     </div>

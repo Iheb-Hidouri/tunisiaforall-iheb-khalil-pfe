@@ -5,9 +5,11 @@
 
 <div>
   <h2>Gestion des adhérents</h2>
+  {% if request.user.adherent.structure.code_structure == 'BN-1169' %}
   <div id= "dashboard-section" class="features">
     <button id= "dashboard-button"class="adherent-button"><a href="{% url 'dashboardhr' %}">Tableau de bord</a></button>
   </div>
+  {% endif %}
   <hr class="hradherent">
 </div>
 

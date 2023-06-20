@@ -15,7 +15,7 @@
             <nav>
                 <ul class ="liens">
                     {% if request.user.is_authenticated %}
-                        {% if request.user.adherent.responsabilité_adhérent == 'Membre Simple' %}
+                        {% if request.user.adherent.responsabilité_adhérent == 'Membre Simple ' %}
                             <li><a href="{% url 'liste_adherent' %}" class="ladherent">Liste des adhérents</a></li>
                             <li><a href="{% url 'liste_structure' %}" class="lstructure">Liste des structures</a></li>
                             <li><a href="{% url 'profile' %}" class="lprofile">Profil</a></li>

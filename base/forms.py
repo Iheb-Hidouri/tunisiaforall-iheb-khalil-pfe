@@ -106,6 +106,9 @@ class UpdateAdherentForm(ModelForm):
     
      def save(self, commit=True):
         instance = super().save(commit=False)
+        if not instance.photo_de_profile:
+         instance.photo_de_profile = 'img/navbar_logo.png'
+    
         if commit:
             instance.save()
         return instance

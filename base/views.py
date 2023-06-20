@@ -1,27 +1,24 @@
 from django.shortcuts import render , redirect , get_object_or_404
 from django.http import HttpResponse
-from .models import Adherent, Structure , AdherentHistory , StructureHistory , Cotisation , Delegation
-from .forms import AdherentForm , StructureForm , UpdateAdherentForm
+from .models import Structure , Adherent, Structure , AdherentHistory , StructureHistory , Cotisation , Delegation ,TransactionHistory , BanqueTransactions, CaisseTransactions, Evenement
+from .forms import AdherentForm , StructureForm , UpdateAdherentForm , BanqueTransactionsForm, CaisseTransactionsForm 
 from django.db.models import Q
-from .models import  Structure
-from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
 from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
-from django.contrib.auth.views import LoginView
 from django.contrib.auth.models import User 
-from django.contrib.admin.models import LogEntry, ADDITION, CHANGE, DELETION
-from django.contrib.contenttypes.models import ContentType
-from .signals import  post_delete_adherent,post_save_adherent , post_save_structure, post_delete_structure, save_caisse_transaction_history,delete_caisse_transaction_history,save_banque_transaction_history,delete_banque_transaction_history
-from django.forms.models import model_to_dict
-from .forms import BanqueTransactionsForm, CaisseTransactionsForm , CotisationPaymentForm
-from .models import BanqueTransactions, CaisseTransactions
+from .signals import  post_delete_adherent,post_save_adherent , post_save_structure, post_delete_structure , post_save_banquetransaction , post_delete_banquetransaction,post_save_caissetransaction , post_delete_caissetransaction
 from django.shortcuts import render
 from django.db.models import Count
-from datetime import datetime
-import csv
-from django.http import HttpResponse
-from django.db.models import Q
+from datetime import datetime , date
+import csv , json
 from django.contrib.auth.decorators import login_required
+from django.db.models import Sum 
+from decimal import Decimal
+from django.core.serializers.json import DjangoJSONEncoder
+from django.db.models import Sum,  Q
+from django.db.models.functions import TruncMonth
+
+
 
 
 def home(request):
@@ -590,7 +587,8 @@ def create_banque_transaction(request):
 
             
             transaction = form.save()
-            save_banque_transaction_history (sender=BanqueTransactions, instance=transaction,created=True, request=request)
+            post_save_banquetransaction(sender=BanqueTransactions, instance=transaction, created=True, request=request)
+            
             if transaction.raison_de_transaction == 'Cotisation':
                 Cotisation.objects.create(
                     adhérent=transaction.adhérent,
@@ -623,7 +621,8 @@ def update_banque_transaction(request, pk):
         form = BanqueTransactionsForm(request.POST,request.FILES, instance=transaction)
         if form.is_valid():
             transaction =form.save()
-            save_banque_transaction_history (sender=BanqueTransactions, instance=transaction,created=False, request=request)
+            post_save_banquetransaction(sender=BanqueTransactions, instance=transaction, created=False, request=request)
+            
             if transaction.raison_de_transaction == 'Cotisation':
                 adherent = transaction.adhérent
                 adherent.dernière_date_de_payement = transaction.date
@@ -661,7 +660,8 @@ def create_caisse_transaction(request):
         form = CaisseTransactionsForm(request.POST, request.FILES, user_structure=user_structure)
         if form.is_valid():
             transaction=form.save()
-            save_caisse_transaction_history (sender=CaisseTransactions, instance=transaction,created=True, request=request)
+            post_save_caissetransaction(sender=CaisseTransactions, instance=transaction, created=True, request=request)
+            
             if transaction.raison_de_transaction == 'Cotisation':
                 Cotisation.objects.create(
                     adhérent=transaction.adhérent,
@@ -694,8 +694,9 @@ def update_caisse_transaction(request, pk):
         form = CaisseTransactionsForm(request.POST, request.FILES ,instance=transaction)
         
         if form.is_valid():
-            form.save()
-            save_caisse_transaction_history (sender=BanqueTransactions, instance=transaction,created=False, request=request)
+            transaction = form.save()
+            post_save_caissetransaction(sender=CaisseTransactions, instance=transaction, created=False, request=request)
+            
             if transaction.raison_de_transaction == 'Cotisation':
                 adherent = transaction.adhérent
                 adherent.dernière_date_de_payement = transaction.date
@@ -719,12 +720,14 @@ def delete_banque_transaction(request, pk):
         if transaction.raison_de_transaction == 'Cotisation':
             Cotisation.objects.filter(adhérent=transaction.adhérent).delete()
             adherent=transaction.adhérent
-            adherent.cotisation_annuelle = 'non payée'    
+            adherent.cotisation_annuelle = 'non payée' 
+               
             
         
             adherent.save()
-            
-        delete_banque_transaction_history(sender=BanqueTransactions, instance=transaction, request=request) 
+        transaction.delete()  
+        post_delete_banquetransaction(sender=BanqueTransactions, instance=transaction, request=request)   
+         
         # Perform any additional actions after deletion if needed
         return redirect('gestion_financiere')
     
@@ -742,11 +745,15 @@ def delete_caisse_transaction(request, pk):
         
             adherent.save()
         transaction.delete()    
-        delete_banque_transaction_history(sender=CaisseTransactions, instance=transaction, request=request) 
+        post_delete_caissetransaction(sender=BanqueTransactions, instance=transaction, request=request)
+        
         # Perform any additional actions after deletion if needed
         return redirect('gestion_financiere')
     
     return render(request, 'base/delete.html', {'transaction': transaction})
+def transaction_history(request):
+    history = TransactionHistory.objects.all().order_by('-timestamp')
+    return render(request, 'base/transaction_history.html', {'history': history})
 
 
 

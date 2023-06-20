@@ -1,0 +1,32 @@
+{% extends 'main.html' %}
+
+{% block content %}
+<h2>Historique des transactions</h2>
+<hr class="hrstructure">
+<div class="structure-history">
+    <table>
+        <thead>
+            <tr>
+                <th>Transaction</th>
+                <th>Action</th>
+                <th>Utilisateur</th>
+                <th>Date</th>
+                <th>Dernières Modifications</th>
+                
+            </tr>
+        </thead>
+        <tbody>
+            {% for entry in history %}
+                <tr>
+                    <td>{{ entry.transaction }}</td>
+                    <td>{{ entry.action }}</td>
+                    <td>{{ entry.user }}</td>
+                    <td>{{ entry.timestamp|date:"d-m-Y H:i:s" }}</td>
+                    <td>{{ entry.changes}}</td>
+                    
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

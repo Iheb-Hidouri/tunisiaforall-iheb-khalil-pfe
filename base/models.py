@@ -178,6 +178,13 @@ class StructureHistory(History):
 
     def __str__(self):
         return f"Structure: {self.structure}, Action: {self.action}" 
+    
+
+class TransactionHistory(History):
+    transaction = models.CharField(max_length=20, blank=True, null=True)
+
+    def __str__(self):
+        return f"Transaction: {self.transaction}, Action: {self.action}"     
 
 
 
@@ -221,8 +228,8 @@ class Transaction(models.Model):
         ('Don', 'Don'),
         ('Cotisation', 'Cotisation'),
         ('Aide financier','Aide financier'),
-        ('Dépenses sur évènement ', 'Dépenses sur évènement '),
-        ('Recette d\'évènement ', 'Recette d\'évènement'),
+        ('Dépenses sur évènement', 'Dépenses sur évènement '),
+        ('Recette d\'évènement', 'Recette d\'évènement'),
     )
     TRANSACTION_CHOICES = (
         ('Crédit', 'Crédit'),
@@ -247,12 +254,56 @@ class BanqueTransactions(Transaction):
     numéro_du_chèque = models.CharField(max_length=20)
     justificatif_bancaire = models.ImageField(upload_to='img/', null=True, blank=True)
     source_transaction = 'Bancaire'
+    exclude_fields = []
+
+    @receiver(pre_save, sender='base.BanqueTransactions')
+    def pre_save_banquetransaction(sender, instance, **kwargs):
+        if instance.pk:
+            original_instance = BanqueTransactions.objects.get(pk=instance.pk)
+            instance._changes = original_instance.get_changes(instance)
+            
+    def get_changes(self, new_instance):
+     changes = []
+    
+     for field in self._meta.fields:
+        if field.name not in self.exclude_fields:  
+            old_value = getattr(self, field.name)
+            new_value = getattr(new_instance, field.name)
+            if old_value != new_value:
+                change = f"{field.name}: ==> {new_value}"
+                changes.append(change)
+     
+     return '  /  '.join(changes)
+    def __str__(self):
+        return self.libellé
     
     
 class CaisseTransactions(Transaction):
     recu_numéro = models.CharField(max_length=20)
     justificatif_caisse = models.ImageField(upload_to='img/', null=True, blank=True)
     source_transaction = 'En liquide'
+    exclude_fields = []
+    @receiver(pre_save, sender='base.BanqueTransactions')
+    def pre_save_banquetransaction(sender, instance, **kwargs):
+        if instance.pk:
+            original_instance = BanqueTransactions.objects.get(pk=instance.pk)
+            instance._changes = original_instance.get_changes(instance)
+            
+    def get_changes(self, new_instance):
+     changes = []
+    
+     for field in self._meta.fields:
+        if field.name not in self.exclude_fields:  
+            old_value = getattr(self, field.name)
+            new_value = getattr(new_instance, field.name)
+            if old_value != new_value:
+                change = f"{field.name}: ==> {new_value}"
+                changes.append(change)
+     
+     return '  /  '.join(changes)
+    
+    def __str__(self):
+        return self.libellé
    
 
 class CaisseTransactionHistory(models.Model):
@@ -262,7 +313,7 @@ class CaisseTransactionHistory(models.Model):
     old_data = models.TextField(blank=True, null=True)
     new_data = models.TextField(blank=True, null=True, default='nothing')
     timestamp = models.DateTimeField(default=timezone.now)    
-
+   
 
 class BanqueTransactionHistory(models.Model):
     user = models.CharField(max_length=20,blank=True, null=True)
